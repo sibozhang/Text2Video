@@ -1,0 +1,62 @@
+#
+# remember to run VCVARS32.BAT
+# makefile for single-threaded HTKLib static library, MSVC
+#
+
+.c.obj:
+	$(CC) /nologo /c $(CFLAGS) $<
+CC=cl
+CL=link
+CPU=win32
+
+# the MSDOS is needed to set _fmode to binary in HShell.c
+HTKCF = /I "." /I "../HTKLib" /D "WIN32_AUDIO"  /D ARCH=\"WIN32\"
+
+# use the following for optimised compilation
+SYSCF = /ML /W0 /GX /O2 /G5 /Ob2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS"
+
+# use the following for a debug compilation
+#SYSCF = /ML /W1 /Gm /GX /Zi /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS"
+
+CFLAGS = $(SYSCF) $(HTKCF)
+
+# the following is only needed when making a DLL
+SYSLF = /nologo /subsystem:windows /dll /incremental:no /machine:I386
+
+# the following is only needed when making a debug DLL
+#SYSLF = /DEBUG /DEBUGTYPE:BOTH /nologo /subsystem:windows /dll /incremental:no /machine:I386
+
+# flags used
+# /MT  multi-threaded executable
+# /ML  single-threaded executable
+# /W1  warning level 1
+# /GX  synchronous exception handling
+# /O2  maximise speed
+# /G5  P5 optimisation
+# /G6  P6 optimisation
+# /Ob2 allow inlining of functions not tagged with _inline
+
+libHLM = HLMLib.$(CPU)
+
+syslib = kernel32.lib user32.lib gdi32.lib winspool.lib \
+	comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib \
+	uuid.lib odbc32.lib odbccp32.lib winmm.lib
+
+libs = $(syslib)
+
+core =	LCMap.obj LGBase.obj LModel.obj LPCalc.obj LPMerge.obj \
+	LUtil.obj LWMap.obj
+
+
+all: $(libHLM).lib
+
+$(libHLM).lib:  $(core)
+	lib /OUT:$(libHLM).lib $(core)
+	lib /list $(libHLM).lib
+
+clean:
+	del *.obj $(libHLM).lib
+
+cleanup:
+	del *.obj
+

@@ -1,0 +1,1583 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/* developed at:                                               */
+%/*                                                             */
+%/*      Speech Vision and Robotics group                       */
+%/*      Cambridge University Engineering Department            */
+%/*      http://svr-www.eng.cam.ac.uk/                          */
+%/*                                                             */
+%/*      Entropic Cambridge Research Laboratory                 */
+%/*      (now part of Microsoft)                                */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                 */
+%/*                                                             */
+%/*              2001  Cambridge University                     */
+%/*                    Engineering Department                   */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Julian Odell and Steve Young 15/11/95
+%
+% This chapter added to by Gareth Moore 17/01/02
+
+\mychap{Error and Warning Codes}{errors}
+\index{errors!full listing}\index{warning codes!full listing}
+
+When a problem occurs in any \HTK\ tool, either
+error\index{error message!format}
+or warning messages\index{warning message!format} are printed.  
+
+If a warning occurs then a message is sent to standard output and
+execution continues. The format of this warning message is as follows:
+\begin{verbatim}
+    WARNING [-nnnn] Function: 'Brief Explanation' in HTool
+\end{verbatim}
+
+The message consists of four parts.  On the first line is the tool
+name and the error number\index{error number!structure of}.  Positive
+error numbers are fatal, whilst negative numbers are warnings and
+allow execution to continue.  On the second line is the function in
+which the problem occurred and a brief textual explanation.  The
+reason for sending warnings to standard output is so that they are
+synchronised with any trace output.
+
+If an error occurs a number of error messages may be produced on
+standard error. Many of the functions in the \HTK\ Library do not exit
+immediately when an error condition occurs, but instead print a message and return a failure
+value back to their calling function. This process may be repeated several
+times. When the \HTK\ Tool that called the function receives the failure
+value, it exits the program with a fatal error message. Thus the
+displayed output has a typical format as follows:
+
+\begin{verbatim}
+  ERROR [+nnnn] FunctionA: 'Brief explanation'
+  ERROR [+nnnn] FunctionB: 'Brief explanation'
+  ERROR [+nnnn] FunctionC: 'Brief explanation'
+ FATAL ERROR - Terminating program HTool
+\end{verbatim}
+
+Error numbers in \HTK\ are allocated on a module by module
+and tool by tool basis in blocks of 100 as shown by the table shown
+overleaf.
+Within each block of 100 numbers the first 20 (0 - 19)
+and the final 10 (90-99) are reserved for standard types 
+of error which are common to all tools and library 
+modules.
+
+All other codes are module or tool specific.
+
+\mysect{Generic Errors}{generr}
+
+\begin{itemize}
+\erno{+??00} Initialisation failed \\
+        The initialisation procedure for the tool produced an
+        error. This could be due to errors in the command line
+        arguments or configuration file.
+\erno{+??01} Facility not implemented \\
+        HTK does not support the operation requested.
+
+\erno{+??05} Available memory exhausted \\
+        The operation requires more memory than is available.
+\erno{+??06} Audio not available \\
+        The audio device is not available, either there is no driver for
+        the current machine, the library was compiled with \texttt{NO\_AUDIO}
+        set or another process has exclusive access to the audio device.
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+HCopy    & 1000-1099     & HShell        & 5000-5099    \\
+HList    & 1100-1199     & HMem          & 5100-5199    \\
+HLEd     & 1200-1299     & HMath         & 5200-5299    \\
+HLStats  & 1300-1399     & HSigP         & 5300-5399    \\
+HDMan    & 1400-1499     &               &              \\
+HSLab    & 1500-1599     & HAudio        & 6000-6099    \\
+         &               & HVQ           & 6100-6199    \\
+         &               & HWave         & 6200-6299    \\
+HCompV   & 2000-2099     & HParm         & 6300-6399    \\
+HInit    & 2100-2199     & HLabel        & 6500-6599    \\
+HRest    & 2200-2299     &               &              \\
+HERest   & 2300-2399     & HGraf         & 6800-6899    \\
+HSmooth  & 2400-2499     &               &              \\
+HQuant   & 2500-2599     & HModel        & 7000-7099    \\
+HHEd     & 2600-2699     & HTrain        & 7100-7199    \\
+         &               & HUtil         & 7200-7299    \\
+         &               & HFB           & 7300-7399    \\
+         &               & HAdapt        & 7400-7499    \\
+HBuild   & 3000-3099     &               &              \\
+HParse   & 3100-3199     & HDict         & 8000-8099    \\
+HVite    & 3200-3299     & HLM           & 8100-8199    \\
+HResults & 3300-3399     & HNet          & 8200-8299    \\
+HSGen    & 3400-3499     & HRec          & 8500-8599    \\
+HLRescore& 4000-4100     & HLat          & 8600-8699    \\
+\hline
+LCMap    & 15000-15099   & LAdapt        & 16400-16499  \\
+LWMap    & 15100-15199   & LPlex         & 16600-16699  \\
+LUtil    & 15200-15299   & HLMCopy       & 16900-16999  \\
+LGBase   & 15300-15399   & Cluster       & 17000-17099  \\
+LModel   & 15400-15499   & LLink         & 17100-17199  \\
+LPCalc   & 15500-15599   & LNewMap       & 17200-17299  \\
+LPMerge  & 15600-15699   &               &              \\
+\hline
+\end{tabular}
+\end{center}
+
+\erno{+??10} Cannot open file for reading \\
+        Specified file could not be opened for reading.  The file may not
+        exist or the filter through which it is read may not be set correctly.
+\erno{+??11} Cannot open file for writing \\
+        Specified file could not be opened for writing.  The directory may
+        not exist or be writable by the user or the filter through which the
+        file is written may not be set correctly.
+\erno{+??13} Cannot read from file \\
+        Cannot read data from file.  The file may have been truncated,  
+        incorrectly formatted or the filter process may have died.
+\erno{+??14} Cannot write to file \\
+        Cannot write data to file.  The file system is full or the filter
+        process has died.
+
+\erno{+??15} Required function parameter not set \\
+        You have called a library routine without setting one of the arguments.
+\erno{+??16} Memory heap of incorrect type \\
+        Some library routines require you to pass them a heap of a particular
+        type.
+
+\erno{+??19} Command line syntax error \\
+        The command line is badly formed, refer to the manual or the command
+        summary printed when the command is executed without arguments.
+
+\erno{+??9?} Sanity check failed \\
+        Several functions perform checks that structures are self consistent
+        and that everything is functioning correctly.  When these sanity checks
+        fail they indicate the code is not functioning as intended.  These
+        errors should not occur and are not correctable by the user.
+\end{itemize}
+
+\mysect{Summary of Errors by Tool and Module}{errsum}
+
+\begin{itemize}
+
+\module{\htool{HCopy}}
+
+\begin{itemize}
+\erno{+1030}    Non-existent part of file specified\\
+        \htool{HCopy} needed to access a non-existent part of the input file.
+        Check that the times are specified correctly, that the label file
+        contains enough labels and that it corresponds to the data file.
+
+\erno{\pm 1031} Label file formatted incorrectly\\
+        \htool{HCopy} is only able to properly copy label files with the
+        same number of levels/alternatives.  When using labels with multiple
+        alternatives only the first one is used to determine segment 
+        boundaries.
+
+\erno{+1032}    Appending files of different type/size/rate\\
+        Files that are joined together must have the same parameter kind and 
+        sample rate.
+
+\erno{-1089}    ALIEN format set\\
+        Input/output format has been set to \texttt{ALIEN}, ensure that 
+        this was intended.
+
+\end{itemize}
+
+\module{\htool{HList}}
+
+\module{\htool{HLEd}}
+
+\begin{itemize}
+\erno{+1230}    Edit script syntax error\\
+        The \htool{HLEd} command script contains a syntax error, check the 
+        input script against the descriptions of each command in 
+        section~\ref{s:HLEd} or obtained by running \texttt{HLEd -Q}.
+
+\erno{\pm 1231} Operation invalid\\
+        You have either exceeded \htool{HLEd} limits on the number of 
+        boundaries that can be specified, tried to perform an operation on 
+        a non-existent level or tried to sort an auxiliary level into time 
+        order.  None of these operations are supported.
+
+\erno{+1232}    Cannot find pronunciation\\
+        The dictionary does not contain a valid pronunciation (only occurs
+        when attempting expansion from a dictionary).
+
+\erno{-1289}    ALIEN format set\\
+        Input/output format has been set to \texttt{ALIEN}, ensure that 
+        this was intended.
+
+\end{itemize}
+
+\module{\htool{HLStats}}
+
+\begin{itemize}
+\erno{+1328}    Load/Make HMMSet failed\\
+        The model set could not be loaded due to either an error opening the
+        file or the data within being inconsistent.
+
+\erno{\pm 1330} No operation specified\\
+        You have invoked \htool{HLStats} but have not specified an operation 
+        to be performed.
+
+\erno{-1389}    ALIEN format set\\
+        Input format has been set to \texttt{ALIEN}, ensure that this was 
+        intended.
+
+\end{itemize}
+
+\module{\htool{HDMan}}
+
+\begin{itemize}
+\erno{\pm 1430} Limit exceeded\\
+        \htool{HDMan} has several built in limits on the number of different
+        pronunciation, phones, contexts and command arguments.  This error 
+        occurs when you try to exceed one of them.  
+
+\erno{\pm 1431} Item not found\\
+        Could not find item for deletion.  Check that it actually occurs in the
+        dictionary.
+
+\erno{\pm 1450} Edit script file syntax error\\
+        The \htool{HDMan} command script contains a syntax error, check the 
+        input script against the descriptions of each command in 
+        section~\ref{s:HDMan} or obtained by running \texttt{HDMan -Q}.
+
+\erno{\pm 1451} Dictionary file syntax error\\
+        One of the input dictionaries contained a syntax error.  Ensure that 
+        it is in a \HTK\ readable form (see section~\ref{s:usehdman}).
+
+\erno{\pm 1452} Word out of order in dictionary error\\
+        Entries in the dictionary must be sorted into alphabetical (ASCII) order.
+
+\end{itemize}
+
+\module{\htool{HSLab}}
+
+\begin{itemize}
+\erno{-1589}    ALIEN format set\\
+        Input/output format has been set to \texttt{ALIEN}, ensure that 
+        this was intended.
+
+\end{itemize}
+
+\module{\htool{HCompV}}
+
+\begin{itemize}
+\erno{+2020}    HMM does not appear in HMMSet\\
+        Supplied HMM filename does not appear in HMMSet. Check
+        correspondence between HMM filename and HMMSet.
+
+\erno{+2021}    Not enough data to calculate variance\\
+        There are not enough frames of data to evaluate a
+        reliable estimate of variance. Use more data.
+
+\erno{+2028}    Load/Make HMMSet failed\\
+        The model set could not be loaded due to either an error opening the
+        file or the data within being inconsistent.
+
+\erno{+2030}    Needs continuous models\\
+        HCompV can only operate on models with an HMM set kind
+        of \texttt{PLAINHS} or \texttt{SHAREDHS}.
+
+\erno{+2039}    Speaker pattern matching failure\\
+        The specified speaker pattern could not be matched against a
+        given utterance file name.
+
+\erno{+2050}    Data does not match HMM\\
+        An aspect of the data does not match the equivalent aspect in 
+        the HMMSet.  Check the parameter kind of the data.
+
+\erno{-2089}    ALIEN format set\\
+        Input format has been set to \texttt{ALIEN}, ensure that this was 
+        intended.
+
+\end{itemize}
+
+\module{\htool{HInit}}
+
+\begin{itemize}
+\erno{+2120}    Unknown update flag\\
+        Unknown flag set by \texttt{-u} option, use combinations of 
+        \texttt{tmvw}.
+
+\erno{+2121}    Too little data\\
+        Not enough data to reliably estimate parameters.  Use more 
+        training data.
+
+\erno{+2122}    Segment with fewer frames than model states\\
+        Segment may be too short to be matched to model, do not use
+        this segment for training.
+
+\erno{+2123}    Cannot mix covariance kind in a single mix\\
+        Covariance kind of all mixture components in any one state must be
+        the same.
+
+\erno{+2124}    Bad covariance kind\\
+        Covariance kind of mixture component must be either
+        \texttt{FULLC} or \texttt{DIAGC}.
+
+\erno{+2125}    No best mix found\\
+        The Viterbi mixture component allocation failed to find a most likely
+        component with this data.  Check that data is not corrupt and
+        that parameter values produced by the initial uniform segmentation
+        are reasonable.
+
+\erno{+2126}    No path through segment\\
+        The Viterbi segmentation failed to find a path through
+        model with this data.  Check that data is not corrupt and that
+        a valid path exists through the model.
+
+\erno{+2127}    Zero occurrence count\\
+        Parameter has had no data assigned to it and cannot be
+        updated.  Ensure that each parameter can be estimated by
+        using more training data or fewer parameters.
+
+\erno{+2128}    Load/Make HMMSet failed\\
+        The model set could not be loaded due to either an error opening the
+        file or the data within being inconsistent.
+
+\erno{+2129}    HMM not found\\
+        HMM missing from HMMSet.  Check that the HMMSet is complete and 
+        has not been corrupted.
+
+\erno{+2150}    Data does not match HMM\\
+        An aspect of the data does not match the equivalent aspect in 
+        the HMMSet.  Check the parameter kind of the data.
+
+\erno{+2170}    Index out of range\\
+        Trying to access a mixture component or VQ index beyond the
+        range in the current HMM.
+
+\erno{-2189}    ALIEN format set\\
+        Input format has been set to \texttt{ALIEN}, ensure that this was 
+        intended.
+
+\end{itemize}
+
+\module{\htool{HRest}}
+
+\begin{itemize}
+\erno{+2220}    Unknown update flag\\
+        Unknown flag set by \texttt{-u} option, use combinations of 
+        \texttt{tmvw}.
+
+\erno{+2221}    Too few training examples\\
+        There are fewer training examples than the minimum set by the 
+        \texttt{-m} option (default 3).  Either reduce the value specified
+        by \texttt{-m} or use more training examples.
+
+\erno{+2222}    Zero occurrence count\\
+        Parameter has had no data assigned to it and cannot be
+        updated.  Ensure that each parameter can be estimated by
+        using more training data or fewer parameters.
+
+\erno{+2223}    Floor too high\\
+        Mix weight floor has been set so high that the sum over all 
+        mixture components exceeds unity.  Reduce the floor value.
+
+\erno{-2225}    Defunct Mix X.Y.Z \\
+        Not enough training data to re-estimate the covariance vector of
+        mixture component Z in stream Y of state X. The weight of the mixture
+        component is set to 0.0 and it will never recover even with further
+        training.
+
+\erno{+2226}    No training data\\
+        None of the supplied training data could be used to
+        re-estimate the model. Data may be corrupt or has been floored.
+
+\erno{+2228}    Load/Make HMMSet failed\\
+        The model set could not be loaded due to either an error opening the
+        file or the data within being inconsistent.
+
+\erno{+2250}    Data does not match HMM\\
+        An aspect of the data does not match the equivalent aspect in 
+        the HMMSet.  Check the parameter kind of the data.
+
+\erno{-2289}    ALIEN format set\\
+        Input format has been set to \texttt{ALIEN}, ensure that this was 
+        intended.
+
+\end{itemize}
+
+\module{\htool{HERest}}
+
+\begin{itemize}
+\erno{+2320}    Unknown update flag\\
+        Unknown flag set by \texttt{-u} option, use combinations of 
+        \texttt{tmvw}.
+
+\erno{+2321}    Load/Make HMMSet failed\\
+        The model set could not be loaded due to either an error opening the
+        file or the data within being inconsistent.
+
+\erno{-2326}    No transitions\\
+        No transition out of an emitting state, ensure that
+        there is a transition path from beginning to end of model.
+
+\erno{+2327}    Floor too high\\
+        Mix weight floor has been set so high that the sum over all 
+        mixture components exceeds unity.  Reduce the floor value.
+
+\erno{+2328}    No mixtures above floor\\
+        None of the mixture component weights are greater than the floor value,
+        reduce the floor value.
+
+\erno{-2330}    Zero occurrence count\\
+        Parameter has had no data assigned to it and cannot be
+        updated.  Ensure that each parameter can be estimated by
+        using more training data or fewer parameters.
+
+\erno{-2331}    Not enough training examples\\
+        Model was not updated as there were not enough training examples.
+        Either reduce the minimum specified by \texttt{-m} or
+        use more data.
+
+\erno{-2389}    ALIEN format set\\
+        Input format has been set to \texttt{ALIEN}, ensure that this was 
+        intended.
+
+\end{itemize}
+
+\module{\htool{HSmooth}}
+
+\begin{itemize}
+\erno{+2420}    Unknown update flag\\
+        Unknown flag set by \texttt{-u} option, use combinations of 
+        \texttt{tmvw}.
+
+\erno{+2421}    Invalid HMM set kind\\
+        \htool{HSmooth} can only be used if HMM set kind is either
+        \texttt{DISCRETE} or \texttt{TIED}.
+
+\erno{+2422}    Too many monophones in list\\
+        \htool{HSmooth} is limited to HMMSets containing fewer than
+        500 monophones.
+
+\erno{+2423}    Different number of states for smoothing\\
+        Monophones and context-dependent models have differing
+        numbers of states.
+
+\erno{-2424}    No transitions\\
+        No transition out of an emitting state, ensure that
+        there is a transition path from beginning to end of model.
+
+\erno{+2425}    Floor too high\\
+        Mix weight floor has been set so high that the sum over all 
+        mixture components exceeds unity.  Reduce the floor value.
+
+\erno{-2427}    Zero occurrence count\\
+        Parameter has had no data assigned to it and cannot be
+        updated.  Ensure that each parameter can be estimated by
+        using more training data or fewer parameters.
+
+\erno{-2428}    Not enough training examples\\
+        Model was not updated as there were not enough training examples.
+        Either reduce the minimum specified by \texttt{-m} or
+        use more data.
+
+\erno{+2429}    Load/Make HMMSet failed\\
+        The model set could not be loaded due to either an error opening the
+        file or the data within being inconsistent.
+
+\end{itemize}
+
+\module{\htool{HQuant}}
+
+\begin{itemize}
+\erno{+2530}    Stream widths invalid\\
+        The chosen stream widths are invalid.  Check that these match the 
+        parameter kind and are specified correctly.
+
+\erno{+2531}    Data does not match codebook\\
+        Ensure that the parameter kind of the data matches that of the codebook
+        being generated.
+
+\end{itemize}
+
+\module{\htool{HHEd}}
+
+\begin{itemize}
+
+\erno{+2628}    Load/Make HMMSet failed\\
+        The model set could not be loaded due to either an error opening the
+        file or the data within being inconsistent.
+
+\erno{\pm 2630} Tying null or different sized items\\
+        You have executed a tie command on items which do not have the 
+        appropriate structure or the structures are not matched.  Ensure 
+        that the item list refers only to the items that you wish to tie 
+        together.
+
+\erno{-2631}    Performing operation on no items\\
+        The item list was empty, no operation is performed.
+
+\erno{+2632}    Command parameter invalid\\
+        The parameters to the command are invalid either because they
+        refer to parts of the model that do not exist (for instance a
+        state that does not appear in the model) or because they 
+        do not represent an acceptable value (for instance HMMSet kind
+        is not \texttt{PLAINHS}, \texttt{SHAREDHS}, \texttt{TIEDHS} or 
+        \texttt{DISCRETEHS}).
+
+\erno{+2634}    Join parameters invalid or not set\\
+        Make sure than the join parameters (set by the \texttt{JO} command)
+        are reasonable.  In particular take care that the floor is low enough 
+        to ensure that when summed over all the mixture
+        components the sum is below 1.0.
+
+\erno{+2635}    Cannot find matching item\\
+        Search for specified item was unsuccessful.  When this occurs with
+        the \texttt{CL} or \texttt{MT} commands ensure that the appropriate 
+        monophone/biphone models are in the current HMMSet.
+
+\erno{-2637}    Small gConst\\
+        A small gConst indicates a very low variance in that particular
+        Gaussian.  This could be indicative of over-training of the models.
+
+\erno{-2638}    No typical state\\
+        When tying states together a search is performed for the distribution
+        with largest variance and all tied states share this distribution.  If 
+        this cannot be found the first in the list will be used instead.
+
+\erno{-2639}    Long macro name\\
+        In general macro names should not exceed 20 characters in length.
+
+\erno{+2640}    Not implemented\\
+        You have asked \htool{HHEd} to perform a function that is not 
+        implemented.
+
+\erno{+2641}    Invalid stream split\\
+        The specified number/width of the streams does not agree with the 
+        parameter kind/vector size of the models.
+
+\erno{+2650}    Edit script syntax error\\
+        The \htool{HHEd} command script contains a syntax error, check the 
+        input script against the descriptions of each command in 
+        section~\ref{s:HHEd} or obtained by running \texttt{HHEd -Q}.
+
+\erno{+2651}    Command range error\\
+        The value specified in the command script is out of range.  Ensure that
+        the specified state exists and the the value given is valid.
+
+\erno{\pm 2655} Stats file load error\\
+        Either loading occupation statistics for the second time or executing 
+        an operation that needs the statistics loaded without loading them.
+
+\erno{+2660}    Trees file syntax error\\
+        The trees file format did not correspond to that expected.  Ensure that
+        the file is complete and has not been corrupted.
+
+\erno{+2661}    Trees file macro/question not recognised\\
+        The question or macro referred to does not exist.  Ensure that the file
+        is complete and has not been corrupted.
+
+\erno{+2662}    Trying to synthesize for unknown model\\
+        There is no tree or prototype model for the new context.  Ensure that a
+        tree has been constructed for the base phone.
+
+\erno{\pm 2663} Invalid types to tree cluster\\
+        Tree clustering will only work for single Gaussian diagonal
+        covariance untied models of similar topology.
+
+\end{itemize}
+
+\module{\htool{HBuild}}
+
+\begin{itemize}
+\erno{\pm 3030} Mismatch between command line and language model\\
+        Ensure that the \texttt{!ENTER} and \texttt{!EXIT} words are correctly 
+        defined and that the supplied files are of the appropriate type.
+
+\erno{\pm 3031} Unknown word\\
+        Ensure that the word list corresponds to the language model/lattice
+        supplied.
+
+\end{itemize}
+
+\module{\htool{HParse}}
+
+\begin{itemize}
+\erno{\pm 3130} Variable not defined\\
+        You have referenced a network that has not yet been defined.  Check 
+        that all networks are defined before they are referenced.
+
+\erno{\pm 3131} Loop or word expansion error\\
+        There is either a mismatch between the \texttt{WD\_BEGIN WD\_END} 
+        pairs or a triphone loop is badly formed.
+
+\erno{\pm 3132} Dictionary error\\
+        When generating a dictionary a word exceeded the maximum number of 
+        phones, a word occurred twice or no dictionary was produced.
+
+\erno{\pm 3150} Syntax error in HParse file\\
+        The \htool{HParse} network definition contains a syntax error, check 
+        the input file against the network description in 
+        section~\ref{s:HParse}.
+
+\end{itemize}
+
+\module{\htool{HVite}}
+
+\begin{itemize}
+
+\erno{+3228}    Load/Make HMMSet failed\\
+        The model set could not be loaded due to either an error opening the
+        file or the data within being inconsistent.
+
+\erno{\pm 3230} Unsupported operation\\
+        \htool{HVite} is not able to perform the operation requested
+
+\erno{\pm 3231} Data does not match HMMs\\
+        There is a mismatch between the data file and the HMMSet.  Ensure that
+        the data is parameterised in the correct format and the configuration
+        parameters match those used during training.
+
+\erno{+3232} MMF Load Error\\
+        The HMMSet does not contain a well-formed regression class tree.
+
+\erno{+3233} Transcription empty\\
+        In alignment mode a segment had an empty transcription and no
+        boundary word was specified.
+
+\erno{-3289}    ALIEN format set\\
+        Input/output format has been set to \texttt{ALIEN}, ensure that 
+        this was intended.
+
+\end{itemize}
+
+\module{\htool{HResults}}
+
+\begin{itemize}
+\erno{-3330}    Empty file\\
+        The file was empty and will be skipped.
+
+\erno{+3331}    Unknown label\\
+        The label did not appear in the list supplied to HResults.
+        This error will only occur if calculating confusion matrices so 
+        normally the contents of the word list file will have no effect 
+        on results.
+
+\erno{+3332}    Too many labels\\
+        \htool{HResults} will only generate confusion statistics for a small 
+        number of labels.
+
+\erno{\pm 3333} Cannot calculate word spot results\\
+        When calculating word spotting results the label files need to have 
+        both times and scores present.
+
+\erno{-3389}    ALIEN format set\\
+        Input format has been set to \texttt{ALIEN}, ensure that this was 
+        intended.
+
+\end{itemize}
+
+\module{\htool{HSGen}}
+
+\begin{itemize}
+\erno{-3420}    Network malformed\\
+        The word network is malformed. The information in a node (word
+        and following arcs) is set incorrectly.
+
+\end{itemize}
+
+\module{\htool{HLRescore}}
+
+\begin{itemize}
+
+\erno{-4089}    ALIEN format set\\
+        Input/output format has been set to \texttt{ALIEN}, ensure that 
+        this was intended.
+
+\end{itemize}
+
+\module{\htool{HShell}}
+
+\begin{itemize}
+\erno{+5020}    Command line processing error
+\erno{+5021}    Command line argument type error
+\erno{+5022}    Command line argument range error\\
+        The command line is badly formed.  Ensure that it matches the 
+        syntax and values expected by the command (check the manual 
+        page or the syntax obtained by running \htool{HTool} without any
+        arguments).
+
+\erno{+5050}    Configuration file format error\\
+        \htool{HShell} was unable to parse the configuration. Check that
+        it is of the format described in section~\ref{s:config}.
+
+\erno{+5051}    Script file format error\\
+        Check that the script file is just a list of file names and that
+        if any file names are quoted that the quotes occur in pairs.
+
+\erno{+5070}    Module version syntax error\\
+        A module registered with HShell with an incorrectly formatted
+        version string (which should be of the form
+        \texttt{"!HVER!HModule: Vers.str [WHO DD/MM/YY]"}).
+
+\erno{+5071}    Too many configuration parameters\\
+        The size of the buffer used by one of the tools or modules to read
+        its configuration parameters was exceeded.  Either reduce the total
+        number of configuration parameters in the file or make more of then
+        specific to their particular module rather than global.
+
+\erno{+5072}    Configuration parameter of wrong type\\
+        The configuration parameter is of the wrong type.  Check that its type 
+        agrees with that shown in chapter~\ref{c:confvars}.
+
+\erno{+5073}    Configuration parameter out of range\\
+        The configuration parameter is out of range.  
+
+\end{itemize}
+
+\module{\htool{HMem}}
+
+\begin{itemize}
+\erno{+5170}    Heap parameters invalid\\
+        You have tried to create a heap with unreasonable parameters.  Adjust 
+        these so that the growth factor is positive and the initial block 
+        size is no larger than the maximum.  For \texttt{MSTAK} the element 
+        size should be 1.
+
+\erno{+5171}    Heap not found\\
+        The specified heap could not be found, ensure that it has not been 
+        deleted or memory overwritten.
+
+\erno{+5172}    Heap does not support operation\\
+        The heap is of the wrong type to support the requested operation.  In 
+        particular it is not possible to \texttt{Reset} or \texttt{Delete} a
+        \texttt{CHEAP}.
+
+\erno{+5173}    Wrong element size for MHEAP\\
+        You have tried to allocate an item of the wrong size from a 
+        \texttt{MHEAP}. All items on a \texttt{MHEAP} must be of the same size.
+
+\erno{+5174}    Heap not initialised\\
+        You have tried to allocate an item on a heap that has not yet been 
+        created.  Ensure that \texttt{CreateHeap} is called to initialise 
+        the heap before any items are allocated from it.
+
+\erno{+5175}    Freeing unseen item\\
+        You have tried to free an item from the wrong heap.  This can occur
+        if the wrong heap is specified, the item pointer has been corrupted 
+        or the item has already been freed implicitly by a 
+        \texttt{Reset/DeleteHeap} call.  
+
+\end{itemize}
+ 
+\module{\htool{HMath}}
+ 
+\begin{itemize}
+\erno{+5220}    Singular covariance matrix\\
+        The covariance matrix was not invertible.  This may indicate a lack
+        of training data or linearly dependent parameters.
+
+\erno{+5270}    Size mismatch\\
+        The input parameters were of incompatible sizes.
+
+\erno{+5271}    Log of negative\\
+        Result would be logarithm of a negative number.
+
+\end{itemize}
+
+\module{\htool{HSigP}}
+
+\begin{itemize}
+\erno{+5320}    No results for WaveToLPC\\
+        Call did not include Vectors for the results.
+
+\erno{+5321}    Vector size mismatch\\
+        Input vectors were of mismatched sizes.
+
+\erno{-5322}    Clamped samples during zero mean\\
+        During a zero mean operation samples were clipped as they were outside
+        the allowable range.
+
+\end{itemize}
+
+\module{\htool{HAudio}}
+
+\begin{itemize}
+\erno{+6020}    Replay buffer not active\\
+        Attempt to access a replay buffer when one was not attached.
+
+\erno{+6021}    Cannot StartAudio without measuring silence\\
+        An attempt was made to start audio input through the silence detector 
+        without first measuring or supplying the background silence values.
+
+\erno{+6070}    Audio frame size/rate invalid\\
+        The choice of frame period and window duration are invalid.  Check
+        both these and the sample rate.
+
+\erno{-6071}    Setting speech threshold below silence\\
+        The thresholds used in the speech detector have been set so that the
+        threshold for detecting speech is set below that of detecting silence.
+
+\end{itemize}
+
+\module{\htool{HVQ}}
+
+\begin{itemize}
+\erno{+6150}    VQ file format error\\
+        The VQ file was incorrectly formatted.  Ensure that the file is 
+        complete and has not been corrupted.
+
+\erno{+6151}    VQ file range error\\
+        A value from the VQ file was out of range.  Ensure that the file is 
+        complete and has not been corrupted.
+
+\erno{+6170}    Magic number mismatch\\
+        The VQ magic number (normally based on parameter kind) does not match
+        that expected.  Check that the parameter kind used to quantise the data
+        and create the VQ table matches the current parameter kind.
+
+\erno{+6171}    VQ table already exists\\
+        All VQ tables must have distinct names.  This error will occur if you
+        try to create or load a VQ table with the same name as one already
+        loaded.
+
+\erno{+6172}    Invalid covariance kind\\
+        Entries in VQ tables must have either \texttt{NULLC}, \texttt{FULLC} or
+        \texttt{INVDIAGC} covariance kind.
+
+\erno{+6173}    Node not in table\\
+        A node was missing from the VQ table.  Ensure that the VQ table was 
+        properly created or that the file was complete.
+
+\erno{+6174}    Stream codebook mismatch\\
+        The number or size of streams in the VQ table does not match that 
+        requested.
+
+\end{itemize}
+
+\module{\htool{HWave}}
+
+\begin{itemize}
+\erno{+6220}    Cannot fseek/ftell\\
+        Unless the wave file is read through a pipe fseek and ftell are 
+        expected to work correctly so that \htool{HWave} can calculate the 
+        file size.  If this error occurs when using an input pipe, supply 
+        the number of samples in the file using the configuration variable
+        \texttt{NSAMPLES}.
+
+\erno{+6221}    File appears to be a infinite\\
+        \htool{HWave} cannot determine the size of the file.
+
+\erno{+6230}    Config parameter not set\\
+        A necessary configuration parameter has not been set.  Determine the 
+        correct value and place this in the configuration file before 
+        re-invoking the tool.
+
+\erno{+6250}    Premature end of header\\
+        \htool{HWave} could not read the complete file header.
+
+\erno{+6251}    Header contains invalid data\\
+        \htool{HWave} was unable to successfully parse the header.  The header
+        is invalid, of the wrong type or be a variation that \htool{HWave} does
+        not handle.
+
+\erno{+6252}    Header missing essential data\\
+        The header was missing a piece of information necessary for 
+        \htool{HWave} to load the file.  Check the processing of the 
+        input file and re-process if necessary.
+
+\erno{+6253}    Premature end of data\\
+        The file ended before all the data was read correctly.  Check that the
+        file is complete, has not been corrupted and where necessary 
+        \texttt{NSAMPLES} is set correctly.
+
+\erno{+6254}    Data formated incorrectly\\
+        The data could not be decoded properly.  Check that the file was 
+        complete and processed correctly.
+
+\erno{+6270}    File format invalid\\
+        The file format is not valid for the operation requested.
+
+\erno{+6271}    Attempt to read outside file\\
+        You have tried to read a sample outside of the waveform file.
+
+\end{itemize}
+
+\module{\htool{HParm}}
+
+\begin{itemize}
+\erno{+6320}    Configuration mismatch\\
+        The data file does not match the configuration.  Check the 
+        configuration file is correct.
+
+\erno{+6321}    Invalid parameter kind\\
+        Parameter kind is not valid.  Check the configuration file.
+
+\erno{+6322}    Conversion not possible\\
+        The specified conversion is not possible.  Check the configuration is
+        correct and re-code the data from waveform files if necessary.
+
+\erno{+6323}    Audio error\\
+        An audio error has been detected.  Check the \htool{HAudio} 
+        configuration and the audio device.
+
+\erno{+6324}    Buffer not initialised\\
+        Ensure that the buffer is used in the correct manner.
+
+\erno{+6325}    Silence detection failed\\
+        The silence detector was not initialised correctly before use.
+
+\erno{+6328}    Load/Make HMMSet failed\\
+        The model set could not be loaded due to either an error opening the
+        file or the data within being inconsistent.
+
+\erno{+6350}    CRC error\\
+        The CRC does not match that of the data.  Check the data file is 
+        complete and has not been corrupted.
+
+\erno{-6351}    Byte swapping not possible\\
+        \htool{HParm} will attempt to byte swap parameter files but this 
+        may not work if the floating point representation of the machine 
+        that generated the file is different from that which is reading it.
+
+\erno{+6352}    File too short to parameterise\\
+        The file does not contain enough data to produce a single observation.
+        Check the file is complete and not corrupt.  If it is, it should be 
+        discarded.
+
+\erno{+6370}    Unknown parameter kind\\
+        The specified parameter kind is not recognised.  Refer to 
+        section~\ref{s:spiosum} for a list of allowable parameter kinds
+        and qualifiers.
+
+\erno{+6371}    Invalid parameters for coding\\
+        The chosen parameters are not valid for coding.  Choose different ones.
+
+\erno{+6372}    Stream widths not valid\\
+        Cannot split the data into the specified number of streams.  Check that
+        the parameter kind is correct and matches any models used.
+
+\erno{+6373}    Buffer/observation mismatch\\
+        The observation parameter kind should match that of the input buffer.
+        Check that the configuration parameter kind is correct and matches 
+        that of any models used.
+
+\erno{+6374}    Buffer size too small for window\\
+        Calculation of delta parameters requires a window larger than the
+        buffer size chosen.  Increase the size of the buffer.
+
+\erno{+6375}    Frame not in buffer\\
+        An attempt was made to access a frame that does not appear in the 
+        buffer.  Make sure that the file actually contains the specified frame.
+
+\erno{+6376}    Mean/Variance normalisation failed\\
+        The mean or variance normalisation vector from the file
+        specified by the normalisation dir and mask cannot be applied.
+        Make sure the file format is correct and the vectors are of
+        the right dimension.
+
+\end{itemize}
+
+\module{\htool{HLabel}}
+
+\begin{itemize}
+\erno{+6520}    MLF index out of range\\
+        An attempt was made to access an MLF that has not been loaded or to 
+        load too many MLFs.
+
+\erno{+6521}    fseek/ftell not possible\\
+        \htool{HLabel} needs random access to MLFs.  This error is generated
+        when this is not possible (for instance if access is via a pipe).
+
+\erno{+6550}    HTK format error
+\erno{+6551}    MLF format error
+\erno{+6552}    TIMIT format error
+\erno{\pm 6553} ESPS format error
+\erno{+6554}    SCRIBE format error\\
+        A label file was formatted incorrectly.  Label
+        file formats are described in chapter~\ref{c:labels}.
+
+\erno{+6570}    Level out of range\\
+        Attempted to access a non-existent label level.  Check that the correct
+        label file has been loaded.
+
+\erno{+6571}    Label out of range\\
+        Attempted to access a non-existent label.  Check that the correct
+        label file has been loaded and that the correct level is being 
+        accessed.
+
+\erno{+6572}    Invalid format\\
+        The specified file format is not valid for the particular operation.
+
+\end{itemize}
+
+\module{\htool{HModel}}
+
+\begin{itemize}
+\erno{+7020}    Cannot find physical HMM\\
+        No physical HMM exists for a particular logical model.  Check that the
+        HMMSet was loaded or created correctly.
+
+\erno{+7021}    INVDIAG internal format\\
+        Attempts to load or save models with \texttt{INVDIAG} covariance kind
+        will fail as this is a purely internal model format.
+
+\erno{\pm 7023} varFloor should be variance floor\\
+        \htool{HModel} reserves the macro name \texttt{varFloorN} as the 
+        variance floor for stream \texttt{N}.  These should be variance 
+        macros (type \texttt{v}) of the correct size for the particular stream.
+
+\erno{+7024}    Variance tending to 0.0\\
+        A variance has become too low.  Start using a variance floor or 
+        increase the amount of training data.
+        
+\erno{+7025} Bad covariance kind\\
+        The particular functionality does not support the covariance
+        kind of the mixture component.
+
+\erno{+7030}    HMM set incomplete or inconsistent\\
+        The HMMSet contained missing or inconsistent data.  Check that the 
+        file is complete and has not been corrupted.
+
+\erno{+7031}    HMM parameters inconsistent\\
+        Some model parameters were inconsistent.  Check that the file is 
+        complete and has not been corrupted.
+
+\erno{\pm 7032} Option mismatch\\
+        All HMMs in a particular set must have consistent options.
+
+\erno{+7035}    Unknown macro\\
+        Macro does not exist.  Check that the name is correct and appears 
+        in the HMMSet.
+
+\erno{+7036}    Duplicate macro\\
+        Attempted to create a macro with the same name as one already present.
+        Choose a different name.
+
+\erno{+7037}    Invalid macro\\
+        Macro had invalid type.  See section~\ref{s:HMMmac} describes the 
+        allowable macro types.
+
+\erno{+7050}    Model file format error
+\erno{+7060}    HMM List format error\\
+        The file was formated incorrectly.  Check the file is complete and
+        has not been corrupted.
+
+\erno{+7070}    Invalid HMM kind\\
+        Invalid HMMSet kind.  Check that this is specified correctly.
+
+\erno{+7071}    Observation not compatible with HMMSet\\
+        Attempted to calculate an observation likelihood for an observation
+        not compatible with the HMMSet.  Check that the parameter kind is
+        set correctly.
+
+\end{itemize}
+
+\module{\htool{HTrain}}
+
+\begin{itemize}
+\erno{+7120}    Clustering failed\\
+        Almost certainly due to a lack of data, reduce the
+        number of clusters requested  or increase amount of data.
+
+\erno{+7150}    Accumulator file format error\\
+        Cannot read an item from an accumulator file. Check
+        that file is complete and not corrupted.
+
+\erno{+7170}    Unsupported covariance kind\\
+        Covariance kind must be either \texttt{FULLC}, \texttt{DIAGC} or 
+        \texttt{INVDIAGC}.
+
+\erno{+7171}    Item out of range\\
+        Attempt made to access data beyond expected range. Check that 
+        the item number is correct.
+
+\erno{+7172}    Tree size must be power of 2\\
+        Requested codebook size must be a power of 2 when
+        using tree based clustering.
+
+\erno{-7173}    Segment empty\\
+        Empty data segment in file. Check that file has not
+        become corrupted and that the start and end segment times
+        are correct.
+
+\end{itemize}
+
+\module{\htool{HUtil}}
+
+\begin{itemize}
+\erno{+7220}    HMMSet empty\\
+        A scan was initiated for a HMMSet with no members.
+
+\erno{+7230}    Item list parse error\\
+        The item list syntax was incorrect.  Check the item list specification
+        in section~\ref{s:HHEd}.
+
+\erno{+7231}    Item list type error\\
+        Each item in a particular list should be of the same type and size.
+
+\erno{+7250}    Stats file format error\\
+        Stats file is of wrong format.  Note the format of the stats file has 
+        changed in HTK\_V2.0 and old files will need converting to the new
+        format.
+
+\erno{+7251}    Stats file model error\\
+        A model name encountered in the stats file is invalid check that the
+        model set corresponds to that used to generate the stats file and that
+        the stats file is complete and has not been corrupted.
+
+\erno{+7270}    Accessing non-existent macro\\
+        Attempt to perform operation on non-existent macro.
+
+\erno{+7271}    Member id out of range\\
+        Attempt to perform set operation on out of range member.
+
+\end{itemize}
+
+\module{\htool{HFB}}
+
+\begin{itemize}
+
+\erno{+7321}    Unknown model\\
+        Model in HMM List not found in HMMSet, check that the
+        correct HMM List is being used.
+
+\erno{+7322}    Invalid output probability\\
+        Mixture component probability has not been set.  This should
+        not occur in normal use.
+
+\erno{+7323}    Beta prune failed on taper\\
+        Utterance is possibly too short for minimum duration
+        of model sequence. Check transcription.
+
+\erno{-7324}    No path through utterance\\
+        No path was found on the beta training pass, relax the
+        pruning threshold.
+
+\erno{-7325}    Empty label file\\
+        No labels found in label file, check label file.
+
+\erno{+7326}    Single-pass retraining data mismatch\\
+        Paired training files must contain the same number of observations.  
+        Use original data to re-parameterise.
+
+\erno{\pm 7332}  HMM with unreachable states\\
+        HMM has an unreachable state, check transition matrix.\\
+
+\erno{-7333} Transition matrix with discontinuity\\
+        Check transition matrix.\\        
+
+\erno{+7350}    Data does not match HMM\\
+        An aspect of the data does not match the equivalent aspect in 
+        the HMMSet.  Check the parameter kind of the data.
+
+\end{itemize}
+
+\module{\htool{HDict}}
+
+\begin{itemize}
+\erno{+8050}    Dictionary file format error\\
+        The dictionary file is not correctly formatted.  
+        Section~\ref{s:usehdman} describes the HTK dictionary file format.
+
+\end{itemize}
+
+\module{\htool{HLM}}
+
+\begin{itemize}
+\erno{+8150}    LM syntax error\\
+        The language model file was formatted incorrectly.  Check the file is
+        complete and has not been corrupted.
+
+\erno{\pm 8151} LM range error\\
+        The specified value(s) for the language model probability are not 
+        valid.  Check the input files are correct.
+
+\end{itemize}
+
+\module{\htool{HNet}}
+
+\begin{itemize}
+\erno{+8220}    No such word\\
+        The specified word does not exist or does not have a valid 
+        pronunciation.
+
+\erno{-8221}    Duplicate pronunciations removed\\
+        During network generations duplicate identical pronunciations
+        of the same word are removed.
+
+\erno{+8230}    Contexts not consistent\\
+        \htool{HNet} can only deal with the standard HTK method for specifying
+        context \texttt{left-phone+right} and will only allow context free 
+        phones if they are context independent and only form part of the word.
+        This may be indicative of an inconsistency between the symbols in the dictionary
+        and the hmms as defined. There may be a model/phone in the dictionary that has 
+        not been defined in the HMM list or may not have a corresponding model.
+        See also section~\ref{s:netexpand}  on context expansion.
+
+
+\erno{+8231}    No such model\\
+        A particular model could not be found.  Make sure that the network is
+        being expanded in the correct fashion and then ensure that your HMM
+        list will cover all required contexts.
+
+\erno{+8232}    Lattice badly formed\\
+        Could not convert lattice to network.  The lattice should have a single
+        well defined start and a single well defined end.  When cross word 
+        expansion is being performed the number of \texttt{!NULL} words that 
+        can be concatenated in a string is limited.
+
+\erno{+8250}    Lattice format error\\
+        The lattice file is formatted incorrectly.  Ensure that the lattice
+        is of the format described in chapter~\ref{c:htkslf}.
+
+\erno{+8251}    Lattice file data error\\
+        The value specified in the lattice file is invalid.
+
+\erno{+8252}    Lattice file with multiple start/end nodes\\
+        A lattice should have only one well defined start node and one
+        well defined end node.
+
+\erno{+8253}    Lattice with invalid sub lattices\\
+        The sub lattices referred to by the main lattices are
+        malformed.
+
+\end{itemize}
+
+
+\module{\htool{HRec}}
+
+\begin{itemize}
+\erno{\pm 8520} Invalid HMM\\
+        One of the HMMs in the network is invalid.  Check that the HMMSet
+        has been correctly initialised.
+
+\erno{+8521}    Network structure invalid\\
+        The network is incorrectly structured.  Take care to avoid loops
+        that can be traversed without consuming observations (this may occur 
+        if you introduce any 'tee' words in which all the models making up that
+        word contain tee-transitions).  Also ensure that the recogniser and
+        the network have been created and initialised correctly.
+
+\erno{+8522}    Lattice structure invalid\\
+        The lattice was incorrectly formed.  Ensure that the lattice was
+        created properly.
+
+\erno{\pm 8570} Recogniser not initialised correctly\\
+        Ensure the recogniser is initialised and used correctly.
+
+\erno{+8571}    Data does not match HMMs\\
+        The observation does not match the HMM structure.  Check the parameter
+        kind of the data and ensure that the data is matched to the HMMs.
+
+\end{itemize}
+
+
+\module{\htool{HLat}}
+
+\begin{itemize}
+
+\erno{8621}    Lattice incompatible with dictionary\\
+        The lattice refers to a pronunciation variant (filed
+        \texttt{v=}) that doesn't exist in the current dictionary.
+
+\erno{\pm 8622}    Lattice structure invalid\\
+        The lattice does not meet the requirements for some operation.
+        All lattices must have unique start and end nodes and for many
+        operations the lattices need to be acyclic (i.e.\ be a
+        Directed Acyclic Graph).
+
+\erno{8623}    Start or end word not found\\
+        The specified lattice start or end word could not be found in
+        the dictionary.
+
+\erno{8624}    Lattice end node label invalid\\
+        The lattice end node must either be labelled with \verb|!NULL|
+        or the specified end word (default: \verb|!SENT_END|)
+
+\erno{-8630}    LLF file not found\\
+        The specified LLF file could not be found or isn't in the
+        right format.
+
+\erno{8631}    Lattice not found in LLF file\\
+        A lattice couldn't be found in the LLF file. Note that the
+        order in the LLF file must correspond to the order of processing.
+
+\erno{8632}    Lattice not found\\
+        The specified lattice file could not be opened.
+
+\erno{8690}    Lattice operation not supported\\
+        The requested operation is not supported, yet.
+\erno{8691}    Lattice processing sanity check failed\\
+        During processing an internal sanity check failed. This should
+        never happen..
+
+\end{itemize}
+
+
+\module{\htool{HGraf}}
+
+\begin{itemize}
+\erno{+6870}    X11 error\\
+        Ensure that the \texttt{DISPLAY} variable is set and that the
+        X11 window system is configured correctly.
+
+\end{itemize}
+
+
+% Language modelling libraries and tools
+
+% LCMap
+\module{\htool{LCMap}}
+
+\begin{itemize}
+\erno{+15050}  Unlikely num map entries[\texttt{n}] in \texttt{XYZ}\\
+        A negative or infeasibly large number of class map entries
+        have been specified.
+
+\erno{+15051} ReadMapHeader: UNKxxx configs must be set for hdrless map\\
+        There is no header on the map so you must set UNKNOWNID and UNKNOWNNAME.
+
+\erno{+15052} No name in \texttt{XYZ}\\
+        No NAME header in class map.
+
+\erno{+15053} Unknown escmode \texttt{XYZ} in \texttt{XYZ}\\
+        ESCMODE header must specify either HTK or RAW.
+
+\erno{+15054} Class name  \texttt{XYZ} duplicate in \texttt{XYZ}\\
+        Two classes in the class map have the same name, which is not allowed.
+
+\erno{+15055} Bad index \texttt{n} for class \texttt{XYZ} in \texttt{XYZ}\\
+        A class index less than 1 or greater than or equal to BASEWORDNDX (defined
+        at compile time in \htool{LWMap} - default is 65536) was found
+        in the class map.  If you need more than \htool{BASEWORDNDX}
+        classes then you must recompile \HTK\ with a new base word
+        value.
+
+\erno{+15056} Number of entries =  \texttt{n} for class \texttt{XYZ} in \texttt{XYZ}\\
+        There must be at least one member in each class - empty
+        classes are not allowed.
+
+\erno{+15057} Bad type \texttt{XYZ} for class \texttt{XYZ} in \texttt{XYZ}\\
+        Classes must be defined using either IN or NOTIN.
+
+\erno{+15058} A class is in its own exclusive list. This typically happens when a class map 
+              is specified as a plain list of words. Such list is by default assumed to be 
+              a list of words excluded from class !!UNK. The error is triggered when !!UNK
+              is in the word list. !!UNK must be removed from the list.
+
+\end{itemize}
+
+
+% LWMap
+\module{\htool{LWMap}}
+
+\begin{itemize}
+\erno{+15150}   Word list/word map file format error\\
+        Check that the word list/word map file is correctly formatted.
+
+\erno{+15151}  Unlikely num map entries[\texttt{n}] in \texttt{XYZ}\\
+        A negative or infeasibly large number of word map entries
+        have been specified.
+
+\erno{+15152} No NAME header in \texttt{XYZ}\\
+        No NAME header in word map.
+
+\erno{+15153} No SEQNO header in \texttt{XYZ}\\
+        No SEQNO header in word map.
+
+\erno{+15154} Unknown escmode \texttt{XYZ} in \texttt{XYZ}\\
+        ESCMODE header must specify either HTK or RAW.
+
+\erno{+15155} Word name \texttt{XYZ} is duplicated in \texttt{XYZ}\\
+        There are duplicate words in the word map, which is not allowed.
+
+\end{itemize}
+
+
+% LUtil
+\module{\htool{LUtil}}
+
+\begin{itemize}
+\erno{+15250}   Header format error\\
+        Ensure that word maps and/or n-gram files used by the program start
+        with the appropriate header.
+\end{itemize}
+
+
+% LGBase
+\module{\htool{LGBase}}
+
+\begin{itemize}
+\erno{+15330}   n-gram file consistency check failure\\
+        The n-gram file is incompatible with other resources used by the
+        program.
+
+\erno{+15340}   File \texttt{XYZ} is \texttt{n}-gram but inset is \texttt{n}-gram\\
+        The specified input gram file is not of the expected gram size.
+
+\erno{+15341}   Requested N[\texttt{n}] greater than gram size [\texttt{n}]\\
+        An n-gram was requested which was larger than any of those
+        supplied in the input files.
+
+\erno{+15345}   n-grams out of order\\
+        The input gram file is not correctly sorted.
+
+\erno{+15350}   n-gram file format error\\
+        Ensure that n-gram files used by the program are formatted correctly
+        and start with the appropriate header.
+\end{itemize}
+
+
+% LModel
+\module{\htool{LModel}}
+
+\begin{itemize}
+\erno{+15420}   Cannot find n-gram component\\
+        The internal structure of the language model is corrupted. This error
+        is usually caused when an n-gram $(a,b,c)$ is encountered without
+        the presence of n-gram $(a,b)$.
+\erno{+15430}   Incompatible probability kind in conversion\\      
+        The currently used language model does not allow the required
+        conversion operation. This error is caused by attempting to prune a
+        model stored in the ultra file format.
+\erno{+15440}   Cannot prune models in ultra format\\
+        Pruning of language models stored in {\em ultra} file format is not
+        supported.
+\erno{+15445}   Word ID size error\\
+        Language models with vocabularies of over 65,536 words require the
+        use of larger word identifiers. This is a sanity check error.
+\erno{-15450}   Word \texttt{XYZ} not in unigrams - skipping n-gram.\\
+        There should be a unigram count for each word in other length grams.
+\erno{+15450}   Language model file format error\\
+        The language model file is formatted incorrectly. Check the file is
+        complete and has not been corrupted.
+\erno{-15451}   Extraneous line warning\\
+        Extra lines were found on the end of a file and are being ignored.
+\erno{-15460}   Model order reduced\\
+        Due to the effects of pruning the model order is automatically reduced.
+\end{itemize}
+
+
+% LPCalc
+\module{\htool{LPCalc}}
+
+\begin{itemize}
+\erno{+15520}   Unable to find FLEntry to attach\\
+        Indicates that the LM data structures are corrupt. This is normally caused
+        by NGram files which have not been sorted.
+\erno{+15525}   Attempt to overwrite entries when attaching\\
+        Indicates that the LM structure is corrupt. Ensure that the word map file
+        used is suitable for decoding the NGram database files.
+\erno{-15540}   \texttt{n}-gram cutoff out of range\\
+        An inapplicable cutoff was ignored.
+\erno{+15540}   Pruning error\\
+        The pruning parameters specified are not compatible with the parameters 
+        of the language model.
+\end{itemize}
+
+
+% LPMerge
+\module{\htool{LPMerge}}
+
+\begin{itemize}
+\erno{+15620}   Unable to find word in any model\\
+        Indicates that the target model vocabulary contains a word which cannot
+        be found in any of the source models.
+\end{itemize}
+
+
+
+% LPlex
+\module{\htool{LPlex}}
+
+\begin{itemize}
+\erno{+16620} symbol {\tt XYZ} not in word list\\
+        The sentence start symbol, sentence end symbol and OOV symbol (only if
+        OOVs are to be included in the perplexity calculation) must be in the
+        language model's vocabulary. Note that the vocabulary list is either 
+        specified with the {\tt -w} option or is implicitly derived from the 
+        language model.
+
+\erno{+16625} Unable to find word {\tt XYZ} in any model\\
+        Ensure that all words in the vocabulary list specified with the {\tt -w}
+        option are present in at least one of the language models.
+
+\erno{+16630} Maximum number of unique OOVs reached\\
+        Too many OOVs encountered in the input text.
+
+\erno{-16635} Transcription file {\tt fn} is empty\\
+        The label file does not contain any words.
+
+\erno{-16640} Word too long, will be split: {\tt XYZ}\\
+        The word read from the input stream is of over 200 characters.
+
+\erno{-16645} Text buffer size exceeded ({\tt n})\\ 
+        The maximum number of words allowed in a single utterance has been 
+        reached.
+
+\erno{+16650} Maximum utterance length in a label file exceeded (limit
+        is compiled to be {\tt n} tokens)\\
+        No label file utterance end has been encountered within
+        {\tt n} tokens -- perhaps this is a text file and you forgot
+        to pass the {\tt -t} option?
+\end{itemize}
+
+
+% HLMCopy
+\module{\htool{HLMCopy}}
+
+\begin{itemize}
+\erno{+16920} Maximum number of phones reached\\
+        When \htool{HLMCopy} is used to copy dictionaries, the target dictionary's
+        phone table is composed by combining the phone tables of all source
+        dictionaries. Check that the number of different phones resulting from
+        combining the phone tables of the source dictionaries does not exceed the
+        internally set limit.
+
+\erno{+16930} Cannot find definition for word {\tt XYZ}\\
+        When copying dictionaries, ensure that each word in the vocabulary list
+        occurs in at least one source dictionary.
+\end{itemize}
+
+
+% Cluster
+\module{\htool{Cluster}}
+
+\begin{itemize}
+\erno{+17050} Word {\tt XYZ} found in class map but not in word map\\
+        All words in the class map must be found in the word map too.
+
+\erno{-17051} Unknown word token {\tt XYZ} was explicitly given with -u, but
+          does not occur in the word map\\
+        This warning appears if you specify an unknown word token
+          which is not found in the word map.
+
+\erno{+17051} Token not found in word list\\
+        Sentence start, end and unknown (if used) tokens must be found
+        in the word map.
+
+\erno{+17052} Not all words were assigned to classes\\
+        A classmap was imported which did not include all words in the
+        word map.
+
+\erno{-17053} Word {\tt XYZ} is in word map but not in any gram files\\
+        The stated word will remain in whichever class it is already
+        in - either as defaulted to or supplied via the input class map.
+\end{itemize}
+
+
+\end{itemize}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "htkbook"
+%%% End: 

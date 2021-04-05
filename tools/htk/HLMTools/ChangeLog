@@ -1,0 +1,79 @@
+2003-10-15  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* LMerge.c: Remove unused VERSION constant.
+
+2003-02-04  D. Mrva  <dm312@cam.ac.uk>
+
+	* LFoF.c (main): Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* LSubset.c (main): Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* LPlex.c (main):  Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* LNorm.c (main):  Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* LNewMap.c (main): Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* LMerge.c (main): Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* LLink.c (main): Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* LGPrep.c (main): Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* LGList.c (main): Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* LGCopy.c (main): Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* LBuild.c (main): Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* LAdapt.c (main): Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+	* HLMCopy.c (main): Add return EXIT_SUCCESS after EXIT() to make compiler happy
+
+2003-01-29  D. Mrva  <dm312@cam.ac.uk>
+
+	* LGCopy.c (main): Always exit with Exit(EXIT_SUCCESS) instead of Exit(0).
+
+	* LNorm.c (main): Always exit with Exit(EXIT_SUCCESS) 
+	rather than with return EXIT_SUCCESS.
+
+	* LNewMap.c (main): Always exit with Exit(EXIT_SUCCESS) 
+	rather than with return EXIT_SUCCESS.
+
+	* LMerge.c (main): Always exit with Exit(EXIT_SUCCESS) 
+	rather than with return EXIT_SUCCESS.
+
+	* LLink.c (main): Always exit with Exit(EXIT_SUCCESS) 
+	rather than with return EXIT_SUCCESS.
+
+	* LGPrep.c (main): Always exit with Exit(EXIT_SUCCESS) 
+	rather than with return EXIT_SUCCESS.
+
+	* LGList.c (main): Always exit with Exit(EXIT_SUCCESS) 
+	rather than with return EXIT_SUCCESS.
+
+	* LFoF.c (main): Always exit with Exit(EXIT_SUCCESS) 
+	rather than with return EXIT_SUCCESS.
+
+	* LBuild.c (main): Always exit with Exit(EXIT_SUCCESS) 
+	rather than with return EXIT_SUCCESS.
+
+	* LAdapt.c (main): Always exit with Exit(EXIT_SUCCESS) 
+	rather than with return EXIT_SUCCESS.
+
+	* HLMCopy.c (main): Always exit with Exit(EXIT_SUCCESS) 
+	rather than with return EXIT_SUCCESS.
+
+	* LPlex.c (main): Always exit with Exit(EXIT_SUCCESS) instead of exit(0).
+
+2002-12-16  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* Cluster.c (import_classmap): Fix classmap check.
+
+	* LPlex.c (ProcessTextStream): Always enable buffer size check and
+	turn warning into error.
+	From Gareth Moore <glm20@eng.cam.ac.uk>
+	
+2002-12-09  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* Initial import of HLMTools source.

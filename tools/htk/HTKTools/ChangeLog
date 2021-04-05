@@ -1,0 +1,516 @@
+2006-05-03  Andrew Liu <xl207@cam.ac.uk>
+
+	* Logic correction in HVite
+
+2005-08-11  Anna Langley <jal58@cam.ac.uk>
+
+	* HCluster, Hdistance, HEAdapt, HEAdaptLat, HSprout added
+	
+2005-08-09  Anna Langley <jal58@cam.ac.uk>
+
+	* HMMIRest added
+
+2005-02-24  Anna Langley <jal58@cam.ac.uk>
+
+        * Files for autoconf installs added
+
+2005-02-08  S.E. Tranter  <sej28@eng.cam.ac.uk>
+
+	* HCluster.c: Added support for diagonal and block diagonal
+     covariance representation with BIC stopping criterion.
+	  Block diagonal case is slightly different to previous local version
+          BIC scoring info now requires trace level 1 to be output.
+	
+2004-08-04  Antti-Veikko Rosti  <avir2@eng.cam.ac.uk>
+ 
+	* HERest.c: ConvLogWt() and ConvExpWt() added after ConvDiagC()
+	calls to convert the mixture weights into the log-scale prior to
+	forward-backward recursions.
+ 
+ 	* HHEd.c: Function ReOrderFeaturesCommand() added to sort model
+ 	parameters according to a global feature element re-ordering with
+ 	RP command.
+
+2004-08-02  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HVite.c (main): Check that number of tokens requested via -n
+	switch doesn't exceed maximum.
+
+2004-07-120  Khe Chai Sim  <kcs23@eng.cam.ac.uk>
+
+        * HHEd.c: Support for generic tree name mapping. Current mapping
+	makes use of the macRoot prefix specified with the TB command.
+
+2004-07-14  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HMMIRest.c (main): Employ LLFs for faster loading of lattices.
+	(main): Add LATFILEMASK to be able to discard parts of the
+	segment name when loading the lattice file.
+
+2004-07-14  Antti-Veikko Rosti  <avir2@eng.cam.ac.uk>
+
+	* HERest.c: New heap for accumulators called accStack created. This
+	is used in AttachAccs() instead of gstack.
+
+	* HMMIRest.c: Removed unused variables and added T_TIM trace
+	flag. The heap globStack renamed to accStack.
+
+2004-07-08  Mark Gales <mjfg@eng.cam.ac.uk>
+
+	* HHEd.c (RegClassesCommand): Correctly treat base classes stored
+	in directories specified via -M.
+
+2004-07-02  B. Jia  <bj214@eng.cam.ac.uk>
+
+	* HMMIRest.c: Fix a bug of single pass retrain in discrimitive 
+	trainng
+
+2004-06-25  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* *.c (traceHFB): Eliminate traceHFB variable and replace with
+	function call.
+
+2004-06-06  B. Jia  <bj214@eng.cam.ac.uk>
+
+	* HMMIRest.c: New config variable UPDATEMODE to allow dumping summed
+	accumulates.
+
+2004-04-26  K. Yu  <ky219@eng.cam.ac.uk>
+
+	* HMMIRest.c: Add support for MMI priors in MPE training (new
+	config variables MMIPRIOR and MMITAUI).
+
+2004-04-17  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HERest.c (main): Fix for UPDATEMODE to make non-parallel mode
+	training work again.
+
+2004-04-16  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HERest.c: New config variable UPDATEMODE to allow dumping summed
+	accumulates (subsumes functionality of HAccSum).
+
+2004-04-13  B. Jia  <bj214@eng.cam.ac.uk>
+
+	* HMMIRest.c: New options '-rp' and '-qp' to support
+	subdirectories of denominator and numerator lattices respectively,
+	so that all side directories will not crowd under one directory.
+
+2004-04-02  Bin Jia <bj214@eng.cam.ac.uk>
+
+	* HCompV:  New option '-p' to support storing CMN/CVN files in
+	subdirectories for use with CMEANPATHMASK and VARSCALEPATHMASK.
+
+2004-03-21  Mark Gales <mjfg@eng.cam.ac.uk>
+
+	* *.c: Various fixed for use of new adaptation.
+
+2004-02-16  Bin Jia <bj214@eng.cam.ac.uk>
+
+	* HDMan.c: MAXDICTS increased from 20 to 100
+	
+2003-12-17  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HVite.c (DoAlignment): Allow alignment of segments with empty
+	transcriptions if an utterance boundary word (option -b) was
+	specified.
+
+
+2003-12-10  S.E. Tranter  <sej28@eng.cam.ac.uk>
+
+	* HCluster.c: Added -y option to force splits to be binary
+            This changed the functions:
+		 MakeInitialAssignment, MakeInitialModuloAssignment
+
+	    Added a -z option to allow a BIC-based stopping criterion.
+	    This is currently only implemented for a 2-way split and
+	    for a full covariance (or correlation) matrix representation -
+	    i.e. it does not yet include block-diagonal or diagonal covariance
+	
+	    Two implementations of the BIC-based criterion are implemented -
+	    the choice of which is made on the sign of the -z parameter.
+	    Negative means a "local" decision - in that the penalty factor
+	    uses N_z, the number of frames in the cluster being split, 
+	    whereas positive means a "global" decision - i.e the penalty
+	    factor uses the total number of frames input to the clusterer.
+	    The absolute value of the z parameter indicates the value of alpha
+	    in the penalty formula.
+	    This uses the new functions: 
+		BICScore, ConvertCorrelationToCovariance, CalcJointMean,
+		CalcJointCov
+
+	Some maths functions from ~mjfg/cuhtk/HTKLib/HMath.c have also
+	    been included. This is because the existing SVD implementation
+	    sometimes goes into an infinite loop, so the alternative code
+	    (which contains nr stuff so cant be released) has been included.
+	    However, this is not yet called anywhere, since the icc version
+	    (e.g. compiled on spot) doesn't seem to produced this problem.
+            This involves the functions:
+		PYTHAG, MAXX, SIGN, SVDCmp, InvSVD_cuhtk
+	
+2003-10-14  Anna Langley <jal58@eng.cam.ac.uk>
+
+	* htk_htktools_nt.mkf: Use backslashes in pathnames.
+
+2003-10-14  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HLEd.c: Rename DELETE as Visual C++ doen't seem to like it.
+
+2003-09-10  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HHEd.c (ParseAlpha): Fix parsing of octal charcter codes.
+	From Tanel Alumäe <tanel.alumae@aqris.com>
+
+2003-07-28  Anna Langley <jal58@eng.cam.ac.uk>
+	* htk_htktools_nt.mkf: was not building HLRescore, applied changes
+	supplied by Arlindo Veiga which corrects this.
+	
+2003-07-24  M. J. F. Gales  <mjfg@eng.cam.ac.uk>
+ 
+ 	* HERest.c: clarify the single pass retraining when 
+ 	the TARGETKIND does not change.
+ 
+2003-07-08  Anna Langley <jal58@eng.cam.ac.uk>
+	* HERest.c, HHEd.c, HVite.c, HMMIRest.c, HEAdaptLat.c: removed
+	unused variables from sources.
+	
+2003-06-18  M. J. F. Gales  <mjfg@eng.cam.ac.uk>
+
+       * HERest.c (MLUpdateModels): maxM uninitialised. This means
+       that the weights are not always guaranteed to be updated
+       when there are multiple components.
+
+2003-04-05  S.E. Tranter  <sej28@tigger>
+
+	* HCluster.c (main): 
+	    The Minimum number of frames required to attempt to do
+	        full covariance matrix inversion is set to at least
+	        the dimension of the feature vector + 1
+
+	    New functions: 
+	       InvertTriMatSVD to invert a TriMat covariance
+	          matrix using SVD decomposition (more stable than CovInvert)
+	       IsCovInvertableSVD : checks if SVD inversion has been
+	          relatively stable
+	       StoreCovsSVD : reordering of StoreCovs and inversion of
+	          matrix using InvertTriMatSVD, so the inversion is 
+	          now done before checking if the matrix is invertable
+
+	    Modified functions:
+	       StoreCovsSVD now called instead of StoreCovs in main loop
+	       MakeClusterStats now calls InvertTriMatSVD not CovInvert
+	                   
+2003-03-30  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HLRescore.c (ProcessLattice): Try to make lattice node order
+	deterministic by setting ln->score to node posterior before
+	saving (can be turned off by setting SORTLATTICE=F).
+
+2003-03-17  Sue Tranter  <sej28@ceres>
+
+	* HCluster.c (SetConfParms): Bug fix to allow feature vectors
+	     of other than 13 dimension. 
+
+	SetConfParams now adds the "base_dimen" if it sees _D and _A, 
+	    rather than adding 13.
+	    Also, it checks that the minvar is not set to a different
+	    value in the cfgfile and command line
+        ReportUsage changes to allow "-w" option to set base_dimen on 
+	    command line (_D and _A should be set in cfg file)
+	Main : moved SetConfParms and setting dimension to after dealing 
+	       with input args. (to allow -w)
+	       -w option added to set base dimension on commandline
+	ShowParameters: ordering changed to be alphabetical 
+	                and -v and -w options added
+ 	
+
+2003-03-20  Dan Povey <dp10006@eng.cam.ac.uk
+
+	* HMMIRest.c: Bug fix for transition update.
+
+2003-03-13  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HVite.c (ProcessFile): Output current beam if alignment failed
+	and is restartable.
+
+2003-03-12  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HERest.c (main): Undo change to total logprob calculation.
+
+2003-03-12  Lan Wang <lw256@eng.cam.ac.uk>
+
+	* HMMIRest.c (SetConfParms): New config variables INXFORMMASK and
+	PAXFORMMASK. 
+
+2003-03-10  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HERest.c: Remove FIXUP again.
+
+2003-03-10  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HMMIRest.c: new config vars: VARFLOORPERCENTILE and VARSMOOTH
+	* HERest.c: new config vars: VARFLOORPERCENTILE and FIXUP
+
+2003-02-27  S.E. Tranter  <sej28@eng.cam.ac.uk>
+
+	* Makefile: Added HCluster to makefile
+
+	* HCluster.c (main): 
+	printing of numargs removed
+	printing of dimension information needs T_TOP
+        CloseAndExit function added to enable program to exit safely at 
+	    different stages
+	Bugfix for the case where all the segs are too small for main
+	    clustering decisions (assigns them all to 1 cluster)
+	Code which allowed an HPARM2 parameter (_Z) to be set has been
+	    commented out, since it caused a seg fault and may have
+	    been an interaction problem with a new HParm.c, since this
+	    didn't happen previously. This option was not currently
+	    being used in the config file anyway.
+
+2003-02-25  Mark Gales <mjfg@eng.cam.ac.uk>
+
+	* HHEd.c: Bug fixes in regression tree clustering.
+	From José David Romeral <jromeral@die.upm.es>
+
+2003-02-20  Lan Wang <lw256@eng.cam.ac.uk>
+
+	* HEAdaptLat.c: New tool.
+
+2003-02-07  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HHEd.c: New command PS for movemix models.
+
+2003-02-03  Mark Gales <mjfg@eng.cam.ac.uk>
+
+	* *.[hc]: Use new XForm code.
+
+2002-12-19  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* *.[hc]: Bump version to 3.2.
+
+2002-12-18  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HLRescore.c: Fix error codes.
+
+2002-12-16  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HLRescore.c (ReportUsage): Correct option description.
+
+2002-12-16  Steve Young <sjy@eng.cam.ac.uk>
+
+	* HSGen.c (Select): Fix boundary case for random arc selection.
+
+2002-11-14  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HHEd.c (MixDownCommand): remove unused variables.
+
+	* HEAdapt.c (main): Init HModel before HParm.
+	(Initialise): Pass current HMMSet to HParm.
+
+	* HERest.c (main): Init HModel before HParm.
+	(Initialise): Pass current HMMSet to HParm.
+
+	* HHEd.c (Summary): 
+	(DoEdit): 
+	(InputXFormCommand): New command XF to set InputXForm in model set.
+
+	* HList.c (main): Initialise modules HLabel and HModel for
+	InputXForm support.
+
+	* HVite.c (Initialise): 
+	* HRest.c (Initialise1): 
+	* HInit.c (Initialise): 
+	* HCompV.c (Initialise): Pass current HMMSet to HParm.
+
+2002-09-23  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HHEd.c (Summary): Fix typo.
+
+	* HERest.c (UpdateModels): Print Number of frames seen after
+	updating models.
+
+2002-09-12  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HVite.c (ProcessFile): Output current beam if alignment failed
+	and is restartable.
+
+2002-09-11  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HDMan.c (MAXPRONS): Increase from 20 to 100.
+
+2002-08-30  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HEAdapt.c (DoForwardBackward): Fix for FBInfo structure modified
+	for 2-model re-estimation.
+
+2002-08-28  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HERest.c (Initialise): Move printing of pruning settings to
+	HFB:InitialiseForBack().
+
+2002-07-12  Thomas Hain  <th223@eng.cam.ac.uk>
+
+	* HERest.c: Added 2-model re-estimation 
+
+2002-07-11  Thomas Hain  <th223@eng.cam.ac.uk>
+
+	* HHEd.c (SetConfParms): 
+	(TieLeafNodes): Added functionality to compute means and var's of
+	leaf nodes using cluster stats.
+	(MixMergeCost):
+	(MergeMix):
+	(DownMix):
+	(MixDownCommand): Add MD command
+	(FloorAverageCommand): Add FA Command
+	(FloorVectorCommand): Add FV Command
+
+2002-06-30  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HHEd.c (FullCovarCommand): Add FC command.
+
+2002-06-07  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HLRescore.c (ReportUsage): Document '-c' option.
+	From: ZEN Heiga <zen@ics.nitech.ac.jp>
+
+2002-06-05  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HLRescore.c: New Tool.
+
+2002-06-05  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+	
+	* *.[hc]: Bump version to 3.1.1.
+
+2002-02-23  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HCompV.c: Fix initialisation of CMN/CVN related data structures.
+
+2002-01-16  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* *.[hc]: Bump version to 3.1.
+
+2001-12-11  Gareth Moore  <glm20@eng.cam.ac.uk>
+
+	* *.c (ReportUsage): Tool usage report formatting tidied.
+
+2001-12-03  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HDMan.c (WriteDictWord): 
+	(WriteEntry): 
+	(EditWordBuf): 
+	(EditAndMerge): Do not update new phone list when outputting trace
+	info.
+
+2001-11-14  Xunying Liu  <xl207@eng.cam.ac.uk>
+
+	* HCompV.c: Added support for cluster-based mean and variance
+	normalisation. 
+
+2001-06-08  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HHEd.c (SetStreamWidthCommand): Recalculate vecSize of HMMSet
+	From: Mark Gales <mjfg@eng.cam.ac.uk>
+
+2001-04-18  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HList.c (IsWave): Take extended filenames into account.
+
+2001-04-17  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HSGen.c: Assign new error code range 3400-3499 to HSGen.
+
+	* HVite.c (Initialise): 
+	* HEAdapt.c (Initialise): 
+	* HERest.c (Initialise): Fix error codes.
+
+	* HHEd.c (ChkTreeObject): Correct error message.
+
+2001-04-11  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HVite.c (DoAlignment): 
+	(ProcessFile): Support iterative increase of beam limit for alignment.
+
+2000-11-30  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HVite.c: Add missing option -B and SAVEBINARY config variable.
+
+2000-10-27  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HRest.c (LoadFile): Do not try to load zero frame segments even
+	if '-t' option is specified.
+
+	* HVite.c (DoOnlineAdaptation): Return 0 if forward-backward
+	failed.
+
+	* HEAdapt.c (DoForwardBackward): Only update total frame and
+	logprob counters if forward-backward succeeded.
+
+2000-10-26  Phil Woodland  <pcw@eng.cam.ac.uk>
+
+	* HBuild.c (ProcessBoBiGram): Fix generation of bigram network for
+	zapUnknown==TRUE case.
+
+2000-10-26  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HERest.c (DoForwardBackward): Only update total frame and
+	logprob counters if forward-backward succeeded.
+	From: Mark Gales <mjfg@eng.cam.ac.uk>
+
+2000-10-24  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HSmooth.c: Rename MAXPHONES to MAXMONOPHONES.
+
+	* HDMan.c: Consistently use MAXPHONES (defined in HDict.h).
+	From Gunnar Lehtinen <lehtinen@tik.ee.ethz.ch>
+
+2000-10-06  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HHEd.c: Remove MPW segment pragmas.
+
+2000-09-25  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* Makefile: Copy compile settings from env files.
+
+2000-09-15  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HDMan.c (ReadCmd): C++ fix for incrementing enums.
+
+2000-09-11  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HVite.c (ProcessFile): Don't accumulate adaptation statistics if
+	no token survived and transcription was generated only due to
+	HREC:FORCEOUT=T.
+        (DoAlignment): Perform adaptation in alignment case as well (i.e.
+        lattice rescoring).
+
+	* HParse.c: 
+	(GetWdBeginNum): Eliminate unused for loop.
+
+	* HSLab.c: 
+	* HSGen.c: 
+	* HLStats.c: 
+	* HLEd.c: 
+	* HVite.c: 
+	* HSmooth.c: 
+	* HResults.c: 
+	* HRest.c: 
+	* HQuant.c: 
+	* HBuild.c: 
+	* HInit.c: 
+	* HHEd.c: 
+	* HERest.c: Warning elimination.
+
+2000-09-08  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HDMan.c: 
+	* HCopy.c: 
+	* HCompV.c: 
+	* HList.c: 
+	* HEAdapt.c: Warning elimination.
+
+2000-09-04  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* *.[hc]: Reindented.
+
+	* *.[hc]: Cleaned up version headers and set version to 3.0.

@@ -1,0 +1,1543 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/* developed at:                                               */
+%/*                                                             */
+%/*      Speech Vision and Robotics group                       */
+%/*      Cambridge University Engineering Department            */
+%/*      http://svr-www.eng.cam.ac.uk/                          */
+%/*                                                             */
+%/*      Entropic Cambridge Research Laboratory                 */
+%/*      (now part of Microsoft)                                */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                 */
+%/*                                                             */
+%/*               2002 Cambridge University                     */
+%/*                    Engineering Department                   */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young 15/11/95
+%
+
+\mychap{HMM Definition Files}{HMMDefs}
+
+\sidepic{Tool.model}{80}{}
+The principle function of \HTK\ is to manipulate sets of hidden
+Markov  models (HMMs). The definition of a HMM must specify the
+model topology, the transition parameters and the output
+distribution parameters. The HMM observation vectors can be
+divided into multiple independent data streams and each stream can
+have its own weight. In addition, a HMM can have ancillary
+information such as duration parameters.
+\HTK\ supports both continuous mixture densities and discrete
+distributions. \HTK\ also provides a generalised tying mechanism which
+allows parameters to be shared within and between models.  
+
+\index{HMM!definitions}
+In order to encompass this rich variety of HMM types within
+a single framework, \HTK\ uses a formal language 
+to define HMMs.  The interpretation of this language is handled
+by the library module \htool{HModel} which is responsible for converting
+between the external and internal representations of HMMs.  In addition,
+it provides all the basic probability function calculations.
+A second module \htool{HUtil} provides various additional facilities for
+manipulating HMMs once they have been loaded into memory.
+
+The purpose of this chapter is to describe
+the HMM definition language in some detail.  The chapter begins by 
+describing how to write
+individual HMM definitions.  \HTK\ macros are
+then explained and the mechanisms for defining a complete
+model set are presented.  The various flavours of
+HMM are then described and the use of binary files discussed.
+Finally, a formal description of the \HTK\ HMM definition
+language is given.
+
+As will be seen, the definition of a large 
+HMM system can involve considerable complexity.  However, in
+practice, HMM systems are built incremently.  The usual 
+starting point is a single HMM definition which is then
+repeatedly cloned and refined using the various \HTK\ tools
+(in particular, \htool{HERest} and \htool{HHEd}).
+Hence, in practice, the \HTK\ user rarely has to 
+generate complex HMM definition files directly.  
+
+\mysect{The HMM Parameters}{HMMparm}
+
+A HMM consists of a number of states.  Each state $j$ has an associated
+observation probability distribution $b_{j}(\bm{o}_t)$  which
+determines the probability of generating observation $\bm{o}_t$ at
+time $t$ and each pair of states $i$ and $j$ has an associated
+transition probability $a_{ij}$.  In \HTK\,  the entry state $1$ and
+the exit state $N$ of an $N$ state HMM are non-emitting.  
+
+\sidefig{hmm1}{70}{Simple Left-Right HMM}{-4}{
+Fig.~\href{f:hmm1} shows a simple left-right HMM with five states in
+total.  Three of these are emitting states and have output probability
+distributions associated with them.   The transition matrix for
+this model will have 5 rows and 5 columns.  Each row will sum to one
+except for the final row which is always all zero since no
+transitions are allowed out of the final state.
+
+\HTK\ is principally concerned with continuous\index{HMM!parameters}
+density models in which each observation probability distribution
+is represented by a mixture Gaussian density.  In this case,
+for state $j$
+the probability $b_{j}(\bm{o}_t)$ of generating 
+observation $\bm{o}_t$ is given by
+}
+
+\hequation{
+  b_{j}(\bm{o}_t) = \prod_{s=1}^S \left[
+     \sum_{m=1}^{M_{js}} c_{jsm} {\cal N}(\bm{o}_{st};
+                    \bm{\mu}_{jsm}, \bm{\Sigma}_{jsm})
+  \right]^{\gamma_s}
+}{cdpdf}
+where $M_{js}$ is the number of mixture components\index{mixture component} 
+in state $j$ for stream $s$,
+$c_{jsm}$ is the weight of the $m$'th  component and 
+${\cal N}(\cdot; \bm{\mu}, \bm{\Sigma})$ is a multivariate Gaussian
+with mean vector\index{mean vector} $\bm{\mu}$ and 
+covariance matrix\index{covariance matrix} $\bm{\Sigma}$, that
+is\index{output probability!continuous case}
+\hequation{
+{\cal N}(\bm{o}; \bm{\mu}, \bm{\Sigma}) =
+       \frac{1}{\sqrt{(2 \pi)^n | \bm{\Sigma} |}} 
+       e^{- \frac{1}{2}(\bm{o}-\bm{\mu})^\transpose \bm{\Sigma}^{-1}(\bm{o}-\bm{\mu})}
+}{gnorm}
+where $n$ is the dimensionality of $\bm{o}$.  The exponent $\gamma_s$ is
+a stream weight\index{stream weight} and its 
+default value is one.  Other values can be
+used to emphasise particular streams, however, none of the standard
+\HTK\ tools manipulate it.
+
+\HTK\ also supports discrete probability 
+distributions\index{discrete probability} in which
+case \index{output probability!discrete case}
+\hequation{
+  b_{j}(\bm{o}_t) = \prod_{s=1}^S \left\{
+     P_{js}[v_s(\bm{o}_{st})]
+  \right\}^{\gamma_s}
+}{ddpdf}
+where $v_s(\bm{o}_{st})$ is the output of the vector 
+quantiser for stream $s$
+given input vector $\bm{o}_{st}$ and $P_{js}[v]$ is the 
+probability of state $j$ generating symbol $v$ in stream $s$.
+
+In addition to the above, any model or state can have an
+associated vector of duration parameters
+\index{duration parameters} $\{d_k\}$\footnote{
+No current \HTK\ tool can estimate or use these.
+}.  
+Also,
+it is necessary to specify the kind of the observation
+vectors, and the width of the observation vector in each stream.
+Thus, the total information needed to define a single HMM is 
+as follows
+   \begin{itemize}
+    \item type of observation vector
+    \item number and width of each data stream
+    \item optional model duration parameter vector
+    \item number of states
+    \item for each emitting state and each stream
+        \begin{itemize}
+           \item mixture component weights or discrete probabilities
+           \item if continuous density, then means and covariances
+           \item optional stream weight vector    
+           \item optional duration parameter vector
+         \end{itemize}  
+    \item transition matrix
+\end{itemize}
+The following sections explain how these are defined.
+
+\mysect{Basic HMM Definitions}{OneHMM}
+
+Some \HTK\ tools require a single HMM to be defined.  For example, the
+isolated-unit re-estimation tool \htool{HRest} would be invoked as
+\begin{verbatim}
+    HRest hmmdef s1 s2 s3 ....
+\end{verbatim}
+
+\noindent
+This would cause the model defined in the file \texttt{hmmdef}
+to be input and its parameters re-estimated using the speech data
+files \texttt{s1}, \texttt{s2}, etc.\index{HMM definition!basic form}
+
+\sideprog{hmm1def}{60}{Definition for Simple L-R HMM}{
+\hmmc{h}{hmm1} \\
+\hmkw{BeginHMM} \\
+\> \hmkw{VecSize} 4 \hmkw{MFCC}  \\
+\> \hmkw{NumStates} 5  \\
+\> \hmkw{State} 2 \\
+\>\>    \hmkw{Mean} 4 \\
+\>\>\>       0.2 0.1 0.1 0.9  \\
+\>\>    \hmkw{Variance} 4 \\
+\>\>\>       1.0 1.0 1.0 1.0  \\
+\> \hmkw{State} 3 \\
+\>\>    \hmkw{Mean} 4 \\
+\>\>\>       0.4 0.9 0.2 0.1  \\
+\>\>    \hmkw{Variance} 4 \\
+\>\>\>       1.0 2.0 2.0 0.5  \\
+\> \hmkw{State} 4 \\
+\>\>    \hmkw{Mean} 4 \\
+\>\>\>       1.2 3.1 0.5 0.9  \\
+\>\>    \hmkw{Variance} 4 \\
+\>\>\>       5.0 5.0 5.0 5.0  \\
+\> \hmkw{TransP} 5 \\
+\>\>   0.0 0.5 0.5 0.0 0.0 \\
+\>\>   0.0 0.4 0.4 0.2 0.0 \\
+\>\>   0.0 0.0 0.6 0.4 0.0 \\
+\>\>   0.0 0.0 0.0 0.7 0.3 \\
+\>\>   0.0 0.0 0.0 0.0 0.0  \\
+\hmkw{EndHMM}
+}{}
+HMM definition files consist of a sequence of symbols representing
+the elements of a simple language.  These symbols are mainly
+keywords written within angle brackets and integer and
+floating point numbers. 
+The full \HTK\ definition language is presented
+more formally later in section~\ref{s:hmmdef}.  For now, the
+main features of the language will be described by some
+examples.\index{HMM definition!symbols in}
+
+Fig~\href{f:hmm1def} shows a HMM definition corresponding to the simple
+left-right HMM illustrated in Fig~\href{f:hmm1}.  It is a continuous density
+HMM with 5 states in total, 3 of which are emitting.  The first symbol in the
+file \hmmt{h} indicates that the following string is the name of a macro of
+type \textsf{h} which means that it is a HMM definition (macros are explained
+in detail later).  Thus, this definition describes a HMM called ``hmm1''.  
+Note that HMM names should be composed of alphanumeric characters only and must
+not consist solely of numbers. The HMM definition itself is bracketed by the
+symbols \hmkw{BeginHMM}\index{beginhmm@$<$BeginHMM$>$} and
+\hmkw{EndHMM}\index{endhmm@$<$EndHMM$>$}.\index{HMM name}
+
+The first 
+line of the definition proper specifies\index{HMM definition!global features}
+the \textit{global} features of the HMM.  In any system
+consisting of many HMMs, these
+features will be the same for all of them.
+In this case, the global definitions indicate that
+the observation vectors have 4 components
+(\hmkw{VecSize}\index{vecsize@$<$VecSize$>$} 4) and that they denote
+MFCC coefficients\index{MFCC coefficients} (\hmkw{MFCC}).
+
+The next line specifies the number of states in the HMM. There
+then follows a definition for each emitting state $j$, each of which
+has a single mean 
+vector $\bm{\mu}_j$ introduced by the keyword \hmkw{Mean}
+\index{mean@$<$Mean$>$} 
+and a diagonal variance vector $\bm{\Sigma}_j$
+introduced by the keyword \hmkw{Variance}.
+\index{variance@$<$Variance$>$}
+The definition ends with the transition matrix $\{a_{ij}\}$
+introduced by the keyword 
+\hmkw{TransP}\index{transp@$<$TransP$>$}.  
+\index{HMM definition!mean vector}
+\index{HMM definition!covariance matrix}
+\index{HMM definition!transition matrix}
+
+Notice that
+the dimension of each vector or matrix is specified
+explicitly before listing the component values.  These
+dimensions must be consistent with the corresponding observation 
+width (in the case of output distribution parameters) or
+number of states (in the case of transition matrices).
+Although in this example they could be inferred, 
+\HTK\ requires that 
+they are included explicitly since, as will
+be described shortly, they can be detached from the HMM definition
+and stored elsewhere as a macro.\index{vector dimensions}\index{matrix dimensions}
+
+
+The definition for \textsf{hmm1} makes use of many defaults.
+In particular, there is no definition for the number of
+input data streams or for the number of 
+mixture components per output distribution.  Hence, in both
+cases, a default of 1 is assumed.
+
+Fig~\href{f:hmm2def} shows a HMM definition in which
+the emitting states are 2 component mixture Gaussians.
+The number of mixture components in each state $j$ is indicated by the keyword
+\hmkw{NumMixes}\index{nummixes@$<$NumMixes$>$} and each mixture component 
+is prefixed by the keyword \hmkw{Mixture}\index{mixture@$<$Mixture$>$}  followed by the 
+component index $m$ and component weight $c_{jm}$.  Note
+that there is no requirement for the number of mixture components
+to be the same in each distribution.\index{HMM definition!mixture components}
+
+
+State definitions and the mixture components within them may be
+listed in any order.  When a HMM definition is loaded, a check is made
+that all the required components have been defined.  In addition,
+checks are made that the mixture component weights and each row
+of the transition matrix sum to one.
+If very rapid loading is required, this consistency checking can be inhibited
+by setting the Boolean configuration variable 
+\texttt{CHKHMMDEFS}\index{chkhmmdefs@\texttt{CHKHMMDEFS}} to
+false.
+
+As an alternative to diagonal variance vectors, a Gaussian distribution
+can have a full rank covariance\index{full rank covariance} matrix.   An example of
+this is shown in the definition for \textsf{hmm3} shown in 
+Fig~\href{f:hmm3def}.  Since covariance matrices are symmetric,
+they are stored in upper triangular form\index{upper triangular form}  
+i.e. each row of the matrix
+starts at the diagonal element\footnote{
+Covariance matrices are actually stored internally in lower triangular
+form}.  Also, covariance matrices are stored
+in their inverse form i.e.\ HMM definitions contain $\bm{\Sigma}^{-1}$
+rather than  $\bm{\Sigma}$.  To reflect this, the keyword chosen to
+introduce a full covariance matrix is \hmkw{InvCovar}\index{invcovar@$<$InvCovar$>$}.  
+
+
+\sideprog{hmm2def}{60}{Simple Mixture Gaussian HMM}{
+\hmmc{h}{hmm2} \\
+\hmkw{BeginHMM} \\
+\>\hmkw{VecSize} 4 \hmkw{MFCC} \\
+\>\hmkw{NumStates} 4  \\
+\>\hmkw{State} 2 \hmkw{NumMixes} 2 \\
+\>\>   \hmkw{Mixture} 1 0.4 \\
+\>\>\>    \hmkw{Mean} 4 \\
+\>\>\>\>       0.3 0.2 0.2 1.0  \\
+\>\>\>    \hmkw{Variance} 4 \\
+\>\>\>\>       1.0 1.0 1.0 1.0  \\
+\>\>    \hmkw{Mixture} 2 0.6 \\
+\>\>\>    \hmkw{Mean} 4 \\
+\>\>\>\>       0.1 0.0 0.0 0.8  \\
+\>\>\>    \hmkw{Variance} 4 \\
+\>\>\>\>       1.0 1.0 1.0 1.0  \\
+\>\hmkw{State} 3 \hmkw{NumMixes} 2  \\
+\>\>    \hmkw{Mixture} 1 0.7 \\
+\>\>\>    \hmkw{Mean} 4 \\
+\>\>\>\>       0.1 0.2 0.6 1.4 \\ 
+\>\>\>    \hmkw{Variance} 4 \\
+\>\>\>\>       1.0 1.0 1.0 1.0 \\ 
+\>\>    \hmkw{Mixture} 2 0.3 \\
+\>\>\>    \hmkw{Mean} 4 \\
+\>\>\>\>       2.1 0.0 1.0 1.8  \\
+\>\>\>    \hmkw{Variance} 4 \\
+\>\>\>\>       1.0 1.0 1.0 1.0 \\ 
+\> \hmkw{TransP} 4 \\
+\>\>   0.0 1.0 0.0 0.0 \\
+\>\>   0.0 0.5 0.5 0.0 \\
+\>\>   0.0 0.0 0.6 0.4 \\
+\>\>   0.0 0.0 0.0 0.0 \\
+\hmkw{EndHMM} 
+}{}
+
+Notice that only the second
+state has a full covariance Gaussian component.  The first state
+has a mixture of two diagonal variance Gaussian components.  Again, this
+illustrates the flexibility of HMM definition in \HTK.  If required
+the structure of every
+Gaussian can be individually configured.
+
+Another possible way to store covariance information is in the form
+of the Choleski decomposition\index{Choleski decomposition} $L$ of the 
+inverse covariance matrix
+i.e. $\bm{\Sigma}^{-1} = LL^\transpose$.
+Again this is stored externally in upper triangular form so $L^\transpose$ is
+actually stored.  It is distinguished from the normal inverse covariance
+matrix by using the keyword \hmkw{LLTCovar}\index{lltcovar@$<$LLTCovar$>$} 
+in place of \hmkw{InvCovar}\footnote{
+The Choleski storage format is not used by default in \HTK\ Version 2}.  
+
+
+The definition for \textsf{hmm3} also illustrates another
+macro type, that is, \hmmt{o}.  This macro is used as an alternative
+way of specifying global options and, in fact, it is the format used
+by \HTK\ tools when they write out a HMM definition.  It is provided so that global
+options can be specified ahead of any other HMM parameters.  As will
+be seen later, this is useful when using many types of macro.
+\index{HMM definition!global options macro}
+
+As noted earlier, the observation vectors used to represent
+the speech signal can be divided into two or more statistically
+independent data streams.  This corresponds to the splitting-up
+of the input speech vectors as described in section~\ref{s:streams}.
+In HMM definitions, the use of multiple data
+streams must be indicated by specifying the number of streams and
+the width (i.e\ dimension) of each stream as a global
+option.  This is done using the keyword \hmkw{StreamInfo}
+\index{streaminfo@$<$StreamInfo$>$} followed
+by the number of streams, and then a sequence of numbers indicating
+the width of each stream.  The sum of these
+stream widths must equal the original vector size as indicated
+by the  \hmkw{VecSize} keyword. 
+
+An example of a HMM definition for multiple data 
+streams\index{HMM definition!multiple data streams}
+is \textsf{hmm4} shown in 
+Fig~\href{f:hmm4def}.  This HMM is intended to model 2 distinct
+streams, the first has 3 components and the second has 1.
+This is indicated by the global option \hmkw{StreamInfo} 2 3 1.
+The definition of each state output distribution now
+includes means and variances for each individual stream.
+
+Thus, in Fig~\href{f:hmm4def}, each state is subdivided into
+2 streams using the \hmkw{Stream}\index{stream@$<$Stream$>$} keyword followed by the stream
+number.  Note also, that each individual stream can be weighted.
+In state 2 of \textsf{hmm4}, the vector following the
+\hmkw{SWeights}\index{sweights@$<$SWeights$>$} keyword indicates that
+stream 1 has a weight of 0.9 whereas
+stream 2 has a weight of 1.1.  There is no stream weight
+\index{HMM definition! stream weight} vector
+in state 3 and hence the default weight of 1.0 will be
+assigned to each stream.
+
+\vspace{1.0cm}
+
+
+\putprog{hmm3def}{100}{HMM with Full Covariance}{
+\hmmt{o}  \hmkw{VecSize} 4 \hmkw{MFCC} \\
+\hmmc{h}{hmm3} \\
+\hmkw{BeginHMM}  \\
+\> \hmkw{NumStates} 4  \\
+\> \hmkw{State} 2 \hmkw{NumMixes} 2 \\
+\>\>   \hmkw{Mixture} 1 0.4 \\
+\>\>\>    \hmkw{Mean} 4 \\
+\>\>\> \>      0.3 0.2 0.2 1.0 \\ 
+\>\>\>    \hmkw{Variance} 4 \\
+\>\>\> \>      1.0 1.0 1.0 1.0 \\ 
+\>\>\>   \hmkw{Mixture} 2 0.6 \\
+\>\>\>    \hmkw{Mean} 4 \\
+\>\>\>\>       0.1 0.0 0.0 0.8  \\
+\>\>\>    \hmkw{Variance} 4 \\
+\>\> \>\>      1.0 1.0 1.0 1.0 \\ 
+\> \hmkw{State} 3 \hmkw{NumMixes} 1 \\
+\>\>   \hmkw{Mean} 4 \\
+\>\>\>       0.1 \> 0.2 \> 0.6 \> 1.4 \\ 
+\>\>    \hmkw{InvCovar} 4 \\
+\>\>\>       1.0 \> 0.1 \> 0.0 \> 0.0\\
+\>\>\>       \>  1.0 \>  0.2 \> 0.0\\
+\>\>\>       \>\>  1.0 \>  0.1\\
+\>\>\>       \>\>\> 1.0 \\
+\> \hmkw{TransP} 4 \\
+\>\>   0.0 1.0 0.0 0.0 \\
+\>\>   0.0 0.5 0.5 0.0 \\
+\>\>   0.0 0.0 0.6 0.4 \\
+\>\>   0.0 0.0 0.0 0.0 \\
+\hmkw{EndHMM}
+}
+
+No \HTK\ tools are supplied for estimating optimal stream 
+weight\index{HMM definition!stream weight} 
+values.  Hence, they must either be set manually or derived
+from some outside source.  However, once set, they are used in
+the calculation of output probabilities as specified in 
+equations~\ref{e:cdpdf} and \ref{e:ddpdf}, and hence they will
+affect the operation of both the training and recognition tools.
+
+\putprog{hmm4def}{100}{HMM with 2 Data Streams}{
+\hmmt{o} \>  \hmkw{VecSize} 4 \hmkw{MFCC} \\
+\> \hmkw{StreamInfo} 2 3 1 \\
+\hmmc{h}{hmm4} \\
+\hmkw{BeginHMM}  \\
+\> \hmkw{NumStates} 4 \\
+\> \hmkw{State} 2 \\
+\>\>   \hmkw{SWeights} 2 0.9 1.1 \\
+\>\>   \hmkw{Stream} 1 \\
+\>\>\>     \hmkw{Mean} 3 \\
+\>\>\>\>      0.2 0.1 0.1 \\
+\>\>\>     \hmkw{Variance} 3 \\
+\>\>\>\>       1.0 1.0 1.0 \\
+\>\>   \hmkw{Stream} 2 \\
+\>\>\>     \hmkw{Mean} 1 0.0 \\
+\>\>\>     \hmkw{Variance} 1 4.0 \\
+\> \hmkw{State} 3 \\
+\>\>   \hmkw{Stream} 1 \\
+\>\>\>     \hmkw{Mean} 3 \\
+\>\>\>\>       0.3 0.2 0.0 \\
+\>\>\>     \hmkw{Variance} 3 \\
+\>\>\>\>       1.0 1.0 1.0 \\
+\>\>   \hmkw{Stream} 2 \\
+\>\>\>     \hmkw{Mean} 1 0.5 \\
+\>\>\>     \hmkw{Variance} 1 3.0 \\
+\> \hmkw{TransP} 4 \\
+\>\>   0.0 1.0 0.0 0.0 \\
+\>\>   0.0 0.6 0.4 0.0 \\
+\>\>   0.0 0.0 0.4 0.6 \\
+\>\>   0.0 0.0 0.0 0.0 \\
+\hmkw{EndHMM}
+}
+
+\mysect{Macro Definitions}{HMMmac}
+
+So far, basic model definitions have been described in which
+all of the information required to define a HMM has been
+given directly between the  \hmkw{BeginHMM} and \hmkw{EndHMM}
+keywords.  As an alternative, \HTK\ allows the internal
+parts of a definition to be written as separate units, possibly
+in several different files, and then referenced by name wherever they
+are needed.  Such definitions are called \textit{macros}.  
+
+
+\sideprog{mac5def}{50}{Simple Macro Definitions}{
+\hmmt{o} \hmkw{VecSize} 4 \hmkw{MFCC} \\
+\\
+\hmmc{v}{var} \\
+\> \hmkw{Variance} 4 \\
+\>\>    1.0 1.0 1.0 1.0  \\
+}{}
+
+HMM (\hmmt{h}) and global option macros
+\index{macros}\index{HMM definition!macros} (\hmmt{o})
+have already been described.  In fact, these are both rather
+special cases since neither is ever referenced explicitly by
+another definition.  Indeed, the option macro is unusual in that
+since it is global and must be unique, it has no name.
+As an illustration of the use of macros, it may be observed
+that the variance vectors in the HMM definition \textsf{hmm2} given
+in Fig~\href{f:hmm2def} are all identical.  If this was
+intentional, then the variance vector could be defined as a macro
+as illustrated in Fig~\href{f:mac5def}.  
+
+A macro definition\index{macro definition} consists of a macro type indicator
+followed by a user-defined macro name.  In this case, the indicator is \hmmt{v}
+and the name is \textsf{var}. Notice that a global options macro is included
+before the definition for \textsf{var}. \HTK\ must know these before it can
+process any other definitions thus the first macro file specified on the
+command line of any \HTK\ tool must have the global options macro.  Global
+options macro need not be repeated at the head of every definition file, but it
+does no harm to do so.
+
+\sideprog{hmm5def}{60}{A Definition Using Macros}{
+
+\hmmc{h}{hmm5} \\
+\hmkw{BeginHMM} \\
+\> \hmkw{NumStates} 4  \\
+\> \hmkw{State} 2 \hmkw{NumMixes} 2 \\
+\>\>   \hmkw{Mixture} 1 0.4 \\
+\>\>\>    \hmkw{Mean} 4 \\
+\>\>\>\>       0.3 0.2 0.2 1.0  \\
+\>\>\>    \hmmc{v}{var} \\
+\>\>   \hmkw{Mixture} 2 0.6 \\
+\>\>\>    \hmkw{Mean} 4 \\
+\>\>\>\>      0.1 0.0 0.0 0.8  \\
+\>\>\>    \hmmc{v}{var} \\
+\> \hmkw{State} 3 \hmkw{NumMixes} 2 \\
+\>\>   \hmkw{Mixture} 1 0.7 \\
+\>\>\>    \hmkw{Mean} 4 \\
+\>\>\>\>       0.1 0.2 0.6 1.4  \\
+\>\>\>    \hmmc{v}{var} \\
+\>\>   \hmkw{Mixture} 2 0.3 \\
+\>\>\>    \hmkw{Mean} 4 \\
+\>\>\>\>       2.1 0.0 1.0 1.8  \\
+\>\>\>    \hmmc{v}{var} \\
+\> \hmkw{TransP} 4 \\
+\>\>   0.0 1.0 0.0 0.0 \\
+\>\>   0.0 0.5 0.5 0.0 \\
+\>\>  0.0 0.0 0.6 0.4 \\
+\>\>   0.0 0.0 0.0 0.0 \\
+\hmkw{EndHMM} 
+
+}{}
+
+Once defined,  a macro is used simply by writing the type
+indicator and name exactly as written in the definition.
+Thus, for example, Fig~\href{f:hmm5def} defines a HMM called
+\textsf{hmm5} which uses the variance macro  \textsf{var} but
+is otherwise identical to the earlier HMM definition \textsf{hmm2}.
+
+\index{macro substitution}
+The definition for \textsf{hmm5} can be understood by substituting
+the textual body of the \textsf{var} macro everywhere that it is
+referenced.  Textually this would make the definition for \textsf{hmm5}
+identical to that for \textsf{hmm2}, and indeed, if input to a recogniser,
+their effects would be similar.  
+However, as will become clear in later chapters,
+the HMM definitions \textsf{hmm2} and  \textsf{hmm5} differ
+in two ways.  Firstly,  if
+any attempt was made to re-estimate the parameters of \textsf{hmm2},
+the values of the variance vectors would almost certainly
+diverge.  However,
+the variance vectors of \textsf{hmm5} are tied together and are
+guaranteed to remain identical, even after re-estimation.  Thus,
+in general, the use of a macro enforces a \textit{tying} which
+results in the corresponding parameters being shared amongst
+all the HMM structures which reference that macro.
+Secondly, when used in a recognition tool, the computation required
+to decode using HMMs with tied parameters will often be reduced.
+This is particularly true when higher level parts of a HMM definition
+are tied such as whole states.
+
+There are many different macro types\index{HMM definition!macro types}\index{macros!types}.  Some have special
+meanings but the following correspond to
+the various distinct points in the hierarchy of HMM parameters which
+can be tied.  
+\begin{tabbing}
++ \= ++++ \=  \kill
+\> \hmmt{s} \>  shared state distribution\\
+\> \hmmt{m} \>  shared Gaussian mixture component \\
+\> \hmmt{u} \>  shared mean vector \\
+\> \hmmt{v} \>  shared diagonal variance vector \\
+\> \hmmt{i} \>  shared inverse full covariance matrix \\
+\> \hmmt{c} \>  shared Choleski $L^\transpose$ matrix \\
+\> \hmmt{x} \>  shared arbitrary transform matrix\footnote{
+Transform matrices are not used by any of the supported HTK tools.
+}
+ \\
+\> \hmmt{t} \>  shared transition matrix \\
+\> \hmmt{d} \>  shared duration parameters \\
+\> \hmmt{w} \>  shared stream weight vector 
+\end{tabbing}
+
+Fig~\href{f:hierarch} illustrates these potential
+tie points\index{parameter tie points} graphically for the case of continuous density HMMs.
+In this figure, each solid black circle represents a potential
+tie point, and the associated macro type is indicated alongside it.
+
+\centrefig{hierarch}{120}{HMM Hierarchy and Potential Tie Points}
+
+\noindent
+The tie points for discrete HMMs are identical except that the
+macro types \hmmt{m}, \hmmt{v}, \hmmt{c}, \hmmt{i} and \hmmt{u} are not
+relevant and are therefore excluded.
+
+The macros with special meanings\index{macros!special meanings} are as follows
+\begin{tabbing}
++ \= ++++ \= ++++++++++++++ \= ++++ \=\kill
+\> \hmmt{l} \>  logical HMM \> \hmmt{h} \>  physical HMM \\
+\> \hmmt{o} \>  global option values \> \hmmt{p} \>  tied mixture \\
+\> \hmmt{r} \>  regression class tree \> \hmmt{j} \> linear transform
+\end{tabbing}
+The distinction between logical and physical HMMs will be explained
+in the next section and option macros have already been described.
+The \hmmt{p} macro is used by the HMM editor \htool{HHEd}
+for building tied mixture systems (see section~\ref{s:tmix}).
+The \hmmt{l} or \hmmt{p} macros are special in the sense
+that they are created implicitly in order to represent specific kinds 
+of parameter sharing and they never occur explicitly in HMM definitions.
+
+\mysect{HMM Sets}{hmmsets}
+
+The previous sections have described how a single HMM definition
+can be specified.  However, many \HTK\ tools require complete model
+sets to be specified rather than just a single model.\index{HMM sets}
+When this is the case, the individual HMMs which belong to the set
+are listed in a file rather than being enumerated explicitly on
+the command line.  Thus, for example, a typical invocation of
+the tool \htool{HERest} might be as follows
+\begin{verbatim}
+    HERest ... -H mf1 -H mf2 ... hlist
+\end{verbatim}
+where each \texttt{-H} option names a macro file and \texttt{hlist}
+contains a list of HMM names, one per line. For example, it might contain
+\begin{verbatim}
+    ha
+    hb
+    hc
+\end{verbatim}
+In a case such as this, the macro files would normally\index{HMM lists}
+contain definitions for the models \texttt{ha}, 
+\texttt{hb} and \texttt{hc}, along with any lower level macro 
+definitions that they might require.
+
+As an illustration,
+Fig~\href{f:mac6def} and Fig~\href{f:hmm6def} give examples of
+what the macro files \texttt{mf1} and \texttt{mf2} might contain.
+The first file contains definitions for three states and a
+transition matrix.  The second file
+contains definitions for the three HMMs.  In this example,
+each HMM shares the three
+states and the common transition matrix.  A HMM set such as 
+this is called a \textit{tied-state} system.
+
+The order in which macro files are listed on
+the command line and the order of definition within
+each file must ensure that all macro
+definitions are defined before they are referenced.
+Thus, macro files are typically organised such that all
+low level structures come first followed by states and
+transition matrices, with the actual HMM definitions coming last.
+
+
+When the HMM list contains the name of a HMM for which no corresponding
+macro has been defined, then an attempt is made to open a file with the
+same name.  This file is expected to contain a single definition 
+corresponding to the required HMM.  Thus, the general mechanism for
+loading a set of HMMs is as shown in Fig~\href{f:hsetdef}.  In this
+example, the HMM list \texttt{hlist} contains the names of five HMMs 
+of which
+only three have been predefined via the macro files.  Hence, the
+remaining definitions are found in individual HMM definition files
+\texttt{hd} and \texttt{he}.
+
+When a large number of HMMs must be loaded from individual files, it is
+common to store them in a specific directory.  Most \HTK\ tools allow
+this directory to be specified explicitly using a command line option.
+For example, in the command
+\begin{verbatim}
+    HERest -d hdir ... hlist ....
+\end{verbatim}
+the definitions for the HMM listed in \texttt{hlist} will be
+searched for in the subdirectory \texttt{hdir}.
+
+
+After loading each HMM set,\index{tied-state} \htool{HModel} marks it as belonging
+to one of the following categories (called the \textit{HSKind}\index{hskind@HSKind}
+\begin{itemize}
+\item \texttt{PLAINHS}
+\item \texttt{SHAREDHS}
+\item \texttt{TIEDHS}
+\item \texttt{DISCRETEHS}
+\end{itemize}
+
+
+Any HMM set containing discrete output distributions is assigned\index{HMM sets!types}
+to the \texttt{DISCRETEHS}\index{discretehs@\texttt{DISCRETEHS}} category (see section~\ref{s:dischmm}).  
+If all mixture components are tied, then it
+is assigned to the \texttt{TIEDHS} category (see section~\ref{s:tmix}).  
+If it contains any shared states (\hmmt{s} macros) 
+or Gaussians (\hmmt{m} macros) then it is \texttt{SHAREDHS}\index{sharedhs@\texttt{SHAREDHS}}.
+Otherwise, it is \texttt{PLAINHS}. The  category assigned
+to a HMM set determines which of several possible optimisations
+the various \HTK\ tools can apply to it.  As a check, the required kind of
+a HMM set can also be set via the configuration variable \texttt{HMMSETKIND}.
+For debugging purposes, this can also be used to re-categorise a 
+\texttt{SHAREDHS} system as \texttt{PLAINHS}\index{plainhs@\texttt{PLAINHS}}.
+
+As shown in Figure~\href{f:hierarch}, complete HMM
+definitions can be tied as well as their individual parameters.  However,
+tying at the HMM level is defined in a different way.  
+HMM lists have so far\index{HMM tying}
+been described as simply a list of model names. In fact, every HMM has two
+names: a {\it logical} name and a {\it physical name}. The logical name
+reflects the r\^{o}le of the model and the physical name is used to
+identify the definition on disk.  By default, the logical and physical names
+are identical.  HMM tying is implemented by letting several logically
+distinct HMMs share the same physical definition.  This is done by giving
+an explicit physical name immediately after the logical name in a HMM 
+list\index{HMM lists}.
+
+\putprog{mac6def}{100}{File mf1: shared state and
+transition matrix macros}{
+
+\hmmt{o} \>\> \hmkw{VecSize} 4 \hmkw{MFCC} \\
+\hmmc{s}{stateA} \\
+\>    \hmkw{Mean} 4 \\
+\>\>       0.2 0.1 0.1 0.9  \\
+\>    \hmkw{Variance} 4 \\
+\>\>       1.0 1.0 1.0 1.0  \\
+\hmmc{s}{stateB} \\
+\>    \hmkw{Mean} 4 \\
+\>\>       0.4 0.9 0.2 0.1  \\
+\>    \hmkw{Variance} 4 \\
+\>\>       1.0 2.0 2.0 0.5  \\
+\hmmc{s}{stateC} \\
+\>    \hmkw{Mean} 4 \\
+\>\>       1.2 3.1 0.5 0.9  \\
+\>    \hmkw{Variance} 4 \\
+\>\>       5.0 5.0 5.0 5.0  \\
+\hmmc{t}{tran} \\
+\> \hmkw{TransP} 5 \\
+\>\>   0.0 0.5 0.5 0.0 0.0 \\
+\>\>   0.0 0.4 0.4 0.2 0.0 \\
+\>\>   0.0 0.0 0.6 0.4 0.0 \\
+\>\>   0.0 0.0 0.0 0.7 0.3 \\
+\>\>   0.0 0.0 0.0 0.0 0.0 
+}
+
+
+\putprog{hmm6def}{100}{Simple Tied-State System}{\hmmc{h}{ha} \\
+\hmkw{BeginHMM} \\
+\> \hmkw{NumStates} 5  \\
+\> \hmkw{State} 2 \\
+\>\>   \hmmc{s}{stateA} \\
+\> \hmkw{State} 3 \\
+\>\>   \hmmc{s}{stateB} \\
+\> \hmkw{State} 4 \\
+\>\>   \hmmc{s}{stateB} \\
+\> \hmmc{t}{tran}  \\
+\hmkw{EndHMM} \\
+ \\
+\hmmc{h}{hb} \\
+\hmkw{BeginHMM} \\
+\> \hmkw{NumStates} 5  \\
+\> \hmkw{State} 2 \\
+\>\>   \hmmc{s}{stateB} \\
+\> \hmkw{State} 3 \\
+\>\>   \hmmc{s}{stateA} \\
+\> \hmkw{State} 4 \\
+\>\>   \hmmc{s}{stateC} \\
+\> \hmmc{t}{tran}  \\
+\hmkw{EndHMM} \\
+ \\
+\hmmc{h}{hc} \\
+\hmkw{BeginHMM} \\
+\> \hmkw{NumStates} 5  \\
+\> \hmkw{State} 2 \\
+\>\>   \hmmc{s}{stateC} \\
+\> \hmkw{State} 3 \\
+\>\>   \hmmc{s}{stateC} \\
+\> \hmkw{State} 4 \\
+\>\>   \hmmc{s}{stateB} \\
+\> \hmmc{t}{tran}  \\
+\hmkw{EndHMM}
+}
+
+\centrefig{hsetdef}{120}{Defining a Model Set}
+
+For example, in the HMM list shown in Fig~\href{f:hlisteg},
+the logical HMMs {\tt two}, {\tt too} and {\tt to} are tied
+and share the same physical HMM definition {\tt tuw}.  The HMMs {\tt one}
+and {\tt won} are also tied but in this case {\tt won} shares {\tt one}'s
+definition.  There is, however, no subtle distinction here. The two different
+cases are given just to emphasise that the names used for the logical and physical
+HMMs can be the same or different, as is convenient.  Finally, in this example,
+the models {\tt three} and {\tt four} are untied.
+
+
+\sideprog{hlisteg}{70}{HMM List with Tying}{
+two  \>\>tuw \\
+too \>\> tuw \\
+to  \>\> tuw \\
+one \\
+won \>\> one \\
+three \\
+four  
+}{}
+This mechanism is implemented internally by creating a \hmmt{l} macro
+definition for every HMM in the HMM list.  If an explicit physical HMM
+is also given in the list, then the logical HMM is linked to 
+that macro, otherwise a \hmmt{h} macro
+is created with the same name as the \hmmt{l} macro.  Notice that this is
+one case where the ``define before use'' rule is relaxed.  If an undefined
+\hmmt{h} is encountered then a dummy place-holder is created for it and,
+as explained above,
+\htool{HModel} subsequently tries to find a HMM definition 
+file of the same name.
+
+Finally it should be noted that 
+in earlier versions of \HTK, there were no HMM macros.  However,
+HMM definitions could be listed in a single \index{master macro file}
+\textit{master macro file} or MMF\index{MMF}.  Each HMM definition began
+with its name written as a quoted string and ended with a period
+written on its own (just like master label files), and  the first
+line of an MMF contained the string \texttt{\#!MMF!\#}.  \inthisversion
+the use of MMFs has been subsumed within the general macro
+definition facility using the \hmmt{h} type.
+However, for compatibility, the older MMF style of file can still be
+read by all \HTK\ tools.
+
+\mysect{Tied-Mixture Systems}{tmix}
+
+A Tied-Mixture System\index{tied-mixture system} is one in which all 
+Gaussian components are stored in
+a pool and all state output distributions share this pool.  Fig~\href{f:tmixeg}
+illustrates this for the case of single data stream.  
+
+\sidefig{tmixeg}{60}{Tied Mixture System}{-2}{}
+Each state output distribution is defined by $M$
+mixture component weights and since all states share the same components,
+all of the state-specific discrimination  is encapsulated within these
+weights.  The set of Gaussian components selected for the pool
+should be representative of the acoustic space covered by the feature
+vectors.  To keep $M$ manageable, multiple data streams are typically
+used with tied-mixture systems.  For example, static parameters may
+be in one stream and delta parameters in another (see section~\ref{s:streams}).
+Each stream then has a separate pool of Gaussians which are often referred
+to as \textit{codebooks}.
+
+More formally, for $S$ independent data streams, 
+the output distribution for state $j$
+is defined as \index{tied-mixtures!output distribution}
+
+\hequation{
+  b_{j}(\bm{o}_t) = \prod_{s=1}^S \left[
+     \sum_{m=1}^{M_s} c_{jsm} {\cal N}(\bm{o}_{st};
+                    \bm{\mu}_{sm}, \bm{\Sigma}_{sm})
+  \right]^{\gamma_s}
+}{tmixpdf}
+where the notation is identical to that used in equation~\ref{e:cdpdf}.
+Note however that this equation differs from equation~\ref{e:cdpdf}
+in that the Gaussian component parameters and the 
+number of mixture components
+per stream are state independent.
+
+
+Tied-mixture systems lack the modelling accuracy of fully continuous
+density systems.  However, they can often be implemented more efficiently
+since the total number of Gaussians which must be evaluated at
+each input frame is independent of the number of active HMM states and
+is typically much smaller.
+
+
+A tied-mixture HMM system in \HTK\ is defined by representing the
+pool of shared Gaussians as \hmmt{m} macros with names ``xxx1'',
+``xxx2'', \ldots, ``xxxM'' where ``xxx'' is an arbitrary name.
+Each HMM state definition is then specified by giving the name
+``xxx'' followed by a list of the mixture weights.  Multiple
+streams are identified using the \hmkw{Stream}\index{stream@$<$Stream$>$} keyword as described
+previously.
+
+As an example, Fig~\href{f:tmixpool} shows a set of macro
+definitions which specify a 5 Gaussian component tied-mixture pool.
+
+
+Fig~\href{f:tmixhmm} then shows a typical 
+tied-mixture\index{HMM definition!tied-mixture} HMM definition
+which uses this pool.  As can be seen, the mixture component weights
+are represented an array of real numbers as in the continuous density case.
+
+The number of components in each tied-mixture codebook is typically
+of the order of 2 or 3 hundred.  Hence, the list of mixture weights in
+each state is often long with many values being repeated, particularly
+floor values.  To allow more efficient coding, successive identical
+values can be represented as a single value plus a repeat count in the
+form of an asterix followed by an integer multiplier.  For example,
+Fig~\href{f:tmixhmm2} shows the same HMM definition as above but using
+repeat counts.  When \HTK\ writes out a tied-mixture definition, it
+uses repeat counts wherever possible.  
+
+\putprog{tmixpool}{60}{Tied-Mixture Codebook}{
+\hmmt{o} \hmkw{VecSize} 2 \hmkw{MFCC} \\
+\hmmc{m}{mix1} \\
+ \>  \hmkw{Mean}      \>\>\> 2 0.0 0.1 \\
+ \>  \hmkw{Variance} \>\>\>  2 1.0 1.0 \\
+\hmmc{m}{mix2} \\
+ \>  \hmkw{Mean}     \>\>\> 2 0.2 0.3 \\
+ \>  \hmkw{Variance} \>\>\> 2 2.0 1.0 \\
+\hmmc{m}{mix3} \\
+ \>  \hmkw{Mean}    \>\>\> 2 0.0 0.1 \\
+ \>  \hmkw{Variance} \>\>\> 2 1.0 2.0 \\
+\hmmc{m}{mix4} \\
+\>   \hmkw{Mean}     \>\>\> 2 0.4 0.1 \\
+\>   \hmkw{Variance} \>\>\> 2 1.0 1.5 \\
+\hmmc{m}{mix5} \\
+\>   \hmkw{Mean}     \>\>\> 2 0.9 0.7 \\
+\>   \hmkw{Variance} \>\>\> 2 1.5 1.0 
+}
+
+\mysect{Discrete Probability HMMs}{dischmm}
+
+Discrete probability\index{discrete probability} HMMs model 
+observation sequences  which
+consist of symbols drawn from a discrete and finite set of size
+$M$.  As in the case of tied-mixture  systems described above,
+this set is often referred to as a \textit{codebook}. 
+
+The form of the output distributions in a discrete HMM was 
+given in
+equation~\ref{e:ddpdf}.  It consists of a table  giving the
+probability of each possible observation symbol.  Each symbol is
+identified by an index in the range 1 to $M$ and hence the
+probability of any symbol can be determined by a simple
+table look-up operation.
+
+For speech
+applications,  the observation symbols are generated by a 
+vector quantiser which typically associates a prototype 
+speech
+vector with each codebook\index{codebook} symbol.  Each incoming speech vector
+is then represented by the symbol whose associated 
+prototype is closest.  The prototypes themselves are chosen
+to cover the acoustic space and they are usually calculated
+by clustering a representative sample of speech vectors. 
+
+In \HTK, discrete HMMs are specified using a very similar
+notation to that used for tied-mixture HMMs.  A discrete HMM\index{discrete HMMs} can
+have multiple data streams but the width of each stream must be
+1.  The output probabilities are stored as logs in a scaled
+\index{discrete HMM!output probability scaling}
+integer format such that if $d_{js}[v]$ is the stored  discrete
+probability  for symbol $v$ in stream $s$ of state $j$, the true
+probability is given by
+\hequation{
+  P_{js}[v] = exp(-d_{js}[v]/2371.8)
+}{dpscale}
+Storage in the form of scaled logs allows discrete probability
+HMMs to be implemented very efficiently since \HTK\ tools
+mostly use log arithmetic  and direct storage in log form
+avoids the need for a run-time conversion.  The
+range determined by the constant 2371.8 
+was selected to enable probabilities from 1.0 down to
+0.000001 to be stored.
+
+
+\putprog{tmixhmm2}{85}{HMM using Repeat Counts}{
+
+\hmmc{h}{htm} \\
+\hmkw{BeginHMM} \\
+\> \hmkw{NumStates} 4 \\
+\> \hmkw{State} 2 \hmkw{NumMixes} 5 \\
+\> \>   \hmkw{TMix} mix 0.2 0.1 0.3*2 0.1\\
+\>\hmkw{State} 3 \hmkw{NumMixes} 5 \\
+\>  \>  \hmkw{TMix} mix 0.4 0.3 0.1*3\\
+\>\hmkw{TransP} 4 \\
+\> \> ... \\
+\hmkw{EndHMM} 
+}
+
+As an example, Fig~\href{f:dischmm} shows the definition of a  discrete
+HMM called \textsf{dhmm1}.  As can be seen, this has two streams.  The codebook
+for stream 1 is size 10 and for stream 2, it is size 2.  For consistency with
+the representation used for continuous density HMMs, these sizes are encoded 
+in the \hmkw{NumMixes}\index{nummixes@$<$NumMixes$>$} specifier.
+
+\mysect{Input Linear Transforms}{lintran}
+
+When reading feature vectors from files HTK will coerce them to the
+\texttt{TARGETKIND} specified in the config file. Often the
+\texttt{TARGETKIND} will contain certain qualifiers (specifying for
+example delta parameters). In addition to this parameter coercion it
+is possible to apply a linear transform before, or after, appending
+delta, acceleration and third derivative parameters.
+
+\putprog{lintran}{70}{Input Linear Transform}{
+\hmmc{j}{lintran.mat} \\
+\hmkw{MMFIdMask} *\\
+\hmkw{MFCC} \\
+\hmkw{PreQual}\\
+\hmkw{LinXform}\\
+\> \hmkw{VecSize} 2\\
+\> \hmkw{BlockInfo} 1 2\\
+\> \hmkw{Block} 1\\
+\> \>   \hmkw{Xform} 2 5\\
+\> \>   \> 1.0 0.1 0.2 0.1 0.4\\
+\> \>   \> 0.2 1.0 0.1 0.1 0.1
+}
+Figure~\ref{f:lintran}  shows an example linear transform. The
+\hmkw{PreQual} keyword specifies that the linear transform
+is to be applied before the delta and delta-delta
+parameters specified in \texttt{TARGETKIND} are added. The default
+mode, no \hmkw{PreQual} keyword, applies the linear transform 
+after the addition of the qualifiers.
+
+The linear transform fully supports projection from higher 
+number of features to a smaller number of features. In the 
+example, the parameterised data must consist of 5 \texttt{MFCC}
+parameters\footnote{If C0 or normalised log-energy are added
+these will be stripped prior to applying the linear transform}.
+The model sets that are generated using this transform have
+a vector size of 2.
+
+By default the linear transform is stored with the HMM. This is
+achieved by adding the \hmkw{InputXform} keyword and specifying the
+transform or macroname. To allow compatibility with tools only
+supporting the old format models it is possible to specify that no
+linear transform is to be stored with the model. 
+\begin{verbatim}
+    # Do not store linear transform
+    HMODEL: SAVEINPUTXFORM = FALSE
+\end{verbatim}
+In addition it is possible to specify the linear transform as a
+\htool{HPARM} configuration variable, \texttt{MATRTRANFN}.
+\begin{verbatim}
+    # Specifying an input linear transform
+    HPARM: MATTRANFN = /home/test/lintran.mat
+\end{verbatim}
+When a linear transform is specified in this form it is not necessary
+to have a macroname linked with it. In this case the filename
+will be used as the macroname (having stripped the directory name)
+
+\mysect{Tee Models}{teemods}
+
+Normally, the transition probability from the non-emitting entry
+state to the non-emitting exit state of a HMM will be zero to ensure
+that the HMM aligns with at least one observation vector.  
+Models which have a non-zero entry to exit transition probability 
+are referred to as {\it tee-models}.
+
+Tee-models\index{tee-models} are useful for modelling optional transient effects
+such as short pauses and noise bursts, particularly between words.
+
+Although most \HTK\ tools support tee-models, they are incompatible with
+those that work with isolated models such as \htool{HInit} and
+\htool{HRest}. When a tee-model is loaded into one of these tools, its
+entry to exit transition probability is reset to zero and the first row of
+its transition matrix is renormalised.
+
+\putprog{tmixhmm}{80}{Tied-Mixture HMM}{
+\hmmc{h}{htm} \\
+\hmkw{BeginHMM} \\
+\> \hmkw{NumStates} 4 \\
+\> \hmkw{State} 2 \hmkw{NumMixes} 5 \\
+\> \>   \hmkw{TMix} mix 0.2 0.1 0.3 0.3 0.1\\
+\>\hmkw{State} 3 \hmkw{NumMixes} 5 \\
+\>  \>  \hmkw{TMix} mix 0.4 0.3 0.1 0.1 0.1\\
+\>\hmkw{TransP} 4 \\
+\> \>  0.0 1.0 0.0 0.0 \\
+\>  \>  0.0 0.5 0.5 0.0 \\
+\>  \>  0.0 0.0 0.6 0.4 \\
+\> \>   0.0 0.0 0.0 0.0 \\
+\hmkw{EndHMM} 
+}
+
+\mysect{Binary Storage Format}{binsave}
+
+Throughout this chapter, a text-based representation
+has been used for the external storage of HMM
+definitions.  For experimental work, text-based storage allows
+simple and direct 
+access to HMM parameters and this can be invaluable.
+However, when using very large HMM sets, storage in text form
+is less practical since it is inefficient in its use of
+memory and the time taken to load can be excessive due to
+the large number of character to float conversions needed.
+
+To solve these problems, \HTK\ also provides a 
+binary storage\index{HMM definition!binary storage}\index{binary storage}
+format.  In binary mode, keywords are written as a single
+colon followed by an 8 bit code representing the actual
+keyword.  Any subsequent numerical information following
+the keyword is then in binary.  Integers are written as
+16-bit shorts and all floating-point numbers are written
+as 32-bit single precision floats.  The repeat
+factor used in the run-length encoding
+scheme for tied-mixture and discrete HMMs is written as
+a single byte.  Its presence immediately after a 16-bit
+discrete log probability is indicated by setting the top
+bit to 1 (this is the reason why the range of discrete 
+log probabilities is limited to
+0 to 32767 i.e.\ only 15 bits are used for the actual
+value).  For tied-mixtures, the repeat count is signalled
+by subtracting 2.0 from the weight.
+
+Binary storage format and text storage format can be mixed
+within and between input files.  Each time a keyword is
+encountered, its coding is used to determine whether the
+subsequent numerical information should be input in text
+or binary form.  This means, for example, that binary
+files can be manually patched by replacing a binary-format
+definition by a text format definition\footnote{The fact that
+this is possible does not mean that it is recommended practice!}.
+
+\HTK\ tools provide a standard command line option (\texttt{-B}) to indicate
+that HMM definitions should be output in binary format.
+Alternatively, the Boolean configuration 
+variable \texttt{SAVEBINARY}\index{savebinary@\texttt{SAVEBINARY}} can be set to true to
+force binary format output.
+
+\putprog{dischmm}{80}{Discrete Probability HMM}{
+\hmmt{o} \hmkw{DISCRETE} \hmkw{StreamInfo} 2 1 1 \\
+\hmmc{h}{dhmm1} \\
+\hmkw{BeginHMM} \\
+\> \hmkw{NumStates} 4  \\
+\> \hmkw{State} 2   \\
+\>\>   \hmkw{NumMixes} 10 2 \\
+\>\>   \hmkw{SWeights} 2 0.9 1.1 \\
+\>\>   \hmkw{Stream} 1 \\
+\> \>\>     \hmkw{DProb} 3288*4  32767*6 \\
+\>\>   \hmkw{Stream} 2 \\
+\>\> \>     \hmkw{DProb} 1644*2 \\
+\> \hmkw{State} 3   \\
+\>\>   \hmkw{NumMixes} 10 2 \\
+\>\>   \hmkw{SWeights} 2 0.9 1.1 \\
+\> \>  \hmkw{Stream} 1 \\
+\> \> \>    \hmkw{DProb} 5461*10 \\
+\> \>  \hmkw{Stream} 2 \\
+\> \> \>    \hmkw{DProb} 1644*2 \\
+\>\hmkw{TransP} 4 \\
+\> \>  0.0 1.0 0.0 0.0 \\
+ \> \>  0.0 0.5 0.5 0.0 \\
+ \> \>  0.0 0.0 0.6 0.4 \\
+\> \>   0.0 0.0 0.0 0.0 \\
+\hmkw{EndHMM} 
+}
+
+
+\mysect{The HMM Definition Language}{hmmdef}
+
+To conclude this chapter,
+this section presents a formal\index{HMM definition!formal syntax} description
+of the HMM definition language used by \HTK.
+Syntax is described using an extended BNF notation in which
+alternatives are separated by a vertical bar $|$, parentheses () denote
+factoring, brackets [\ ] denote options, and braces \{\} denote zero or more
+repetitions. 
+
+All keywords are enclosed in angle brackets\footnote{
+This definition covers the textual version only.  The syntax for
+the binary format
+is identical apart from the way that the lexical items are encoded.} and
+the case of the
+keyword name is not significant.
+White space is not significant except within double-quoted strings.
+
+The top level structure of a HMM definition is shown by the following
+rule. 
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \= ++ \= +++++++++++++++++ \= +++ \=  \kill
+\>  hmmdef = \> [ $\sim$h macro ] \\
+\>\>         $<$BeginHMM$>$ \\
+\>\>\>          [ globalOpts ] \\
+\>\>\>          $<$NumStates$>$ short \\
+\>\>\>          state \{ state \} \\
+\>\>\>          transP \\
+\>\>\>          [ duration ] \\
+\>\>         $<$EndHMM$>$ 
+\end{tabbing}
+}
+A HMM definition consists of an optional set of global options\index{HMM definition!global options} followed by
+the \hmkw{NumStates}\index{numstates@$<$NumStates$>$} keyword whose following argument specifies the number of states in 
+the model inclusive of the non-emitting entry and exit states\footnote{
+Integer numbers are specified as either \textsf{char} or \textsf{short}.
+This has no effect on text-based definitions but for binary format it indicates
+the underlying C type used to represent the number.}.
+The information for each state is then given in turn, followed by the 
+parameters of the transition matrix and the model duration parameters, if any.
+The name of the HMM is given by the \hmmt{h} macro.  If the HMM is the
+only definition within a file, the \hmmt{h} macro name can be omitted
+and the HMM name is assumed to be the same as the file name.
+
+The global options\index{global options} are common to all HMMs.  They can be given 
+separately using a \hmmt{o} option macro 
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \= ++ \= +++++++++++++++++ \= +++ \=  \kill
+\> optmacro = \> $\sim$o globalOpts 
+\end{tabbing}
+}
+\noindent
+or they can be included in one or more HMM definitions.  Global
+options may be repeated but no definition can change a previous
+definition.  All global options must be defined before any other
+macro definition is processed.  In practice this means that any
+HMM system which uses parameter tying must have a \hmmt{o} option macro 
+at the head of the first macro file processed.
+
+The full set of global options is given below.  Every HMM set must
+define the vector size (via \hmkw{VecSize}\index{vecsize@$<$VecSize$>$}), the stream widths  
+(via \hmkw{StreamInfo}\index{streaminfo@$<$StreamInfo$>$})
+and the observation parameter kind.  However, if only the stream
+widths are given, then the vector size will be inferred.  If
+only the vector size is given, then a single stream of identical
+width will be assumed.  All other options default to null.
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \= ++ \= +++++++++++++++++ \= +++ \=  \kill
+\> globalOpts = \> option \{ option \} \\
+\>  option = \> $<$HmmSetId$>$ string $|$ \\ 
+\>\>  $<$StreamInfo$>$ short \{ short \} $|$  \\
+\>\>   $<$VecSize$>$    short $|$  \\
+\>\>   $<$ProjSize$>$    short $|$  \\
+\>\>   $<$InputXform$>$ inputXform $|$  \\
+\>\>   $<$ParentXform$>$ $\sim$a macro $|$  \\
+\>\>   covkind $|$ \\
+\>\>   durkind $|$ \\
+\>\>   parmkind 
+\end{tabbing}
+}
+\noindent
+The {\sf $<$HmmSetId$>$} option allows the user to give the MMF an
+identifier. This is used as a sanity check to make sure that a TMF can
+be safely applied to this MMF.
+The arguments to the
+{\sf $<$StreamInfo$>$} option are the number of streams (default 1) and then
+for each stream, the width of that stream.  The {\sf $<$VecSize$>$} option 
+gives the total number of elements in each input vector.  {\sf $<$ProjSize$>$}
+is the number of ``nuisance'' dimensions removed using, for example, 
+an HLDA transform. The {\sf $<$ParentXForm$>$} allows the semi-tied macro,
+if any, associated with the model-set to be specified.
+If both \hmkw{VecSize} and \hmkw{StreamInfo} are included then the
+sum of all the stream widths must equal the input vector size.
+
+The {\sf covkind } defines the kind of the covariance matrix
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>  covkind =\> $<$DiagC$>$ $|$ $<$InvDiagC$>$ $|$ $<$FullC$>$ $|$ \\
+\>\>            $<$LLTC$>$ $|$ $<$XformC$>$ 
+\end{tabbing}
+}
+\noindent
+where {\sf $<$InvDiagC$>$} is used internally.  {\sf $<$LLTC$>$}
+and {\sf $<$XformC$>$} are not used in \HTK\ Version 3.4.
+Setting the covariance kind as a global option forces all components to
+have this kind.  In particular, it prevents mixing full and diagonal covariances
+within a HMM set.
+
+The {\sf durkind} denotes the type of duration
+model used according to the following rules
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>  durkind =\> $<$nullD$>$ $|$ $<$poissonD$>$ $|$ $<$gammaD$>$ $|$ $<$genD$>$ 
+\end{tabbing}
+}
+\noindent
+For anything other than {\sf $<$nullD$>$}, a duration vector\index{duration vector} must
+be supplied for the model or each state as described below. Note that no
+current HTK tool can estimate or use such duration vectors.  
+
+The parameter kind is any legal parameter kind including qualified forms
+(see section~\ref{s:genio})
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>  parmkind =\> $<$basekind\{\_D$|$\_A$|$\_T$|$\_E$|$\_N$|$\_Z$|$\_O$|$\_V$|$\_C$|$\_K\}$>$ \\
+\>  basekind =\> $<$discrete$>$$|$$<$lpc$>$$|$$<$lpcepstra$>$$|$$<$mfcc$>$ $|$ $<$fbank$>$ $|$ \\
+ \> \>          $<$melspec$>$$|$ $<$lprefc$>$$|$$<$lpdelcep$>$ $|$ $<$user$>$ 
+\end{tabbing}
+}
+\noindent
+where the syntax rule for {\sf parmkind} is non-standard in that no spaces
+are allowed between the base kind and any subsequent qualifiers.
+As noted in chapter~\ref{c:speechio}, {\sf $<$lpdelcep$>$} is 
+provided only for compatibility
+with earlier versions of \HTK\ and its further use should be avoided.
+
+Each state of each HMM must have its own section defining the parameters
+associated with that state
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\> state =\>  $<$State: Exp $>$ short stateinfo
+\end{tabbing}
+}
+\noindent
+where the  short following {\sf $<$State: Exp $>$} is the state number.  State
+information can be defined in any order.  The syntax is as follows
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   stateinfo = \> $\sim$s macro $|$ \\
+  \>\>              [ mixes ] [ weights ] stream \{ stream \} [ duration ] \\
+\>   macro     = \> string
+\end{tabbing}
+}
+\noindent
+A {\sf stateinfo} definition consists of an 
+optional specification of the number of mixture components, an optional set of stream weights,
+followed by a block of information for each stream, optionally terminated with
+a duration vector.  Alternatively, {\sf $\sim$s macro} can be
+written where {\sf macro} is the name of a previously defined macro.
+
+The optional {\sf mixes} in a {\sf stateinfo} definition specify
+the number of mixture components (or discrete codebook size) for 
+each stream of that state
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   mixes = \>  $<$NumMixes$>$ short \{short\}
+\end{tabbing}
+}
+\noindent
+where there should be one {\sf short} for each stream.  If this
+specification is omitted, it is assumed that all streams
+have just one mixture component.
+
+The optional {\sf weights} in a {\sf stateinfo} definition define
+a set of exponent weights for each independent data stream.  The
+syntax is
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   weights = \> $\sim$w macro $|$ $<$SWeights$>$ short vector \\
+\>   vector  = \> float \{ float \} 
+\end{tabbing}
+}
+\noindent
+where the {\sf short} gives the number $S$ of weights (which should match the
+value given in the \hmkw{StreamInfo} option) and the {\sf vector}
+contains the $S$ stream weights $\gamma_s$ (see section~\ref{s:HMMparm}).
+
+The definition of each  {\sf stream} 
+depends on the kind of HMM set.  In the normal case, it
+consists of a sequence of mixture
+component
+definitions optionally preceded by the stream number.  If the stream
+number is omitted then it is assumed to be 1.  For tied-mixture
+and discrete HMM sets, special forms are used.
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   stream = \> [ $<$Stream$>$ short ] \\
+\>            \> (mixture \{ mixture \} $|$ tmixpdf $|$ discpdf)
+\end{tabbing}
+}
+
+The definition of each mixture component consists of a Gaussian
+pdf optionally preceded by the mixture number and its weight
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   mixture = \> [ $<$Mixture$>$ short float ] mixpdf
+\end{tabbing}
+}
+\noindent
+If the \hmkw{Mixture}\index{mixture@$<$Mixture$>$} part is missing then mixture 1 is assumed and the
+weight defaults to 1.0. 
+
+The {\sf tmixpdf} option is used only for fully 
+tied mixture sets.  Since the {\sf mixpdf} parts are all macros in
+a tied mixture system and since they are identical for every stream
+and state, it is only necessary to know the mixture weights.  The
+{\sf tmixpdf} syntax allows these to be specified in the following
+compact form
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   tmixpdf = \> $<$TMix$>$ macro weightList \\
+\>   weightList = \> repShort \{ repShort \} \\
+\>   repShort = \> short [ $\ast$ char ]
+\end{tabbing}
+}
+\noindent
+where each {\sf short} is a mixture component weight scaled so that
+a weight of 1.0 is represented by the integer 32767.  
+The optional asterix 
+followed by a {\sf char} is used to indicate
+a repeat count.  For example, {\tt 0*5} is equivalent to 5 zeroes.
+The Gaussians which make-up the pool of tied-mixtures are defined 
+using  \hmmt{m} macros called
+{\sf macro1}, {\sf macro2}, {\sf macro3}, etc. 
+
+Discrete probability HMMs are defined in a similar way
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   discpdf = \> $<$DProb$>$ weightList
+\end{tabbing}
+}
+\noindent
+The only difference is that the weights in the \textsf{weightList}
+are scaled log probabilities as defined in section~\ref{s:dischmm}.
+
+The definition of a Gaussian pdf requires the mean vector to 
+be given and one of the possible forms of covariance 
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   mixpdf = \> $\sim$m macro $|$ mean cov [ $<$GConst$>$ float ] \\
+\>   mean = \> $\sim$u macro $|$ $<$Mean$>$ short vector \\
+\>   cov =  \> var $|$ inv $|$ xform \\
+\>   var = \> $\sim$v macro $|$ $<$Variance$>$ short vector \\
+\>   inv = \> $\sim$i macro $|$ \\
+\>        \> ($<$InvCovar$>$ $|$ $<$LLTCovar$>$) short tmatrix \\
+\>   xform = \> $\sim$x macro $|$ $<$Xform$>$ short short matrix \\
+\>   matrix = \> float \{float\} \\
+\>   tmatrix = \> matrix \\
+\end{tabbing}
+}
+\noindent
+In {\sf mean} and {\sf var}, the {\sf short} preceding the {\sf vector}
+defines the length of the vector, in {\sf inv} the {\sf short} preceding the {\sf
+tmatrix} gives the size of this square upper triangular matrix, and in {\sf xform} the
+two {\sf short}'s preceding the {\sf matrix} give the number of rows and
+columns. 
+The optional {\sf $<$GConst$>$}\footnote{specifically, in equation 
+~\ref{e:gnorm} 
+the GCONST value seen in HMM sets is calculated by multiplying the determinant 
+of the covariance matrix by $\bm{(2 \pi)^n}$} \index{GCONST value} gives 
+that part of the log
+probability of a Gaussian that can be precomputed.  If it is omitted, then
+it will be computed during load-in, including it simply saves some time.
+\HTK\ tools which output HMM definitions always include this field.
+
+In addition to defining the output distributions, a state can have a
+duration probability distribution defined for it. However, no current HTK
+tool can estimate or use these.
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   duration = \> $\sim$d macro $|$ $<$Duration$>$ short vector
+\end{tabbing}
+}
+\noindent
+Alternatively, as shown by the top level syntax for a {\sf hmmdef},
+duration parameters can be specified for a whole model.
+
+The transition matrix is defined by
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   transP = \> $\sim$t macro $|$ $<$TransP$>$ short matrix
+\end{tabbing}
+}
+\noindent
+where the {\sf short} in this case should be equal to the number of
+states in the model. 
+
+To support HMM adaptation (as described in
+chapter~\ref{c:Adapt}) baseclasses and regression class trees are
+defined.  A baseclass is defined as {\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   baseClass = \> $\sim$b macro  baseopts classes\\
+\>   baseopts  =  \> $<$MMFIdMask$>$ string $<$Parameters$>$ baseKind $<$NumClasses$>$ int\\
+\>   baseKind  = \>MIXBASE $|$ MEANBASE $|$ COVBASE \\
+\>   classes   = \> $<$Class$>$ int itemlist  \{ classes \} \\
+\end{tabbing}
+} 
+\noindent
+where itemlist is a list of mixture components specified using
+the same conventions as the \htool{HHEd} command
+described in section~\ref{s:parmtying}.  A regression class tree may
+also exist for an HMM set. This is defined by {\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>   regTree = \> $\sim$r macro $<$BaseClass$>$ baseclasses node \\
+\>   baseclasses = \> $\sim$b macro $|$ baseopts classes \\
+\>   node    = \> ($<$Node$>$ int int int \{ int \}  $|$ $<$TNode$>$ int int
+int \{ int \}) \{ node \}
+\end{tabbing}
+}
+\noindent
+For the definition of a node ($<$Node$>$) in {\sf node} the first integer is the 
+node number, the second the number of children followed the of children
+node numbers\footnote{Though the notation support n-ary trees, the regression
+class tree code can only generate binary regression class trees.}. The 
+integers in the definition of a terminal node ($<$TNode$>$) define the node number, 
+number of base classes associated with the terminal and the base class-index numbers.
+
+Adaptation transforms are defined using
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>  adaptXForm  = \> $\sim$a macro adaptOpts $<$XformSet$>$ xformset \\
+\>  adaptOpts   = \> $<$AdaptKind$>$ adaptkind $<$BaseClass$>$ baseclasses [$<$ParentXForm$>$ parentxform]  \\
+\>  parentxform = \> $\sim$a macro $|$ adaptOpts $<$XformSet$>$ xformset\\
+\>  adaptKind   = \> TREE $|$ BASE\\
+\>  xformset    = \> $<$XFormKind$>$ xformKind $<$NumXForms$>$ int \{ linxform \}\\
+\>  xformKind   = \> MLLRMEAN $|$ MLLRCOV $|$ MLLRVAR $|$ CMLLR $|$ SEMIT\\
+\>  linxform    = \> $<$LinXForm$>$ int $<$VecSize$>$ int [$<$OFFSET$>$ xformbias] \\
+\>                \> $<$BlockInfo$>$ 
+int int \{int\} block \{block\}\\
+\>  xformbias = \> $\sim$y macro $|$ $<$Bias$>$ short vector \\
+\>  block       = \> $<$Block$>$ int xform\\
+\end{tabbing}
+}
+\noindent
+In the definition of the $<$BlockInfo$>$ the first integer is the number of blocks,
+followed the size of each of the clocks. For examples of the adaptation transform
+format see section~\ref{s:tmfs}.
+
+Finally the input transform is defined by
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>  inputXform  = \> $\sim$j macro $|$ inhead inmatrix\\
+\>  inhead      = \> $<$MMFIdMask$>$ string parmkind [$<$PreQual$>$]\\
+\>  inmatrix    = \> $<$LinXform$>$ $<$VecSize$>$ int $<$BlockInfo$>$ 
+int int \{int\} block \{block\}\\
+\>  block       = \> $<$Block$>$ int xform
+\end{tabbing}
+}
+\noindent
+where the {\sf short} following \hmkw{VecSize} is the number of dimensions
+after applyingthe linear transform and must match the vector size
+of the HMM definition. The first {\sf short} after \hmkw{BlockInfo}
+is the number of block, this is followed by the number of output
+dimensions from each of the blocks.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "htkbook"
+%%% End: 

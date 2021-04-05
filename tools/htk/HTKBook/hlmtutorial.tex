@@ -1,0 +1,979 @@
+%
+% !HVER!hlmtutorial [SJY 05/04/97]
+%
+% Updated (and about 80% rewritten) - Gareth Moore 16/01/02
+%
+
+\mychap{A Tutorial Example of Building Language Models}{hlmtutor}
+
+This chapter describes the construction and evaluation of language
+models using the \HTK\ language modelling tools. The models will be
+built from scratch with the exception of the text conditioning stage
+necessary to transform the raw text into its most common and useful
+representation (e.g. number conversions, abbreviation expansion and
+punctuation filtering). All resources used in this tutorial can be
+found in the \texttt{LMTutorial} directory of the \HTK\ distribution.
+
+The text data used to build and test the language models are the
+copyright-free texts of 50 Sherlock Holmes stories by Arthur Conan Doyle.
+The texts have been partitioned into training and test material (49
+stories for training and 1 story for testing) and reside in the
+\texttt{train} and \texttt{test} subdirectories respectively.
+
+\mysect{Database preparation}{HLMdatabaseprep}
+
+The first stage of any language model development project is data
+preparation. As mentioned in the introduction, the text data used in
+these example has already been conditioned.  If you examine each file
+you will observe that they contains a sequence of tagged sentences.
+When training a language model you need to include sentence start and
+end labelling because the tools cannot otherwise infer this.  Although
+there is only one sentence per line in these files, this is not a
+restriction of the \HTK\ tools and is purely for clarity -- you can
+have the entire input text on a single line if you want.  Notice that
+the default sentence start and sentence end tokens of {\tt <s>} and
+{\tt </s>} are used -- if you were to use different tokens for these
+you would need to pass suitable configuration parameters to the \HTK\
+tools.\footnote{{\tt STARTWORD} and {\tt ENDWORD} to be precise.}  An
+extremely simple text conditioning tool is supplied in the form of
+\htool{LCond.pl} in the {\tt LMTutorial/extras} folder -- this only
+segments text into sentences on the basis of punctuation, as well as
+converting to uppercase and stripping most punctuation symbols, and is
+not intended for serious use.  In particular it does not convert
+numbers into words and will not expand abbreviations.  Exactly what
+conditioning you perform on your source text is dependent on the task
+you are building a model for.
+
+Once your text has been conditioned, the next step is to use the tool
+\htool{LGPrep} to scan the input text and produce a
+preliminary set of sorted $n$-gram files.  In this tutorial we will
+store all $n$-gram files created by \htool{LGPrep} will be stored in
+the \texttt{holmes.0} directory, so create this directory now.  In a
+Unix-type system, for example, the standard command is
+\begin{verbatim}
+$ mkdir holmes.0
+\end{verbatim} % $
+
+The \HTK\ tools maintain a cumulative word map to which every new
+word is added and assigned a unique id.  This means that you can add
+future $n$-gram files without having to rebuild existing ones so long
+as you start from the same word map, thus ensuring that each id
+remains unique.  The side effect of this ability is that
+\htool{LGPrep} always expects to be given a word map, so to prepare
+the first $n$-gram file (also referred to elsewhere as a `gram' file)
+you must pass an empty word map file.
+
+You can prepare an initial, empty word map using the \htool{LNewMap}
+tool.  It needs to be passed the name to be used internally in the word
+map as well as a file name to write it to;  optionally you may also
+change the default character escaping mode and request additional
+fields.  Type the following:
+\begin{verbatim}
+$ LNewMap -f WFC Holmes empty.wmap
+\end{verbatim} % $
+and you'll see that an initial, empty word map file has been created
+for you in the file \texttt{empty.wmap}.  Examine the file and you
+will see that it contains just a header and no words.  It looks like
+this:
+\begin{verbatim}
+Name    = Holmes
+SeqNo   = 0
+Entries = 0
+EscMode = RAW
+Fields  = ID,WFC
+\Words\
+\end{verbatim}
+Pay particular attention to the {\tt SeqNo} field since this
+represents the sequence number of the word map.  Each time you add
+words to the word map the sequence number will increase -- the tools
+will compare the sequence number in the word map with that in any data
+files they are passed, and if the word map is too old to contain all
+the necessary words then it will be rejected.  The {\tt Name} field
+must also match, although initially you can set this to whatever you
+like.\footnote{The exception to this is that differing text may follow
+a {\tt \%} character.} The other fields specify that no \HTK\
+character escaping will be used, and that we wish to store the
+(compulsory) word ID field as well as an optional count field, which
+will reveal how many times each word has been encountered to date.
+The {\tt ID} field is always present which is why you did not need to
+pass it with the {\tt -f} option to \htool{LNewMap}.
+
+To clarify, if we were to use the Sherlock Holmes texts together with
+other previously generated $n$-gram databases then the most recent
+word map available must be used instead of the prototype map file
+above. This would ensure that the map saved by \htool{LGPrep} once the
+new texts have been processed would be suitable for decoding all
+available $n$-gram files.
+
+We'll now process the text data with the following command:
+\begin{verbatim}
+$ LGPrep -T 1 -a 100000 -b 200000 -d holmes.0 -n 4 
+         -s "Sherlock Holmes" empty.wmap train/*.txt
+\end{verbatim} % $
+
+The \texttt{-a} option sets the maximum number of new words that can
+be encountered in the texts to 100,000 (in fact, this is the default).
+If, during processing, this limit is exceeded then \htool{LGPrep} will
+terminate with an error and the operation will have to be repeated by
+setting this limit to a larger value.
+
+The \texttt{-b} option sets the internal $n$-gram buffer size to
+200,000 $n$-gram entries. This setting has a direct effect on the
+overall process size. The memory requirement for the internal buffer can
+be calculated according to $mem_{bytes} = (n+1)*4*b$ where $n$ is the
+$n$-gram size (set with the \texttt{-n} option) and $b$ is the buffer
+size.  In the above example, the $n$-gram size is set to four which
+will enable us to generate bigram, trigram and four-gram language
+models.  The smaller the buffer then in general the more separate
+files will be written out -- each time the buffer fills a new $n$-gram
+file is generated in the output directory, specified by the {\tt -d}
+option.
+
+The {\tt -T 1} option switches on tracing at the lowest level.  In
+general you should probably aim to run each tool with at least {\tt -T
+1} since this will give you better feedback about the progress of the
+tool.  Other useful options to pass are {\tt -D} to check the state of
+configuration variables -- very useful to check you have things set up
+correctly -- and {\tt -A} so that if you save the tool output you will
+be able to see what options it was run with.  It's good practice to
+always pass {\tt -T 1 -A -D} to every \HTK\ tool in fact.  You should
+also note that all \HTK\ tools require the option switches to be
+passed {\it before} the compulsory tool parameters -- trying to run
+{\tt LGPrep train/*.txt -T 1} will result in an error, for example.
+
+Once the operation has completed, the \texttt{holmes.0} directory should
+contain the following files:
+\begin{verbatim}
+gram.0  gram.1  gram.2  wmap
+\end{verbatim}
+The saved word map file \texttt{wmap} has grown to include all newly
+encountered words and the identifiers that the tool has assigned them,
+and at the same time the map sequence count has been incremented by
+one.
+\begin{verbatim}
+Name  = Holmes
+SeqNo = 1
+Entries = 18080
+EscMode  = RAW
+Fields  = ID,WFC
+\Words\
+<s>     65536   33669
+IT      65537   8106
+WAS     65538   7595
+...
+\end{verbatim}
+Remember that map sequence count together with the map's name field
+are used to verify the compatibility between the map and any $n$-gram
+files.  The contents of the $n$-gram files can be inspected using the
+\htool{LGList} tool:  (if not using a Unix type system you may need to
+omit the {\tt | more} and find some other way of viewing the output in
+a more manageable format; try {\tt > file.txt} and viewing the
+resulting file if that works)
+\begin{verbatim}
+$ LGList holmes.0/wmap holmes.0/gram.2 | more
+
+4-Gram File holmes.0/gram.2[165674 entries]:
+ Text Source: Sherlock Holmes
+'           IT          IS          NO           : 1
+'CAUSE      I           SAVED       HER          : 1
+'EM         </s>        <s>         WHO          : 1
+</s>        <s>         '           IT           : 1
+</s>        <s>         A           BAND         : 1
+</s>        <s>         A           BEAUTIFUL    : 1
+</s>        <s>         A           BIG          : 1
+</s>        <s>         A           BIT          : 1
+</s>        <s>         A           BROKEN       : 1
+</s>        <s>         A           BROWN        : 2
+</s>        <s>         A           BUZZ         : 1
+</s>        <s>         A           CAMP         : 1
+...
+\end{verbatim} % $
+If you examine the other $n$-gram files you will notice that whilst
+the contents of each $n$-gram file are sorted, the files themselves
+are not sequenced -- that is, one file does not carry on where the
+previous one left off; each is an independent set of $n$-grams.  To
+derive a sequenced set of $n$-gram files, where no grams are repeated
+between files, the tool \htool{LGCopy} must be used on these existing
+gram files.  For the purposes of this tutorial the new set of
+files will be stored in the \texttt{holmes.1} directory, so create
+this and then run {\tt LGCopy}:
+\begin{verbatim}
+$ mkdir holmes.1
+$ LGCopy -T 1 -b 200000 -d holmes.1 holmes.0/wmap holmes.0/gram.*
+Input file holmes.0/gram.0 added, weight=1.0000
+Input file holmes.0/gram.1 added, weight=1.0000
+Input file holmes.0/gram.2 added, weight=1.0000
+Copying 3 input files to output files with 200000 entries
+ saving 200000 ngrams to file holmes.1/data.0
+ saving 200000 ngrams to file holmes.1/data.1
+ saving 89516 ngrams to file holmes.1/data.2
+489516 out of 489516 ngrams stored in 3 files
+\end{verbatim}
+The resulting $n$-gram files, together with the word map, can now be
+used to generate language models for a specific vocabulary list.  Note
+that it is not necessary to sequence the files in this way before
+building a language model, but if you have too many separate
+unsequenced $n$-gram files then you may encounter performance problems
+or reach the limit of your filing system to maintain open files -- in
+practice, therefore, it is a good idea to always sequence them.
+
+\mysect{Mapping OOV words}{HLMmapoov}
+An important step in building a language model is to decide on the
+system's vocabulary. For the purpose of this tutorial, we have
+supplied a word list in the file \texttt{5k.wlist} which contains the
+5000 most common words found in the text.  We'll build our language
+models and all intermediate files in the \texttt{lm\_5k} directory,
+so create it with a suitable command:
+\begin{verbatim}
+$ mkdir lm_5k
+\end{verbatim} % $
+
+Once the system's vocabulary has been specified, the tool
+\htool{LGCopy} should be used to filter out all out-of-vocabulary
+(OOV) words.  To achieve this, the 5K word list is used as a special
+case of a class map which maps all OOVs into members of the
+``unknown'' word class.  The unknown class symbol defaults to
+\texttt{!!UNK}, although this can be changed via the configuration
+parameter \texttt{UNKNOWNNAME}.  Run \htool{LGCopy} again:
+
+\begin{verbatim}
+$ LGCopy -T 1 -o -m lm_5k/5k.wmap -b 200000 -d lm_5k -w 5k.wlist 
+         holmes.0/wmap holmes.1/data.*
+Input file holmes.1/data.0 added, weight=1.0000
+Input file holmes.1/data.1 added, weight=1.0000
+Input file holmes.1/data.2 added, weight=1.0000
+Copying 3 input files to output files with 200000 entries
+Class map = 5k.wlist [Class mappings only]
+ saving 75400 ngrams to file lm_5k/data.0
+92918 out of 489516 ngrams stored in 1 files
+\end{verbatim} % $
+
+Because the {\tt -o} option was passed, all $n$-grams containing OOVs
+will be extracted from the input files and the OOV words mapped to the
+unknown symbol with the results stored in the files
+\texttt{lm\_5k/data.*}.  A new word map containing the new class
+symbols (\texttt{!!UNK} in this case) and only words in the vocabulary
+will be saved to \texttt{lm\_5k/5k.wmap}.  Note how the newly produced
+OOV $n$-gram files can no longer be decoded by the original word map
+\texttt{holmes.0/wmap}:
+\begin{verbatim}
+$ LGList holmes.0/wmap lm_5k/data.0 |
+  ERROR [+15330]  OpenNGramFile: Gram file map Holmes%%5k.wlist 
+        inconsistent with Holmes
+ FATAL ERROR - Terminating program LGList
+\end{verbatim} % $
+The error is due to the mismatch between the original map's name
+(``Holmes'') and the name of the map stored in the header of the
+$n$-gram file we attempted to list (``Holmes\%\%5k.wlist''). The latter
+name indicates that the word map was derived from the original map
+\texttt{Holmes} by resolving class membership using the class map
+\texttt{5k.wlist}.  As a further consistency indicator, the original
+map has a sequence count of 1 whilst the class-resolved map has a
+sequence count of 2.
+
+The correct command for listing the contents of the OOV $n$-gram
+file is:
+\begin{verbatim}
+$ LGList lm_5k/5k.wmap lm_5k/data.0 | more
+
+4-Gram File lm_5k/data.0[75400 entries]:
+ Text Source: LGCopy
+!!UNK       !!UNK       !!UNK       !!UNK        : 50
+!!UNK       !!UNK       !!UNK       </s>         : 20
+!!UNK       !!UNK       !!UNK       A            : 2
+!!UNK       !!UNK       !!UNK       ACCOUNTS     : 1
+!!UNK       !!UNK       !!UNK       ACROSS       : 1
+!!UNK       !!UNK       !!UNK       AND          : 17
+...
+\end{verbatim} % $
+
+At the same time the class resolved map \texttt{lm\_5k/5k.wmap} can
+be used to list the contents of the $n$-gram, database files -- the
+newer map can view the older grams, but not vice-versa.
+\begin{verbatim}
+$ LGList lm_5k/5k.wmap holmes.1/data.2 | more
+
+4-Gram File holmes.1/data.2[89516 entries]:
+ Text Source: LGCopy
+THE         SUSSEX      MANOR       HOUSE        : 1
+THE         SWARTHY     GIANT       GLARED       : 1
+THE         SWEEP       OF          HIS          : 1
+THE         SWEET       FACE        OF           : 1
+THE         SWEET       PROMISE     OF           : 1
+THE         SWINGING    DOOR        OF           : 1
+...
+\end{verbatim} % $
+However, any $n$-grams containing OOV words will be discarded since
+these are no longer in the word map.
+
+Note that the required word map \texttt{lm\_5k/5k.wmap} can also be
+produced also using the \htool{LSubset} tool:
+\begin{verbatim}
+$ LSubset -T 1 holmes.0/wmap 5k.wlist lm_5k/5k.wmap
+\end{verbatim} % $
+
+Note also that had the {\tt -o} option not been passed to
+\htool{LGCopy} then the $n$-gram files built in {\tt lm\_5k} would have
+contained not only those with OOV entries but also all the remaining
+purely in-vocabulary words, the union of those shown by the two
+preceding {\tt LGList} commands, in fact.  The method that you choose
+to use depends on what experiments you are performing -- the \HTK\
+tools allow you a degree of flexibility.
+
+
+\mysect{Language model generation}{HLMlanmodgen}
+Language models are built using the \htool{LBuild} command.  If you're
+constructing a class-based model you'll also need the \htool{Cluster}
+tool, but for now we'll construct a standard word $n$-gram model.
+
+You'll probably want to accept the default of using Turing-Good
+discounting for your $n$-gram model, so the first step in generating a
+language model is to produce a frequency of frequency (FoF) table for
+the chosen vocabulary list.  This is performed automatically by
+\htool{LBuild}, but optionally you can generate this yourself using
+the \htool{LFoF} tool and pass the result into \htool{LBuild}.  This
+has only a negligible effect on computation time, but the result is
+interesting in itself because it provides useful information for
+setting cut-offs.  Cut-offs are where you choose to discard low
+frequency events from the training text -- you might wish to do this
+to decrease model size, or because you judge these infrequent events
+to be unimportant.
+
+In this example, you can generate a suitable table from the language
+model databases and the newly generated OOV $n$-gram files:
+\begin{verbatim}
+$ LFoF -T 1 -n 4 -f 32 lm_5k/5k.wmap lm_5k/5k.fof
+     holmes.1/data.* lm_5k/data.*
+Input file holmes.1/data.0 added, weight=1.0000
+Input file holmes.1/data.1 added, weight=1.0000
+Input file holmes.1/data.2 added, weight=1.0000
+Input file lm_5k/data.0 added, weight=1.0000
+Calculating FoF table
+\end{verbatim} % $
+
+After executing the command, the FoF table will be stored in
+\texttt{lm\_5k/5k.fof}.  It shows the number of times a word is found
+with a given frequency -- if you recall the definition of Turing-Good
+discounting you will see that this needs to be known.  See chapter
+\ref{c:hlmfiles} for further details of the FoF file format.
+
+You can also pass a configuration parameter to \htool{LFoF} to make it
+output a related table showing the number of $n$-grams that will be
+left if different cut-off rates are applied.  Rerun \htool{LFoF} and
+also pass it the existing configuration file {\tt config}:
+\begin{verbatim}
+$ LFoF -C config -T 1 -n 4 -f 32 lm_5k/5k.wmap lm_5k/5k.fof
+     holmes.1/data.* lm_5k/data.*
+Input file holmes.1/data.0 added, weight=1.0000
+Input file holmes.1/data.1 added, weight=1.0000
+Input file holmes.1/data.2 added, weight=1.0000
+Input file lm_5k/data.0 added, weight=1.0000
+Calculating FoF table
+
+cutoff  1-g     2-g     3-g     4-g
+0       5001    128252  330433  471998 
+1       5001    49014   60314   40602 
+2       5001    30082   28646   15492 
+3       5001    21614   17945   8801 
+...
+\end{verbatim} % $
+The information can be interpreted as follows.  A bigram cut-off value
+of 1 will leave 49014 bigrams in the model, whilst a trigram cut-off
+of 3 will result in 17945 trigrams in the model.  The configuration
+file \texttt{config} forces the tool to print out this extra
+information by setting \texttt{LPCALC: TRACE=3}.  This is the trace
+level for one of the library modules, and is separate from the trace
+level for the tool itself (in this case we are passing {\tt -T 1} to
+set trace level 1.  The trace field consists of a series of bits, so
+setting trace 3 actually turns on two of those trace flags.
+
+We'll now proceed to build our actual language model.  In this the
+model will be generated in stages by executing the \htool{LBuild}
+separately for each of the unigram, bigram and trigram sections of the
+model (we won't build a 4-gram model in this example, although the
+$n$-gram files we've build allow us to do so at a later date if we so
+wish), but you can build the final trigram in one go if you like.  The
+following command will generate the unigram model:
+\begin{verbatim}
+$ LBuild -T 1 -n 1 lm_5k/5k.wmap lm_5k/ug 
+         holmes.1/data.* lm_5k/data.*
+\end{verbatim} % $
+Look in the {\tt lm\_5k} directory and you'll discover the model {\tt
+ug} which can now be used on its own as a complete ARPA format
+unigram language model.
+
+We'll now build a bigram model with a cut-off of 1 and to save
+regenerating the unigram component we'll include our existing unigram model:
+\begin{verbatim}
+$ LBuild -C config -T 1 -t lm_5k/5k.fof -c 2 1 -n 2
+         -l lm_5k/ug lm_5k/5k.wmap lm_5k/bg1 
+         holmes.1/data.* lm_5k/data.*
+\end{verbatim} % $
+Passing the {\tt config} file again means that we get given some
+discount coefficient information.  Try rerunning the tool without the
+{\tt -C config} to see the difference.  We've also passed in the
+existing {\tt lm\_5k/5k.fof} file although this is not necessary --
+try omitting this and you'll find that the resulting file is
+identical.  What will be different, however, is that the tool will
+print out the cut-off table seen when running \htool{LFoF} with the
+{\tt LPCALC: TRACE = 3} parameter set; if you don't want to see this
+then don't set {\tt LPCALC: TRACE = 3} in the configuration file (try
+running the above command without {\tt -t} and {\tt -C}).
+
+Note that this bigram model is created in \HTK\'s own binary version
+of the ARPA format language model, with just the unigram component in
+text format by default.  This makes the model more compact and faster
+to load.  If you want to override this then simply add the {\tt -f
+TEXT} parameter to the command.
+
+Finally, the trigram model can be generated using the command:
+\begin{verbatim}
+$ LBuild -T 1 -c 3 1 -n 3 -l lm_5k/bg1
+         lm_5k/5k.wmap lm_5k/tg1_1  
+         holmes.1/data.* lm_5k/data.*
+\end{verbatim} % $
+
+Alternatively instead of the three stages above, you can also build
+the final trigram in one step:
+\begin{verbatim}
+$ LBuild -T 1 -c 2 1 -c 3 1 -n 3 lm_5k/5k.wmap
+         lm_5k/tg2-1_1 holmes.1/data.* lm_5k/data.*
+\end{verbatim} % $
+If you compare the two trigram models you'll see that they're the same
+size -- there will probably be a few insignificant changes in
+probability due to more cumulative rounding errors incorporated in the
+three stage procedure.
+
+
+\mysect{Testing the LM perplexity}{HLMtestingpp}
+\index{Perplexity}
+Once the language models have been generated, their ``goodness'' can
+be evaluated by computing the perplexity of previously unseen text
+data.  This won't necessarily tell you how well the language model
+will perform in a speech recognition task because it takes no account
+of acoustic similarities or the vagaries of any particular system, but
+it will reveal how well a given piece of test text is modelled by your
+language model.  The directory \texttt{test} contains a single story
+which was withheld from the training text for testing purposes -- if
+it had been included in the training text then it wouldn't be fair to
+test the perplexity on it since the model would have already `seen' it.
+
+Perplexity evaluation is carried out using \htool{LPlex}. The tool
+accepts input text in one of two forms -- either as an HTK style MLF
+(this is the default mode) or as a simple text stream. The text stream
+mode, specified with the \texttt{-t} option, will be used to evaluate
+the test material in this example.
+
+\begin{verbatim}
+$ LPlex -n 2 -n 3 -t lm_5k/tg1_1 test/red-headed_league.txt 
+LPlex test #0: 2-gram
+perplexity 131.8723, var 7.8744, utterances 556, words predicted 8588
+num tokens 10408, OOV 665, OOV rate 6.75% (excl. </s>)
+
+Access statistics for lm_5k/tg1_1:
+Lang model  requested  exact backed    n/a     mean    stdev
+    bigram       8588  78.9%  20.6%   0.4%    -4.88     2.81
+   trigram          0   0.0%   0.0%   0.0%     0.00     0.00
+LPlex test #1: 3-gram
+perplexity 113.2480, var 8.9254, utterances 556, words predicted 8127
+num tokens 10408, OOV 665, OOV rate 6.75% (excl. </s>)
+
+Access statistics for lm_5k/tg1_1:
+Lang model  requested  exact backed    n/a     mean    stdev
+    bigram       5357  68.2%  31.1%   0.6%    -5.66     2.93
+   trigram       8127  34.1%  30.2%  35.7%    -4.73     2.99
+\end{verbatim} % $
+The multiple \texttt{-n} options instruct \htool{LPlex} to perform two
+separate tests on the data. The first test (\texttt{-n 2}) will use
+only the bigram part of the model (and unigram when backing off),
+whilst the second test (\texttt{-n 3}) will use the full trigram
+model. For each test, the first part of the result gives general
+information such as the number of utterances and tokens encountered,
+words predicted and OOV statistics.  The second part of the results
+gives explicit access statistics for the back off model.  For the
+trigram model test, the total number of words predicted is 8127. From
+this number, 34.1\% were found as explicit trigrams in the model, 30.2\%
+were computed by backing off to the respective bigrams and 35.7\% were
+simply computed as bigrams by shortening the word context.
+
+These perplexity tests do not include the prediction of words from
+context which includes OOVs. To include such $n$-grams in the 
+calculation the \texttt{-u} option should be used.
+\begin{verbatim}
+$ LPlex -u -n 3 -t lm_5k/tg1_1 test/red-headed_league.txt 
+LPlex test #0: 3-gram
+perplexity 117.4177, var 8.9075, utterances 556, words predicted 9187
+num tokens 10408, OOV 665, OOV rate 6.75% (excl. </s>)
+
+Access statistics for lm_5k/tg1_1:
+Lang model  requested  exact backed    n/a     mean    stdev
+    bigram       5911  68.5%  30.9%   0.6%    -5.75     2.94
+   trigram       9187  35.7%  31.2%  33.2%    -4.77     2.98
+\end{verbatim} % $
+The number of tokens predicted has now risen to 9187.  For analysing
+OOV rates the tool provides the \texttt{-o} option which will print a
+list of unique OOVs encountered together with their occurrence counts.
+Further trace output is available with the
+\texttt{-T} option.
+
+
+\mysect{Generating and using count-based models}{HLMgeneratingcount}
+\index{Count-based language models}
+The language models generated in the previous section are static in
+terms of their size and vocabulary. For example, in order to evaluate
+a trigram model with cut-offs 2 (bigram) and 2 (trigram) the user
+would be required to rebuild the bigram and trigram stages of the
+model.  When large amounts of text data are used this can be a very
+time consuming operation.
+
+The HLM toolkit provides the capabilities to generate and manipulate a
+more generic type of model, called a count-based models, which can be
+dynamically adjusted in terms of its size and vocabulary.  Count-based
+models are produced by specifying the \texttt{-x} option to
+\htool{LBuild}.  The user may set cut-off parameters which control the
+initial size of the model, but if so then once the model is generated
+only higher cut-off values may be specified in the subsequent
+operations.  The following command demonstrates how to generate a
+count-based model:
+\begin{verbatim}
+$ LBuild -C config -T 1 -t lm_5k/5k.fof -c 2 1 -c 3 1 
+         -x -n 3 lm_5k/5k.wmap lm_5k/tg1_1c 
+         holmes.1/data.* lm_5k/data.0
+\end{verbatim} % $
+Note that in the above example the full trigram model is generated
+by a single invocation of the tool and no intermediate files are
+kept (i.e. the unigram and bigram models files).  
+
+The generated model can now be used in perplexity tests and different
+model sizes can be obtained by specifying new cut-off values via the
+\texttt{-c} option of \htool{LPlex}.  Thus, using a trigram model with 
+cut-offs (2,2) gives
+\begin{verbatim}
+$ LPlex -c 2 2 -c 3 2 -T 1 -u -n 3 -t lm_5k/tg1_1c 
+        test/red-headed_league.txt
+...
+LPlex test #0: 3-gram 
+Processing text stream: test/red-headed_league.txt
+perplexity 126.2665, var 9.0519, utterances 556, words predicted 9187
+num tokens 10408, OOV 665, OOV rate 6.75% (excl. </s>)
+...
+\end{verbatim} % $
+and a model with cut-offs (3,3) gives
+\begin{verbatim}
+$ LPlex -c 2 3 -c 3 3 -T 1 -u -n 3 -t lm_5k/tg1_1c 
+        test/red-headed_league.txt
+...
+Processing text stream: test/red-headed_league.txt
+perplexity 133.4451, var 9.0880, utterances 556, words predicted 9187
+num tokens 10408, OOV 665, OOV rate 6.75% (excl. </s>)
+...
+\end{verbatim} % $
+
+However, the count model \texttt{tg1\_1c} cannot be used directly in
+recognition tools such as \htool{HVite} or \htool{HLvx}.  An ARPA
+style model of the required size suitable for recognition can be
+derived using the \htool{HLMCopy} tool:
+\begin{verbatim}
+$ HLMCopy -T 1 lm_5k/tg1_1c lm_5k/rtg1_1
+\end{verbatim} % $
+This will be the same as the original trigram model built above, with
+the exception of some insignificant rounding differences.
+
+
+\mysect{Model interpolation}{HLMmodelinterp}
+\index{Interpolating language models}
+The \HTK\ language modelling tools also provide the capabilities to
+produce and evaluate interpolated language models.  Interpolated
+models are generated by combining a number of existing models in a
+specified ratio to produce a new model using the tool \htool{LMerge}.
+Furthermore, \htool{LPlex} can also compute perplexities using
+linearly interpolated $n$-gram probabilities from a number of source
+models.  The use of model interpolation will be demonstrated by
+combining the previously generated Sherlock Holmes model with an
+existing 60,000 word business news domain trigram model
+(\texttt{60bn\_tg.lm}).  The perplexity measure of the unseen Sherlock
+Holmes text using the business news model is 297 with an OOV rate of
+1.5\%.  ({\tt LPlex -t -u 60kbn\_tg.lm test/*}). In the following
+example, the perplexity of the test date will be calculated by
+combining the two models in the ratio of 0.6 \texttt{60kbn\_tg.lm} and
+0.4 \texttt{tg1\_1c}:
+\begin{verbatim}
+$ LPlex -T 1 -u -n 3 -t -i 0.6 ./60kbn_tg.lm 
+        lm_5k/tg1_1c test/red-headed_league.txt
+Loading language model from lm_5k/tg1_1c
+Loading language model from ./60kbn_tg.lm
+Using language model(s): 
+  3-gram lm_5k/tg1_1c, weight 0.40
+  3-gram ./60kbn_tg.lm, weight 0.60
+Found 60275 unique words in 2 model(s)
+LPlex test #0: 3-gram
+Processing text stream: test/red-headed_league.txt
+perplexity 188.0937, var 11.2408, utterances 556, words predicted 9721
+num tokens 10408, OOV 131, OOV rate 1.33% (excl. </s>)
+
+Access statistics for lm_5k/tg1_1c:
+Lang model  requested  exact backed    n/a     mean    stdev
+    bigram       5479  68.0%  31.3%   0.6%    -5.69     2.93
+   trigram       8329  34.2%  30.6%  35.1%    -4.75     2.99
+
+Access statistics for ./60kbn_tg.lm:
+Lang model  requested  exact backed    n/a     mean    stdev
+    bigram       5034  83.0%  17.0%   0.1%    -7.14     3.57
+   trigram       9683  48.0%  26.9%  25.1%    -5.69     3.53
+\end{verbatim} % $
+
+A single combined model can be generated using \htool{LMerge}:
+\begin{verbatim}
+$ LMerge -T 1 -i 0.6 ./60kbn_tg.lm 5k_unk.wlist 
+       lm_5k/rtg1_1 5k_merged.lm
+\end{verbatim} % $
+Note that \htool{LMerge} cannot merge count-based models, hence the
+use of \texttt{lm\_5k/rtg1\_1} instead of its count-based equivalent
+\texttt{lm\_5k/tg1\_1c}.  Furthermore, the word list supplied to the
+tool also includes the OOV symbol (\texttt{!!UNK}) in order to
+preserve OOV $n$-grams in the output model which in turn allows the
+use of the \texttt{-u} option in \htool{LPlex}.
+
+Note that the perplexity you will obtain with this combined model is
+much lower than that when interpolating the two together because the
+word list has been reduced from the union of the 60K and 5K ones down
+to a single 5K list.  You can build a 5K version of the 60K model
+using \htool{HLMCopy} and the {\tt -w} option, but first you need to
+construct a suitable word list -- if you pass it the {\tt
+5k\_unk.wlist} one it will complain about the words in it that weren't
+found in the language model.  In the {\tt extras} subdirectory you'll
+find a Perl script to rip the word list from the {\tt 60kbn\_tg.lm}
+model, {\tt getwordlist.pl}, and the result of running it in {\tt
+60k.wlist} (the script will work with any ARPA type language model).
+The intersection of the 60K and 5K word lists is what is required, so
+if you then run the {\tt extras/intersection.pl} Perl script, amended
+to use suitable filenames, you'll get the result in {\tt
+60k-5k-int.wlist}.  Then \htool{HLMCopy} can be used to produce a 5K
+vocabulary version of the 60K model:
+\begin{verbatim}
+$ HLMCopy -T 1 -w 60k-5k-int.wlist 60kbn_tg.lm 5kbn_tg.lm
+\end{verbatim} % $
+This can then be linearly interpolated with the previous 5K model to
+compare the perplexity result with that obtained from the
+\htool{LMerge}-generated model.  If you try this you will find that
+the perplexities are similar, but not exactly the same (a perplexity
+of 112 with the merged model and 114 with the two models linearly
+interpolated, in fact) -- this is because using \htool{LMerge} to
+combine two models and then using the result is not precisely the same
+as linearly interpolating two separate models; it is similar, however.
+
+It is also possible to add to an existing language model using the
+\htool{LAdapt} tool, which will construct a new model using supplied
+text and then merge it with the existing one in exactly the same way
+as \htool{LMerge}.  Effectively this tool allows you to short-cut the
+process by performing many operations with a single command -- see the
+documentation in section \ref{s:LAdapt} for full details.
+
+
+\mysect{Class-based models}{HLMclassModels}
+\index{Class language models}
+A class-based $n$-gram model is similar to a word-based $n$-gram in
+that both store probabilities $n$-tuples of tokens -- except in the
+class model case these tokens consist of word {\it classes} instead of
+words (although word models typically include at least one class for
+the unknown word).  Thus building a class model involves constructing
+class $n$-grams.  A second component of the model calculates the
+probability of a word given each class.  The HTK tools only support
+deterministic class maps, so each word can only be in one class.
+Class language models use a separate file to store each of the two
+components -- the word-given-class probabilities and the class
+$n$-grams -- as well as a third file which points to the two component
+files.  Alternatively, the two components can be combined together
+into a standalone separate file.  In this section we'll see how to
+build these files using the supplied tools.
+
+Before a class model can be built it is necessary to construct a class
+map which defines which words are in each class.  The supplied
+\htool{Cluster} tool can derive a class map based on the bigram word
+statistics found in some text, although if you are constructing a
+large number of classes it can be rather slow (execution time measured
+in hours, typically).  In many systems class models are combined with
+word models to give further gains, so we'll build a class model based
+on the Holmes training text and then interpolate it with our existing
+word model to see if we can get a better overall model.
+
+Constructing a class map requires a decision to be made as to how many
+separate classes are required.  A sensible number depends on what you
+are building the model for, and whether you intend it purely to
+interpolate with a word model.  In the latter case, for example, a
+sensible number of classes is often around the 1000 mark when using a
+64K word vocabulary.  We only have 5000 words in our vocabulary so
+we'll choose to construct 150 classes in this case.
+
+Create a directory called {\tt holmes.2} and run \htool{Cluster} with
+\begin{verbatim}
+$ Cluster -T 1 -c 150 -i 1 -k -o holmes.2/class lm_5k/5k.wmap
+         holmes.1/data.* lm_5k/data.0
+Preparing input gram set
+Input gram file holmes.1/data.0 added (weight=1.000000)
+Input gram file lm_5k/data.0 added (weight=1.000000)
+Beginning iteration 1
+Iteration complete
+Cluster completed successfully
+\end{verbatim} % $
+The word map and gram files are passed as before -- any OOV mapping
+should be made before building the class map.  Passing the {\tt -k}
+option told \htool{Cluster} to keep the unknown word token {\tt !!UNK}
+in its own singleton class, whilst the {\tt -c 150} options specifies
+that we wish to create 150 classes.  The {\tt -i 1} performs only one
+iteration of the clustering -- performing further iterations is likely
+to give further small improvements in performance, but we won't wait
+for this here.  Whilst \htool{Cluster} is running you can look at the
+end of the {\tt holmes.2/class.1.log} to see how far it has got.  On a
+Unix-like system you could use a command like {\tt tail
+holmes.2/class.1.log}, or if you wanted to monitor progress then {\tt
+tail -f holmes.2/class.1.log} would do the trick.  The {\tt 1} refers
+to the iteration, whilst the results are written to this filename
+because of the {\tt -o holmes.2/class} option which sets the prefix
+for all output files.
+
+In the {\tt holmes.2} directory you will also see the files {\tt
+class.recovery} and {\tt class.recovery.cm} -- these are a recovery
+status file and its associated class map which are exported at regular
+intervals because the \htool{Cluster} tool can take so long to run.
+In this way you can kill the tool before it has finished and resume
+execution at a later date by using the {\tt -x} option; in this case
+you would use {\tt -x holmes.2/class.recovery} for example (making
+sure you pass the same word map and gram files -- the tool does
+{\it not} currently check that you pass it the same files when restarting).
+
+Once the tool finishes running you should see the file {\tt
+holmes.2/class.1.cm} which is the resulting class map.  It is in plain
+text format so feel free to examine it.  Note, for example, how {\tt
+CLASS23} consists almost totally of verb forms ending in {\tt -ED},
+whilst {\tt CLASS41} lists various general words for a person or
+object.  Had you created more classes then you would be likely to see
+more distinctive classes.  We can now use this file to build the class
+$n$-gram component of our language model.
+\begin{verbatim}
+$ LGCopy -T 1 -d holmes.2 -m holmes.2/cmap -w holmes.2/class.1.cm
+         lm_5k/5k.wmap holmes.1/data.* lm_5k/data.0
+Input file holmes.1/data.0 added, weight=1.0000
+Input file lm_5k/data.0 added, weight=1.0000
+Copying 2 input files to output files with 2000000 entries
+Class map = holmes.2/class.1.cm
+ saving 162397 ngrams to file holmes.2/data.0 
+330433 out of 330433 ngrams stored in 1 files
+\end{verbatim} % $
+
+The {\tt -w} option specifies an input class map which is applied when
+copying the gram files, so we now have a class gram file in {\tt
+holmes.2/data.0}.  It has an associated word map file {\tt
+holmes.2/cmap} -- although this only contains class names it is
+technically a word map since it is taken as input wherever a word map
+is required by the \HTK\ language modelling tools; recall that word
+maps can contain classes as witnessed by {\tt !!UNK} previously.
+
+You can examine the class $n$-grams in a similar way to previously by
+using \htool{LGList}
+\begin{verbatim}
+$ LGList holmes.2/cmap holmes.2/data.0 | more 
+ 
+3-Gram File holmes.2/data.0[162397 entries]:
+ Text Source: LGCopy
+CLASS1      CLASS10     CLASS103     : 1
+CLASS1      CLASS10     CLASS11      : 2
+CLASS1      CLASS10     CLASS118     : 1
+CLASS1      CLASS10     CLASS12      : 1
+CLASS1      CLASS10     CLASS126     : 2
+CLASS1      CLASS10     CLASS140     : 2
+CLASS1      CLASS10     CLASS147     : 1
+...
+\end{verbatim} % $
+
+And similarly the class $n$-gram component of the overall language
+model is built using \htool{LBuild} as previously with
+\begin{verbatim}
+$ LBuild -T 1 -c 2 1 -c 3 1 -n 3 holmes.2/cmap
+     lm_5k/cl150-tg_1_1.cc holmes.2/data.*
+Input file holmes.2/data.0 added, weight=1.0000
+\end{verbatim} % $
+
+To build the word-given-class component of the model we must run
+\htool{Cluster} again.
+\begin{verbatim}
+$ Cluster -l holmes.2/class.1.cm -i 0 -q lm_5k/cl150-counts.wc
+     lm_5k/5k.wmap holmes.1/data.* lm_5k/data.0
+\end{verbatim} % $
+
+This is very similar to how we ran \htool{Cluster} earlier, except
+that we now want to perform 0 iterations ({\tt -i 0}) and we start by
+loading in the existing class map with {\tt -l holmes.2/class.1.cm}.
+We don't need to pass {\tt -k} because we aren't doing any further
+clustering and we don't need to specify the number of classes since
+this is read from the class map along with the class contents.  The
+{\tt -q lm\_5k/cl150-counts.wc} option tells the tool to write 
+word-given-class counts to the specified file.  Alternatively we could
+have specified {\tt -p} instead of {\tt -q} and written probabilities
+as opposed to counts.  The file is in a plain text format, and either
+the {\tt -p} or {\tt -q} version is sufficient for forming the
+word-given-class component of a class language model.  Note that in
+fact we could have simply added either {\tt -p} or {\tt -q} the
+first time we ran \htool{Cluster} and generated both the class map and
+language model component file in one go.
+
+Given the two language model components we can now link them together
+to make our overall class $n$-gram language model.
+\begin{verbatim}
+$ LLink lm_5k/cl150-counts.wc lm_5k/cl150-tg_1_1.cc
+     lm_5k/cl150-tg_1_1
+\end{verbatim} % $
+
+The \htool{LLink} tool creates a simple text file pointing to the two
+necessary components, auto-detecting whether a count or probabilities
+file has been supplied.  The resulting file, {\tt lm\_5k/cl150-tg\_1\_1}
+is the finished overall class $n$-gram model, which we can now assess
+the performance of with \htool{LPlex}.
+\begin{verbatim}
+$ LPlex -n 3 -t lm_5k/cl150-tg_1_1 test/red-headed_league.txt
+LPlex test #0: 3-gram
+perplexity 125.9065, var 7.4139, utterances 556, words predicted 8127
+num tokens 10408, OOV 665, OOV rate 6.75% (excl. </s>)
+
+Access statistics for lm_5k/cl150-tg_1_1:
+Lang model  requested  exact backed    n/a     mean    stdev
+    bigram       2867  95.4%   4.6%   0.0%    -4.61     1.64
+   trigram       8127  64.7%  24.1%  11.2%    -4.84     2.72
+\end{verbatim} % $
+
+The class trigram model performs worse than the word trigram (which
+had a perplexity of 117.4), but this is not a surprise since this is
+true of almost every reasonably-sized test set -- the class model is
+less specific.  Interpolating the two often leads to further
+improvements, however.  We can find out if this will happen in this
+case by interpolating the models with \htool{LPlex}.
+\begin{verbatim}
+$ LPlex -u -n 3 -t -i 0.4 lm_5k/cl150-tg_1_1 lm_5k/tg1_1
+      test/red-headed_league.txt
+LPlex test #0: 3-gram
+perplexity 102.6389, var 7.3924, utterances 556, words predicted 9187
+num tokens 10408, OOV 665, OOV rate 6.75% (excl. </s>)
+ 
+Access statistics for lm_5k/tg2-1_1:
+Lang model  requested  exact backed    n/a     mean    stdev
+    bigram       5911  68.5%  30.9%   0.6%    -5.75     2.94
+   trigram       9187  35.7%  31.2%  33.2%    -4.77     2.98
+ 
+Access statistics for lm_5k/cl150-tg_1_1:
+Lang model  requested  exact backed    n/a     mean    stdev
+    bigram       3104  95.5%   4.5%   0.0%    -4.67     1.62
+   trigram       9187  66.2%  23.9%   9.9%    -4.87     2.75
+\end{verbatim} % $
+So a further gain is obtained -- the interpolated model performs
+significantly better.  Further improvement might be possible by
+attempting to optimise the interpolation weight.
+
+Note that we could also have used \htool{LLink} to build a single
+class language model file instead of producing a third file which
+points to the two components.  We can do this by using the {\tt -s}
+single file option.
+\begin{verbatim}
+$ LLink -s lm_5k/cl150-counts.wc lm_5k/cl150-tg_1_1.cc
+     lm_5k/cl150-tg_1_1.all
+\end{verbatim} % $
+The file {\tt lm\_5k/cl150-tg\_1\_1.all} is now a standalone language
+model, identical in performance to {\tt lm\_5k/cl150-tg\_1\_1} created
+earlier.
+
+
+\mysect{Problem solving}{HLMproblemSolving}
+\index{Problem solving}
+Sometimes a tool returns an error message which doesn't seem to make
+sense when you check the files you've passed and the switches
+you've given.  This section provides a few problem-solving hints.
+
+\mysubsect{File format problems}{HLMfileproblems}
+If a file which seems to be in the correct format is giving errors
+such as `Bad header' then make sure that you are using the correct
+input filter.  If the file is gzipped then ensure you are using a
+suitable configuration parameter to decompress it on input; similarly
+if it isn't compressed then check you're not trying to decompress it.
+Also check to see if you have two files, one with and one without a
+{\tt .gz} extension -- maybe you're picking up the wrong one and
+checking the other file.
+
+You might be missing a switch or configuration file to tell the tool
+which format the file is in.  In general none of the \HTK\ language
+modelling tools can auto-detect file formats -- unless you tell them
+otherwise they will expect the file type they are configured to
+default to and will give an error relevant to that type if it does not
+match.  For example, if you omit to pass {\tt -t} to \htool{LPlex}
+then it will treat an input text file as a
+\HTK\ label file and you will get a `Too many columns' error if a line
+has more than 100 words on it or a ridiculously high perplexity
+otherwise.  Check the command documentation in chapter
+\ref{c:toolref}.
+
+\mysubsect{Command syntax problems}{HLMsyntaxproblems}
+If a tool is giving unexpected syntax errors then check that you have
+placed all the option switches {\it before} the compulsory parameters
+-- the tools will not work if this rule is not followed.  You must
+also place whitespace between switches and any options they expect.
+The ordering of switches is not important, but the order of compulsory
+parameters cannot be changed.  Check the switch syntax -- passing a
+redundant parameter to one will cause problems since it will be
+interpreted as the first compulsory parameter.
+
+All \HTK\ tools assume that a parameter which starts with a digit is a
+number of some kind -- you cannot pass filenames which start with a
+digit, therefore.  This is a limitation of the routines in
+\htool{HShell}. 
+
+\mysubsect{Word maps}{HLMwordmapproblems}
+If your word map and gram file combination is being rejected then make
+sure they match in terms of their sequence number.  Although gram
+files are mainly stored in a binary format the header is in plain text
+and so if you look at the top of the file you can compare it
+manually with the word map.  Note it is not a good idea to fiddle the
+values to match since they are bound to be different for a good
+reason!  Word maps must have the same or a higher sequence id than a
+gram file in order to open that gram file -- the names must match too.
+
+The tools might not behave as you expect.  For example, \htool{LGPrep}
+will write its word map to the file {\tt wmap} unless you tell it
+otherwise, irrespective of the input filename.  It will also place it
+in the same directory as the gram files unless you changed its name
+from {\tt wmap}(!) -- check you are picking up the correct word map
+when building subsequent gram files.
+
+The word ids start at 65536 in order to allow space for that many
+classes below them -- anything lower is assumed to be a class.  In
+turn the number of classes is limited to 65535.
+
+\mysubsect{Memory problems}{HLMmemoryproblems}
+Should you encounter memory problems then try altering the amount of
+space reserved by the tools using the relevant tool switches such as
+{\tt -a} and {\tt -b} for {\tt LGPrep} and {\tt LGCopy}.  You could
+also try turning on memory tracing to see how much memory is used and
+for what (use the configuration {\tt TRACE} parameters and the {\tt
+-T} option as appropriate.  Language models can become very large,
+however -- hundreds of megabytes in size, for example -- so it is
+important to apply cut-offs and/or discounting as appropriate to keep
+them to a suitable size for your system.
+
+\mysubsect{Unexpected perplexities}{HLMperpproblems}
+If perplexities are not what you expected, then there are many things
+that could have gone wrong -- you may not have constructed a suitable
+model -- but also some mistakes you might have made.  Check that you
+passed all the switches you intended, and check that you have been
+consistent in your use of {\tt *RAW*} configuration parameters --
+using escaped characters in the language model without them in your
+test text will lead to unexpected results.  If you have not escaped
+words in your word map then check they're not escaped in any class
+map.  When using a class model make sure you're passing the correct
+input file of the three separate components.
+
+Check the switches to {\tt LPlex} -- did you set {\tt -u} as you
+intended?  If you passed a text file did you pass {\tt -t}?  Not doing
+so will lead either to a format error or to extremely bizarre
+perplexities!
+
+Did you build the length of $n$-gram you meant to?  Check the final
+language model by looking at the header of it, which is always stored
+in plain text format.  You can easily see how many $n$-grams there are
+for each size of $n$.

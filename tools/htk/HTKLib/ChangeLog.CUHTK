@@ -1,0 +1,16 @@
+2002-12-10  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HArc.c: Clean-up indentation.
+
+	* HFBLat.c: Fix.
+
+2002-11-16  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HFBLat.c: General clean-up of comments and indentation.
+
+2002-11-14  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HArc.[hc]: 
+	* HFBLat.[hc]: 
+	* HExactMPE.[hc]: New modules.
+

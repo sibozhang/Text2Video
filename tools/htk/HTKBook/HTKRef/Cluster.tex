@@ -1,0 +1,195 @@
+%
+% Cluster - Gareth Moore        23/01/02 (updated 27/03/02)
+%
+
+\newpage
+\mysect{Cluster}{Cluster}
+
+\mysubsect{Function}{Cluster-Function}
+
+\index{cluster@\htool{Cluster}|(}
+This program is used to statistically cluster words into deterministic
+classes.  The main purpose of \htool{Cluster} is to optimise a class
+map on the basis of the training text likelihood, although it can also
+import an existing class map and generate one of the files necessary
+for creating a class-based language model from the \HTK\ language
+modelling tools.
+
+Class-based language models use a reduced number of classes relative
+to the number of words, with each class containing one or more words,
+to allow a language model to be able to generalise to unseen training
+contexts.  Class-based models also typically require less training
+text to produce a well-trained model than a similar complexity word
+model, and are often more compact due to the much reduced number of
+possible distinct history contexts that can be encountered in the
+training data.
+
+\htool{Cluster} takes as input a set of one or more training text gram
+files, which may optionally be weighted on input, and their associated
+word map.  It then clusters the words in the word map into classes
+using a bigram likelihood measure.  Due to the computational
+complexity of this task a sub-optimal greedy algorithm is used, but
+multiple iterations of this algorithm may be performed in order to
+further refine the class map, although at some point a local maximum
+will be reached where the class map will not change
+further.\footnote{On a 65,000 word vocabulary test set with 170 million
+words of training text this was found to occur after around 45
+iterations}  In practice as few as two iterations may be perfectly
+adequate, even with large training data sets.
+
+The algorithm works by considering each word in the vocabulary in turn
+and calculating the change in bigram training text likelihood if the
+word was moved from its default class (see below) to each other class
+in turn.  The word is then moved to the class which increases the
+likelihood the most, or it is left in its current class if no such
+increase is found.  Each iteration of the algorithm considers each
+word exactly once.  Because this can be a slow process, with typical
+execution times measured in terms of a few hours, not a few minutes,
+the \htool{Cluster} tool also allows \textit{recovery} files to be written
+at regular intervals, which contain the current class map part-way
+through an iteration along with associated files detailing at what
+point in the iteration the class map was exported.  These files are
+not essential for operation, but might be desirable if there is a risk
+of a long-running process being killed via some external influence.
+During the execution of an iteration the tool claims no new
+memory,\footnote{other than a few small local variables taken from the
+stack as functions are called} so it cannot crash
+in the middle of an iteration due to a lack of memory (it can,
+however, fail to start an iteration in the first place).
+
+Before beginning an iteration, \htool{Cluster} places each word either
+into a default class or one specified via the \texttt{-l}, import
+classmap, or \texttt{-x}, use recovery, options.  The default
+distribution, given $m$ classes, is to place the most frequent $(m-1)$
+words into singleton classes and then the remainder into the remaining
+class.  \htool{Cluster} allows words to be considered in either
+decreasing frequency of occurrence order, or the order they are
+encountered in the word map.  The popular choice is to use the former
+method, although in experiments it was found that the more random
+second approach typically gave better class maps after fewer
+iterations in practice.\footnote{Note that these schemes are
+approximately similar, since the most frequent words are most likely
+to be encountered sooner in the training text and thus occur higher up
+in the word map} The \texttt{-w} option specifies this choice.
+
+During execution \htool{Cluster} will always write a logfile
+describing the changes it makes to the classmap, unless you explicitly
+disable this using the \texttt{-n} option.  If the \texttt{-v} switch
+is used then this logfile is written in explicit English, allowing you
+to easily trace the execution of the clusterer; without \texttt{-v}
+then similar information is exported in a more compact format.
+
+Two or three special classes are also defined.  The sentence start and
+sentence end word tokens are always kept in singleton classes, and
+optionally the unknown word token can be kept in a singleton class too
+-- pass the \texttt{-k} option.\footnote{The author always uses this
+option but has not empirically tested its efficaciousness} These
+tokens are placed in these classes on initialisation and no moves to
+or from these classes are ever considered.
+
+Language model files are built using either the \texttt{-p} or
+\texttt{-q} options, which are effectively equivalent if using
+the \HTK\ language modelling tools as black boxes.  The former creates
+a word-given-class probabilities file, whilst the latter stores word
+counts and lets the language model code itself calculate the same
+probabilities.
+
+\mysubsect{Use}{Cluster-Use}
+
+\htool{Cluster} is invoked by the command line
+\begin{verbatim}
+   Cluster [options] mapfile [mult] gramfile [[mult] gramfile ...]
+\end{verbatim}
+The given word map is loaded and then each of the specified gram files
+is imported.  The list of input gram files can be interspersed with
+multipliers. These are floating-point format numbers which must begin
+with a plus or minus character (e.g. \texttt{+1.0}, \texttt{-0.5},
+etc.). The effect of a multiplier \texttt{mult} is to scale the $n$-gram
+counts in the following gram files by the factor \texttt{mult}. The
+resulting scaled counts are rounded to the nearest integer when
+actually used in the clustering algorithm. A multiplier stays in
+effect until it is redefined.
+
+The allowable options to \htool{Cluster} are as follows
+\begin{optlist}
+
+  \ttitem{-c n} Use {\tt n} classes. This specifies the number of
+        classes that should be in the resultant class map.
+
+  \ttitem{-i n} Perform {\tt n} iterations. This is the number of
+        iterations of the clustering algorithm that should be
+        performed. (If you are using the {\tt -x} option then
+        completing the current iteration does not count towards
+        the total number, so use {\tt -i 0} to complete it and
+        then finish)
+
+  \ttitem{-k} Keep the special unknown word token in its own
+        singleton class.  If not passed it can be moved to or from
+        any class.
+
+  \ttitem{-l fn} Load the classmap {\tt fn} at start up and when
+        performing any further iterations do so from this starting
+        point.
+
+  \ttitem{-m} Record the running value of the maximum likelihood
+        function used by the clusterer to optimised the training
+        text likelihood in the log file.  This option is principally
+        provided for debugging purposes.
+
+  \ttitem{-n} Do not write any log file during execution of an
+        iteration.
+
+  \ttitem{-o fn} Specify the prefix of all output files.  All output
+        class map, logfile and recovery files share the same filename
+        prefix, and this is specified via the {\tt -o} switch.  The
+        default is {\tt cluster}.
+
+  \ttitem{-p fn} Write a word-given-class probabilities file. Either
+        this or the {\tt -q} switch are required to actually build a
+        class-based language model. The \HTK\ language model library,
+        \htool{LModel}, supports both probability and count-based
+        class files.  There is no difference in use, although each
+        allows different types of manual manipulation of the file.
+        Note that if you do not pass {\tt -p} or {\tt -q} you may
+        run \htool{Cluster} at a later date using the {\tt -l} and
+        {\tt -i 0} options to just produce a language model file.
+
+  \ttitem{-q fn} Write a word-given-class counts file. See the
+        documentation for {\tt -p}.
+
+  \ttitem{-r n} Write recovery files after moving {\tt n} words
+        since the previous recovery file was written or an iteration
+        began.  Pass {\tt -r n} to disable writing of recovery files.
+
+  \ttitem{-s tkn} Specify the sentence start token.
+
+  \ttitem{-t tkn} Specify the sentence end token.
+
+  \ttitem{-u tkn} Specify the unknown word token.
+
+  \ttitem{-v} Use verbose log file format.
+
+  \ttitem{-w [WMAP/FREQ]} Specify the order in which word moves are
+        considered. Default is {\tt WMAP} in which words are
+        considered in the order they are encountered in the word map.
+        Specifying {\tt FREQ} will consider the most frequent word
+        first and then the remainder in decreasing order of frequency.
+
+  \ttitem{-x fn} Continue execution from recovery file {\tt fn}.
+
+\end{optlist}
+\stdopts{Cluster}
+
+\mysubsect{Tracing}{Cluster-Tracing}
+
+\htool{Cluster} supports the following trace options, where each trace flag is 
+given using an octal base:
+\begin{optlist}
+  \ttitem{00001} basic progress reporting. 
+  \ttitem{00002} report major file operations - good for following start-up.
+  \ttitem{00004} more detailed progress reporting.
+  \ttitem{00010} trace memory usage during execution and at end.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the \texttt{TRACE}
+configuration variable.
+\index{cluster@\htool{Cluster}|)}

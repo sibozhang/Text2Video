@@ -1,0 +1,91 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young  23/09/95
+%
+
+% Define standard option descriptions
+
+%\stdopts{toolname}
+\newcommand{\stdopts}[1]{
+\htool{#1} also supports the standard options \texttt{-A},
+\texttt{-C},  \texttt{-D}, \texttt{-S}, \texttt{-T}, and \texttt{-V} as described
+in section~\ref{s:stdopts}.
+}
+
+\newcommand{\stdoptB}{
+  \ttitem{-B} Output HMM definition files in binary format.
+}
+\newcommand{\stdoptE}{
+  \ttitem{-E dir [ext]} Parent transform directory and optional extension
+	for parent transforms. The default option is that no parent
+	transform is used.
+}
+\newcommand{\stdoptF}{
+  \ttitem{-F fmt} Set the source data format to {\tt fmt}.
+}
+\newcommand{\stdoptG}{
+  \ttitem{-G fmt} Set the label file format to {\tt fmt}.
+}
+\newcommand{\stdoptH}{
+  \ttitem{-H mmf} Load HMM macro model file {\tt mmf}.  This option
+     may be repeated to load multiple MMFs.
+}
+\newcommand{\stdoptI}{
+  \ttitem{-I mlf} This loads the master label file {\tt mlf}.  This option
+     may be repeated to load several MLFs.
+}
+\newcommand{\stdoptJ}{
+  \ttitem{-J dir [ext]} Add directory to the list of possible input
+	transform directories. Only one of the options can specify the
+	extension to use for the input transforms.
+}
+\newcommand{\stdoptK}{
+  \ttitem{-K dir [ext]} Output transform directory and optional extension
+	for output transforms. The default option is that there is no
+	output extension and the current transform directory is used.
+}
+\newcommand{\stdoptL}{
+  \ttitem{-L dir} Search directory \texttt{dir} for label files (default
+     is to search current directory).
+}
+\newcommand{\stdoptM}{
+  \ttitem{-M dir} Store output HMM macro model files in the directory \texttt{dir}.  
+     If this option is not given, the new HMM definition will overwrite
+     the existing one.
+}
+\newcommand{\stdoptO}{
+  \ttitem{-O fmt} Set the target data format to {\tt fmt}.
+}
+\newcommand{\stdoptP}{
+  \ttitem{-P fmt} Set the target label format to {\tt fmt}.
+}
+\newcommand{\stdoptQ}{
+  \ttitem{-Q} Print a summary of all commands supported by this tool.
+}
+\newcommand{\stdoptX}{
+  \ttitem{-X ext} Set label file extension to {\tt ext} 
+  (default is \texttt{lab}).
+}
+
+
+%%% Local Variables: 
+%%% mode: plain-tex
+%%% TeX-master: "../htkbook"
+%%% End: 

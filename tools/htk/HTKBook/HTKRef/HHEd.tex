@@ -1,0 +1,808 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young and Julian Odell  20/05/97
+%
+\newpage
+\mysect{HHEd}{HHEd}
+
+\subsection{Function}
+
+\index{hhed@\htool{HHEd}|(}
+\htool{HHEd} is a script driven editor for manipulating sets of HMM definitions.
+Its basic operation is to load in a set of HMMs, apply a sequence of edit
+operations and then output the transformed set. \htool{HHEd} is mainly used for
+applying tyings across selected HMM parameters.  It also has facilities for
+cloning HMMs, clustering states and editing HMM structures.
+
+Many \htool{HHEd} commands operate on sets of similar items selected from the
+set of currently loaded HMMs.  For example, it is possible to define a set of
+all final states of all vowel models, or all mean vectors of all mixture
+components within the model X, etc.  Sets such as these are defined by item
+lists using the syntax rules given below.  In all commands, all of the items in
+the set defined by an item list must be of the same type where the possible
+types are
+\begin{tabbing}
++++++++ \= ++ \=  ++++++++++++++++ \= ++ \= \kill
+\>  s \> -- state             \> t \> -- transition matrix \\
+\>  p \> -- pdf               \> w \> -- stream weights \\
+\>  m \> -- mixture component \> d \> -- duration parameters \\
+\>  u \> -- mean vector       \> x \> -- transform matrix \\
+\>  v \> -- variance vector   \> i \> -- inverse covariance matrix \\
+\>  h \> -- HMM definition
+\end{tabbing}
+\noindent
+Most of the above correspond directly to the tie points shown in
+Fig~\href{f:hierarch}.  There is just one exception.  The type ``p''
+corresponds to a pdf (ie a sum of Gaussian mixtures).  Pdf's cannot
+be tied, however, they can be named in a Tie (\texttt{TI}) command
+(see below) in which case, the effect is to join all of the contained
+mixture components into one pool of mixtures and then all of the
+mixtures in the pool are shared across all pdf's.  This allows
+conventional {\it tied-mixture} or {\it semi-continuous} HMM systems
+to be constructed.
+
+The syntax rules for item lists are as follows.  An item list
+consists of a comma separated list of item sets.
+{\sf
+\begin{tabbing}
+++++++ \= ++++++++ \= ++ \= ++++++++++++ \=  \kill
+\>     itemList\>  = \> ``\{'' itemSet \{ ``,'' itemSet \} ``\}'' 
+\end{tabbing}}
+\noindent
+Each {\sf itemSet} consists of the name of one
+or more HMMs (or a pattern
+representing a set of HMMs) followed by a specification
+which represents a set of paths down the parameter hierarchy 
+each terminating at one of the required parameter items.
+{\sf
+\begin{tabbing}
+++++++ \= ++++++++ \= ++ \= ++++++++++++ \=  \kill
+\>      itemSet \>  = \> hmmName . [``transP'' $|$ ``state'' state ]\\
+\>      hmmName \>  = \> ident $|$ identList \\
+\>     identList\>  = \> ``('' ident \{ ``,'' ident \} ``)'' \\
+\>     ident    \>  = \> $<$ char $|$ metachar $>$ \\
+\>     metachar \>  = \> ``?'' $|$ ``$\star$''
+\end{tabbing}}
+\noindent
+A {\sf hmmName} consists of a single {\sf ident} or
+a comma separated list of {\sf ident}'s.  The following examples
+are all valid {\sf hmmName}'s:
+\begin{verbatim}
+         aa  three  model001  (aa,iy,ah,uh)  (one,two,three)
+\end{verbatim}
+In addition, an {\sf ident} can contain the metacharacter
+``?'' which matches any single character and the metacharacter
+``$\star$'' which matches a string of zero or more characters.
+For example, the item list
+\begin{verbatim}
+         {*-aa+*.transP}
+\end{verbatim}
+would represent the set of transition matrices of all loaded
+triphone variations of \texttt{aa}.
+
+Items within states require the state indices to be specified
+{\sf
+\begin{tabbing}
+++++++ \= ++++++++ \= ++ \= ++++++++++++ \=  \kill
+\>      state \>  = \> index [``.'' stateComp ] \\
+\>      index \>  = \> ``['' intRange \{ ``,'' intRange \} ``]'' \\
+\>    intRange \> = \> integer [ ``-'' integer ]
+\end{tabbing}}
+For example, the item list
+\begin{verbatim}
+         {*.state[1,3-5,9]}
+\end{verbatim}
+represents the set of all states 1, 3 to 5 inclusive and 9 of all
+currently loaded HMMs.  Items within states include durational
+parameters, stream weights, pdf's and all items within mixtures
+{\sf
+\begin{tabbing}
+++++++ \= ++++++++ \= ++ \= ++++++++++++ \=  \kill
+\>   stateComp \>  = \> ``dur'' $|$ ``weights'' $|$ [ `` stream'' index ]
+        ``.'' ``mix'' [ mix ]
+\end{tabbing}}
+For example, 
+\begin{verbatim}
+         {(aa,ah,ax).state[2].dur}
+\end{verbatim}
+denotes the set of durational parameter vectors from state 2 of the
+HMMs \texttt{aa}, \texttt{ah} and \texttt{ax}.  Similarly, 
+\begin{verbatim}
+         {*.state[2-4].weights}
+\end{verbatim}
+denotes the set of stream weights for states 2 to 4 of all currently
+loaded HMMs.  The specification of pdf's may optionally include a
+list of the relevant streams, if omitted, stream 1 is assumed.
+For example,
+\begin{verbatim}
+         {three.state[3].mix}
+\end{verbatim}
+and
+\begin{verbatim}
+         {three.state[3].stream[1].mix}
+\end{verbatim}
+both denote a list of the single pdf belonging to stream 1 of state 3 
+of the HMM \texttt{three}.
+
+Within a pdf, the possible item types are mixture components,
+mean vectors, and the various possible forms of covariance
+parameters
+{\sf
+\begin{tabbing}
+++++++ \= ++++++++ \= ++ \= ++++++++++++ \=  \kill
+\>   mix \>  = \>  index [ ``.'' ( ``mean'' $|$ ``cov'' ) ]
+\end{tabbing}}
+For example,
+\begin{verbatim}
+         {*.state[2].mix[1-3]}
+\end{verbatim}
+denotes the set of mixture components 1 to 3 from state 2 of all
+currently loaded HMMs and
+\begin{verbatim}
+         {(one,two).state[4].stream[3].mix[1].mean}
+\end{verbatim}
+denotes the set of mean vectors from mixture component 1, stream 3,
+state 4 of the HMMs \texttt{one} and \texttt{two}.  When {\sf cov}
+is specified, the type of the covariance item referred to is 
+determined from the \texttt{CovKind} of the loaded models.  Thus,
+for diagonal covariance models, the item list
+\begin{verbatim}
+         {*.state[2-4].mix[1].cov}
+\end{verbatim}
+would denote the set of variance vectors for mixture 1, states 2 to 4
+of all loaded HMMs.
+
+Note finally, that it is not an error to specify non-existent models,
+states, mixtures, etc.  All item list specifications are regarded
+as patterns which are matched against the currently loaded set of
+models.  All and only those items which match are included in
+the set.  However, both a null result and a set of items of mixed
+type do result in errors.
+
+All \htool{HHEd} commands consist of a 2 character command name followed
+by zero or more arguments.  In the following descriptions, item
+lists are shown as \texttt{itemList(c)} where the character c denotes the
+type of item expected by that command.  If this type indicator is
+missing then the command works for all item types.
+
+The \htool{HHEd} commands are as follows
+
+\subsubsection{\texttt{AT i j prob itemList(t)}}
+
+Add a transition from state \texttt{i} to state \texttt{j} with probability
+\texttt{prob} for all transition matrices in \texttt{itemList}.  The remaining
+transitions out of state \texttt{i} are rescaled so that $\sum_k a_{ik} = 1 $.
+For example,
+\begin{verbatim}
+         AT 1 3 0.1 {*.transP}
+\end{verbatim}
+would add a skip transition to all loaded models from state 1 to state 3
+with probability 0.1.
+
+\subsubsection*{\tt AU hmmList}
+
+Use a set of decision trees to create a new set of models specified
+by the \texttt{hmmList}.  The decision trees may be made as a result
+of either the \texttt{TB} or \texttt{LT} command.  
+
+Each model in \texttt{hmmList} is constructed in the following manner.
+If a model with the same logical name already exists in the
+current  HMM set this is used unchanged, otherwise the model is
+synthesised from the decision trees.  If the trees cluster at the 
+model level the synthesis results in a logical model sharing the
+physical model from the tree that matches the new context.  If
+the clustering was performed at the state level a prototype model
+(an example of the same phone model occurring in a different context)
+is found and a new HMM is constructed  that shares the transition
+matrix with the prototype model but consists of tied states selected
+using the decision tree.
+
+\subsubsection*{\tt CL hmmList}
+
+Clone a HMM list.  The file \texttt{hmmList} should hold a list of HMMs
+all of whose logical names are either the same as, or are context-dependent
+versions of the currently loaded set of HMMs.  For each name in \texttt{hmmList},
+the corresponding HMM in the loaded set is cloned.  On completion, the
+currently loaded set is discarded and replaced by the new set.  For example,
+if the file \texttt{mylist} contained
+\begin{verbatim}
+         A-A+A
+         A-A+B
+         B-A+A
+         B-B+B
+         B-B+A
+\end{verbatim}
+and the currently loaded HMMs were just \texttt{A} and \texttt{B}, then
+\texttt{A} would be cloned 3 times to give the models \texttt{A-A+A},
+\texttt{A-A+B} and \texttt{B-A+A}, and \texttt{B} would be cloned 2 times
+to give \texttt{B-B+B} and \texttt{B-B+A}.  On completion, the original
+definitions for \texttt{A} and \texttt{B} would be deleted (they could
+be retained by including them in the new \texttt{hmmList}).
+
+\subsubsection*{\tt CO newList}
+
+Compact a set of HMMs.  The effect of this command is to
+scan the currently loaded set of HMMs and identify all identical
+definitions.  The physical name of the first model in each identical
+set is then assigned to all models in that set and all
+model definitions are replaced by a pointer to the first
+model definition.  On completion,
+a new list of HMMs which includes the new model tyings is
+written out to file \texttt{newList}.  For example, suppose that
+models \texttt{A}, \texttt{B}, \texttt{C} and \texttt{D} were currently
+loaded and \texttt{A} and \texttt{B} were identical.  Then the command
+\begin{verbatim}
+         CO tlist
+\end{verbatim}
+would tie HMMs \texttt{A} and \texttt{B}, 
+set the physical name of \texttt{B} to \texttt{A} and output the
+new HMM list
+\begin{verbatim}
+         A
+         B A
+         C
+         D
+\end{verbatim}
+to the file \texttt{tlist}.  This command is used mainly after 
+performing a sequence of parameter tying commands.
+
+\subsubsection*{\tt DP s n id ...}
+
+Duplicates a set of HMMs.  This command is used to replicate a
+set of HMMs whilst allowing control over which structures will
+be shared between them.
+The first parameter controls duplication of tied structures.  Any
+macros whose type appears in string \texttt{s} are duplicated
+with new names and only used in the duplicate model set.  The remaining
+shared structures are common through all the model sets (original and
+duplicates).
+The second parameter defines the number of times the current
+HMM set should be duplicated with the remaining \texttt{n} parameters
+providing suffices to make the original macro identifiers unique
+in each duplicated HMM set.
+
+For instance the following script could be used to duplicate
+a set of tied state models to produce gender dependent ones
+with tied variances.
+\begin{verbatim}
+    MM "v_" { (*).state[2-4].mix[1-2].cov }
+    DP "v" 2 ":m" ":f" 
+\end{verbatim}
+The \texttt{MM} command converts all variances into macros
+(with each macro referring to only one variance).
+The \texttt{DP} command then duplicates the current HMM set twice.
+Each of the duplicate sets will share the tied variances with
+the original set but will have new mixture means, weights and
+state macros.  The new macro names will be constructed by
+appending the id \texttt{":m"} or \texttt{":f"} to the original 
+macro name whilst the model names have the id appended after
+the base phone name (so \texttt{ax-b+d} becomes \texttt{ax-b:m+d} or
+\texttt{ax-b:f+d}.
+
+\subsubsection*{\tt FA varscale}
+
+Computes an average within state variance vector for a given HMM set,
+using statistics generated by \htool{HERest} (see {\tt LS} for loading
+stats).  The average variance vector is scaled and stored in the HMM
+set, any variance floor vectors present are replaced. Subsequently,
+the variance floor is applied to all variances in the model set. This
+can be inhibited by setting \texttt{APPLYVFLOOR} to \texttt{FALSE}.
+
+\subsubsection*{\tt FC}
+
+Converts all covariances in the modelset to full. This command
+takes an HMM set with diagonal covariances and creates full
+covariances which are initialised with the variances of the diagonal
+system. The tying structure of the original system is kept intact.
+
+\subsubsection*{\tt FV file} 
+
+Loads one variance floor macro per stream from file. The file
+containing the variance floor macros can, for example, be generated by
+\htool{HCompV}. Any variance floor vectors present in the model set
+are replaced. Secondly the variance floor is applied to all variances.
+This can be inhibited but setting \texttt{APPLYVFLOOR} to
+\texttt{FALSE}.
+
+\subsubsection*{\tt HK hsetkind}
+
+Converts model set from one kind to another.  Although hsetkind can
+take the value PLAINHS, SHAREDHS, TIEDHS or DISCRETEHS, the HK command is
+most likely to be used when building tied-mixture systems (hsetkind=TIEDHS).
+
+\subsubsection*{\tt JO size minw}
+
+Set the size and minimum mixture weight for subsequent
+Tie (\texttt{TI}) commands applied to pdf's.  
+The value of \texttt{size} sets the total number of
+mixtures in the tied mixture set ({\it codebook}) and \texttt{minw}
+sets a floor on the mixture weights as a multiple of \texttt{MINMIX}.
+This command only applies to tying item lists of type ``p''
+(see the Tie \texttt{ TI} command below).
+
+\subsubsection*{\tt LS statsfile}
+
+This command is used to read in the \htool{HERest} statistics file 
+(see the \htool{HERest} \texttt{-s} option) stored in \texttt{statsfile}.  These
+statistics are needed for certain clustering operations.
+The statistics file contains the occupation count for every HMM state. 
+
+\subsubsection*{\tt LT treesfile}
+
+This command reads in the decision trees stored in \texttt{treesfile}.
+The trees file will consist of a set of questions defining contexts
+that may appear in the subsequent trees.  The trees are used to
+identify either the state or the model that should be used in
+a particular context.  The file would normally be produced by
+\texttt{ST} after tree based clustering has been performed.
+
+\subsubsection*{\tt MD nmix itemlist}
+
+Decrease the number of mixture components in each pdf in the
+\texttt{itemList} to \texttt{m}. This employs a stepwise greedy
+merging strategy. For a given set of mixture components the pair with
+minimal merging cost is found and merged. This is repeated until only
+\texttt{m} mixture components are left. Any defunct mixture components
+(i.e. components with a weight below \texttt{MINMIX}) are deleted
+prior to this process.
+
+Note that after application of this command a pdf in {\tt itemlist}
+may consist of fewer, but not more than \texttt{m} mixture components.
+
+As an example, the command
+\begin{verbatim}
+         MD 6 {*-aa+*.state[3].mix}
+\end{verbatim}
+would decrease the number of mixture components in state 3 of all
+triphones of \texttt{aa} to 6.
+
+\subsubsection*{\tt MM macro itemList}
+
+This command makes each item (I=1..N) in \texttt{itemList} into a 
+macro with name \texttt{nameI} and a usage of one.  This command
+can prevent unnecessary duplication of structures when HMMs
+are cloned or duplicated.
+
+\subsubsection*{\tt MT triList newTriList}
+
+Make  a set of triphones by merging the currently loaded set of
+biphones.  This is a very specialised command.  All currently
+loaded HMMs must have 3 emitting states and be either left
+or right context-dependent biphones.  The list of HMMs stored
+in \texttt{triList} should contain one or more triphones.  For
+each triphone in \texttt{triList} of the form \texttt{X-Y+Z}, there
+must be currently loaded biphones \texttt{X-Y} and \texttt{Y+Z}.
+A new triphone \texttt{X-Y+Z} is then synthesised by first cloning
+\texttt{Y+Z} and then replacing the state information for the
+initial emitting state by the state information for the initial
+emitting state of \texttt{X-Y}.  Note that the underlying physical
+names of the biphones used to create the triphones are recorded
+so that where possible, triphones generated from tied biphones
+are also tied.  On completion, the new list of triphones including
+aliases is written to the file \texttt{newTriList}.
+
+\subsubsection*{\tt MU m itemList(p)}
+
+Increase the number of non-defunct mixture components
+in each pdf in the \texttt{itemList} to \texttt{m} (when \texttt{m} 
+is just a number) or by \texttt{m} (when \texttt{m} is a number 
+preceeded by a \texttt{+} sign.  A defunct mixture
+is one for which the weight has fallen below \texttt{MINMIX}. This command
+works in two steps.  Firstly, the weight of each mixture
+in each pdf is checked.  If any defunct mixtures are discovered, 
+then each is successively replaced by a non-defunct
+mixture component until either the required total number of non-defunct
+mixtures is reached or there are no defunct mixtures left.
+This replacement works by first deleting the defunct mixture
+and then finding the mixture with the largest weight and splitting
+it.
+The split operation is as follows.  The weight of the mixture
+component is first halved and then the mixture is cloned.  The
+two identical mean vectors are then perturbed by adding $0.2$
+standard deviations to one and subtracting the same amount
+from the other.
+
+In the second step, the mixture component with the largest
+weight is split as above.  This is repeated until the required
+number of mixture components are obtained.
+Whenever, a mixture is split, a count is incremented  for that mixture
+so that splitting occurs evenly across the mixtures.  Furthermore,
+a mixture whose {\it gconst} value falls more than four standard
+deviations below the mean is not split.
+
+As an example, the command
+\begin{verbatim}
+         MU 6 {*-aa+*.state[3].mix}
+\end{verbatim}
+would increase the number of mixture components in state 3
+of all triphones of \texttt{aa} to 6.
+
+\subsubsection*{\tt NC N macro itemList(s)}
+
+N-cluster the states listed in the 
+\texttt{itemList} and tie each cluster \texttt{i} as macro \texttt{macroi}
+where \texttt{i} is 1,2,3,\ldots,\texttt{N}.
+The set of states in the \texttt{itemList} are divided into \texttt{N}
+clusters using the following furthest neighbour hierarchical
+cluster algorithm:
+\begin{verbatim}
+         create 1 cluster for each state;
+         n = number of clusters;
+         while (n>N) {
+            find i and j for which g(i,j) is minimum;
+            merge clusters i and j;
+         }
+\end{verbatim}
+Here \texttt{g(i,j)} is the inter-group distance between
+clusters \texttt{i} and \texttt{j} defined as the maximum
+distance between any state in cluster \texttt{i} and any state
+in cluster \texttt{j}.  The calculation of the inter-state
+distance depends on the type of HMMs involved.  Single
+mixture Gaussians use
+\begin{equation}
+  d(i,j) = \frac{1}{S} \sum_{s=1}^S
+        \left[  
+           \frac{1}{V_s} \sum_{k=1}^{V_s}
+                 \frac{({\mu}_{isk} - {\mu}_{jsk})^2}{
+                         {\sigma}_{isk}{\sigma}_{jsk}}
+        \right]^{\frac{1}{2}}
+\end{equation}
+where $V_s$ is the dimensionality of stream $s$.  Fully tied
+mixture systems (ie \texttt{TIEDHS}) use
+\begin{equation}
+  d(i,j) = \frac{1}{S} \sum_{s=1}^S
+        \left[  
+           \frac{1}{M_s} \sum_{m=1}^{M_s}
+                (c_{ism} - c_{jsm})^2
+        \right]^{\frac{1}{2}}
+\end{equation}
+and all others use
+\begin{equation}
+  d(i,j) = - \frac{1}{S} \sum_{s=1}^S
+         \frac{1}{M_s} \sum_{m=1}^{M_s}
+          \log[b_{js}(\bm{\mu}_{ism})] + \log[b_{is}(\bm{\mu}_{jsm})]
+\end{equation}
+where $b_{js}(\bm{x})$ is as defined in equation~\ref{e:cdpdf} for
+the continuous case and equation~\ref{e:ddpdf} for the discrete case.  The actual
+tying of the states in each cluster is performed exactly as for
+the Tie (\texttt{TI}) command below.  The macro for the \texttt{i}'th
+tied cluster is called \texttt{macroi}.
+
+\subsubsection*{\tt PR }
+
+This command takes a model set that has been estimated with an HLDA transform,
+but stored as a semi-tied transform rather than an input transform and 
+transforms it into a model-set with the projected number of dimensions and
+an input transform.
+
+\subsubsection*{\tt PS nstates power [numiters]   }
+
+This command sets the number of Gaussians in each HMM state
+proportional to a power of the number of frames available for training it.  The
+number of frames is obtained from a ``stats'' file output by \htool{HERest},
+which is loaded by the \texttt{LS} command.  Typical usage might be:
+\begin{verbatim}
+ LS <statsfile> 
+ PS 16 0.2 
+\end{verbatim}
+in order to achieve an average of 16 Gaussians per state with a power
+of 0.2.  
+
+It is always advisable when increasing the number of Gaussians in states to
+increase the number by small increments and re-estimate HMMs using
+\htool{HERest} once or more in between.  It may be difficult to avoid a
+large increase in number of Gaussians in particular states when moving from
+a HMM set with a constant number of Gaussians per state to one controlled
+by a power law.  Therefore the PS command has a facility for increasing
+the number of Gaussians gradually where the target is larger than the
+initial number of Gaussians, so that HERest can be run in between.  In this
+example, one could use the \htool{HHEd} command \texttt{PS}~16~0.2~3, run
+\htool{HERest}, use the command \texttt{PS}~16~0.2~2, run \htool{HERest},
+and then run \texttt{PS}~16~0.2~1 before the final re-estimation with
+\htool{HERest}.  The last argument is the number of iterations remaining.
+A fairly similar effect could be obtained by increasing the power linearly
+from zero.
+
+
+\subsubsection*{\tt QS name itemList(h)}
+
+Define a question \texttt{name} which is true for all the models in
+\texttt{itemList}.  These questions can subsequently be used as part 
+of the decision tree based clustering procedure (see \texttt{TB}
+command below).
+
+\subsubsection*{\tt RC N identifier [itemlist]}
+
+This command is used to grow a regression class tree for adaptation
+purposes. A regression class tree is grown with
+\texttt{N} terminal or leaf nodes, using the centroid splitting algorithm
+with a Euclidean distance measure to cluster the model set's mixture
+components. Hence each leaf node specifies a particular mixture
+component cluster. The regression class tree is saved with the macro
+identifier \texttt{identifier\_N}. Each Gaussian component is also
+labelled with a regression class number (corresponding to the leaf
+node number that the Gaussian component resides in). In order to grow
+the regression class tree it is necessary to load in a \texttt{statsfile}
+using the \texttt{LS} command. It is also possible to specify an
+\texttt{itemlist} containing the ``non-speech'' sound components 
+such as the silence mixture components. If this is included then the
+first split made will result in one leaf containing the specified
+non-speech sound components, while the other leaf will contain the
+rest of the model set components. Tree construction then continues as usual.
+
+\subsubsection*{\tt RN hmmIdName}
+
+Rename or add the hmm set identifier in the global options macro to 
+{\tt hmmIdName}.
+
+\subsubsection*{\tt RM hmmFile}
+
+Load the hmm from \texttt{hmmFile} and subtract the mean from state 2,
+mixture 1 of the model from every loaded model.  Every component
+of the mean is subtracted including deltas and accelerations.
+
+\subsubsection*{\tt RO f [statsfile]}
+
+This command is used to remove outlier states during clustering
+with subsequent \texttt{NC} or \texttt{TC} commands.
+If \texttt{statsfile} is present it first reads in the \htool{HERest} statistics 
+file (see \texttt{LS}) otherwise it expects a separate \texttt{LS} command
+to have already been used to read in the statistics.
+Any subsequent \texttt{NC}, \texttt{TC} or \texttt{TB} commands are
+extended to ensure that the occupancy clusters produced exceeds the 
+threshold \texttt{f}.
+For \texttt{TB} this is used to choose which questions are allowed to
+be used to split each node.   Whereas for \texttt{NC} and \texttt{TC} 
+a final merging pass is used and for as long the smallest cluster count 
+falls below the threshold \texttt{f}, then that cluster is merged with 
+its nearest neighbour.
+
+\subsubsection*{\tt RT i j itemList(t)}
+
+Remove the transition from state \texttt{i} to \texttt{j} in all transition
+matrices given in the \texttt{itemList}.  After removal, the remaining
+non-zero transition probabilities for  state \texttt{i} 
+are rescaled so that $\sum_k a_{ik} = 1 $.
+
+\subsubsection*{\tt SH}
+
+Show the current HMM set.  This command can be inserted into
+edit scripts for debugging.  It prints a summary of each
+loaded HMM identifying any tied parameters.
+
+\subsubsection*{\tt SK skind}
+
+Change the sample kind of all loaded HMMs to \texttt{skind}.  This
+command is typically used in conjunction with the \texttt{SW} command.
+For example, to add delta coefficients to a set of models, the \texttt{SW}
+command would be used to double the stream widths and then this
+command would be used to add the \texttt{\_D} qualifier.
+
+\subsubsection*{\tt SS N}
+
+Split into N independent data streams.
+This command causes the currently loaded set of HMMs to be converted
+from 1 data stream to N independent data streams.  The widths of 
+each stream are determined from the single stream vector size and
+the sample kind as described in section~\ref{s:streams}.
+Execution of this command will cause
+any tyings associated with the split stream to
+be undone.
+
+\subsubsection*{\tt ST filename}
+
+Save the currently defined questions and trees to file \texttt{filename}.
+This allows subsequent construction of models using for new contexts
+using the \texttt{LT} and \texttt{AU} commands.
+
+\subsubsection*{\tt SU N w1 w2 w3 .. wN}
+
+Split into N independent data streams with stream widths as specified.
+This command is similar to the \texttt{SS} command except that the 
+width of each stream is defined explicity by the user rather
+than using the built-in stream splitting rules.
+Execution of this command will cause
+any tyings associated with the split stream to
+be undone.
+
+\subsubsection*{\tt SW s n}
+
+Change the width of stream \texttt{s} of all currently loaded HMMs to 
+\texttt{n}.  Changing the width of stream involves changing the dimensions
+of all mean and variance vectors or covariance matrices.  If \texttt{n}
+is greater than the current width of stream \texttt{s}, then mean vectors
+are extended with zeroes and variance vectors are extended with 1's.
+Covariance matrices are extended with zeroes everywhere except for the
+diagonal elements which are set to 1.  This command preserves any
+tyings which may be in force.
+
+\subsubsection*{\tt TB f macro itemList(s or h)}
+
+Decision tree cluster all states in the given \texttt{itemList} and 
+tie them as \texttt{macroi} where \texttt{i} is 1,2,3,\ldots. 
+This command performs a top down clustering of the states or
+models appearing in \texttt{itemlist}.  This clustering starts by
+placing all items in a single root node and then choosing a
+question from the current set to split the node in such a way
+as to maximise the likelihood of a single diagonal covariance
+Gaussian at each of the child nodes generating the training data.
+This splitting continues until the increase in likelihood falls
+below threshold \texttt{f} or no questions are available which do
+not pass the outlier threshold test.
+This type of clustering is only implimented for single mixture,
+diagonal covariance untied models.
+
+\subsubsection*{\tt TC f macro itemList(s)}
+
+Cluster all states in the given 
+\texttt{itemList} and tie them as \texttt{macroi} where 
+\texttt{i} is 1,2,3,\ldots. This command is identical to the
+\texttt{NC} command described above except that the number of clusters
+is varied such that the maximum within cluster distance is less than
+the value given by \texttt{f}.
+
+\subsubsection*{\tt TI macro itemList}
+
+Tie the items in \texttt{itemList} and assign them to the specified 
+\texttt{macro} name.  This command applies to any item type but 
+all of the items in \texttt{itemList} must be of the same type.
+The detailed method of tying depends on the item type as follows:
+\begin{description}
+   \item[state(s)] the state with the largest total value of \texttt{gConst}
+     in stream 1 (indicating broad variances) and the minimum number of
+     defunct mixture weights (see \texttt{MU} command) is selected from the
+   item list and all states are tied to this typical state.
+   \item[transitions(t)] all transition matrices in the item list are
+     tied to the last in the list.
+   \item[mixture(m)] all mixture components in the item list are tied
+   to the last in the list.
+   \item[mean(u)] the average vector of all the mean vectors
+   in the item list is calculated and all the means are tied to this
+   average vector.
+   \item[variance(v)] a vector is constructed for which each element
+   is the maximum of the corresponding elements from the set of 
+   variance vectors to be tied.  All of the variances are then tied
+   to this maximum vector.
+   \item[covariance(i)] all covariance matrices in the item list are tied
+   to the last in the list.
+   \item[xform(x)] all transform matrices in the item list are tied
+   to the last in the list.
+   \item[duration(d)] all duration vectors in the item list are tied
+   to the last in the list.
+   \item[stream weights(w)] all stream weight vectors in the item 
+   list are tied to the last in the list.
+   \item[pdf(p)]  as noted earlier, pdf's are tied to create tied
+   mixture sets rather than to create a shared pdf.  The procedure
+   for tying pdf's is as follows
+   \begin{enumerate}
+      \item All mixtures from all pdf's in the item list are collected 
+       together in order of mixture weight.
+      \item If the number of mixtures exceeds the join size $J$ [see the
+       Join (\texttt{JO}) command above], then all but the first $J$ mixtures
+       are discarded.
+      \item If the number of mixtures is less than $J$, then the
+       mixture with the largest weight is repeatedly split until
+       there are exactly $J$ mixture components.  The split procedure
+       used is the same as for the MixUp (\texttt{MU}) command
+       described above.
+      \item All pdf's in the item list are made to share all $J$
+       mixture components.  The weight for each mixture is set
+       proportional to the log likelihood of the mean vector of
+       that mixture with respect to the original pdf.      
+      \item Finally, all mixture weights below the floor set by the
+       Join command are raised to the floor value and all of the
+       mixture weights are renormalised.
+   \end{enumerate}
+\end{description}
+
+\subsubsection*{\tt TR n}
+
+Change the level of detail for tracing and consists of a number
+of separate flags which can be added together.
+Values 0001, 0002, 0004, 0008 have the same meaning as the command
+line trace level but apply only to a single block of commands
+(a block consisting of a set of commands of the name).
+A value of 0010 can be used to show current memory usage.
+
+\subsubsection*{\tt UT itemList}
+
+Untie all items in \texttt{itemList}.  For each item in the item list,
+if the usage counter for that item is greater than 1 then it
+is cloned, the original shared item is replaced by the cloned copy
+and the usage count of the shared item is reduced by 1. 
+If the usage count is already 1, the associated macro is simply
+deleted and the usage count set to 0 to indicate an unshared item.
+Note that it is not possible to untie a pdf since these are not
+actually shared [see the Tie (\texttt{TI}) command above].
+
+\subsubsection*{\tt XF filename}
+
+Sets the input transform of the model-set to be filename.
+
+\subsection{Use}
+
+\htool{HHEd} is invoked by typing the command line
+\begin{verbatim}
+   HHEd [options] edCmdFile hmmList
+\end{verbatim}
+where \texttt{edCmdFile} is a text file containing a sequence of edit commands
+as described above and \texttt{hmmList} defines the set of HMMs to be edited
+(see \htool{HModel} for the format of HMM list). 
+If the models are to be kept in separate files rather than being stored in an
+MMF, the configuration variable \texttt{KEEPDISTINCT} should be set to true.
+The available options for \htool{HHEd} are
+
+\begin{optlist}
+
+  \ttitem{-d dir} This option tells \htool{HHEd} to look in
+      the directory \texttt{dir} to find the model definitions.
+
+  \ttitem{-o ext}  This causes the file name extensions of the
+      original models (if any) to be replaced by \texttt{ext}.
+
+  \ttitem{-w mmf} Save all the macros and model definitions in a
+        single master macro file \texttt{mmf}.
+
+  \ttitem{-x s} Set the extension for the edited output files to be \texttt{s} 
+      (default is to to use the original names unchanged).
+
+  \ttitem{-z} Setting this option causes all aliases in the loaded
+      HMM set to be deleted (zapped) immediately before 
+      loading the definitions.  The result is that all logical names
+      are ignored and the actual HMM list
+      consists of just the physically distinct HMMs.
+\stdoptB
+\stdoptH
+\stdoptM
+\stdoptQ
+
+\end{optlist}
+\stdopts{HHEd}
+
+\subsection{Tracing}
+
+\htool{HHEd} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting.
+   \ttitem{00002} intermediate progress reporting.
+   \ttitem{00004} detailed progress reporting.
+   \ttitem{00010} show item lists used for each command.
+   \ttitem{00020} show memory usage.
+   \ttitem{00100} show changes to macro definitions.
+   \ttitem{00200} show changes to stream widths.
+   \ttitem{00400} show clusters.
+   \ttitem{00800} show questions.
+   \ttitem{01000} show tree filtering.
+   \ttitem{02000} show tree splitting.
+   \ttitem{04000} show tree merging.
+   \ttitem{10000} show good question scores.
+   \ttitem{20000} show all question scores.
+   \ttitem{40000} show all merge scores.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hhed@\htool{HHEd}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

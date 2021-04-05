@@ -1,0 +1,1131 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/* developed at:                                               */
+%/*                                                             */
+%/*      Speech Vision and Robotics group                       */
+%/*      Cambridge University Engineering Department            */
+%/*      http://svr-www.eng.cam.ac.uk/                          */
+%/*                                                             */
+%/*      Entropic Cambridge Research Laboratory                 */
+%/*      (now part of Microsoft)                                */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                 */
+%/*                                                             */
+%/*          2001-2002 Cambridge University                     */
+%/*                    Engineering Department                   */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young 24/11/97
+%
+
+\mychap{Networks, Dictionaries and Language Models}{netdict}
+
+\sidepic{Tool.netdict}{80}{ 
+The preceding chapters have described how to process speech
+data and how to train various types of HMM.
+This and the following chapter are concerned with building
+a speech recogniser using \HTK.  This chapter focuses on
+the use of networks\index{networks} and dictionaries\index{dictionaries}.  
+A network describes the
+sequence of words that can be recognised and, for the case of sub-word
+systems, a dictionary describes the sequence of HMMs that constitute
+each word.
+A word level network will typically represent either
+a \textit{Task Grammar} which defines all of the legal word 
+sequences explicitly
+or a \textit{Word Loop} which simply puts all words of the vocabulary
+in a loop and therefore allows any word to follow any other word.
+Word-loop networks are often augmented by a stochastic language model.  
+Networks can also be used
+to define phone recognisers and various types of word-spotting systems.
+}
+
+Networks are specified using the \HTK\ \textit{Standard Lattice Format} (SLF)
+which is described in detail in Chapter~\ref{c:htkslf}.
+This is a general purpose text format which is used for representing
+multiple hypotheses in a recogniser output as well as word networks.  
+Since SLF\index{SLF} format is text-based, it can be written directly using any text editor.
+However, this can be rather tedious and \HTK\ provides
+two tools which allow the application designer to use a higher-level
+representation.  Firstly, the tool \htool{HParse} allows networks
+to be generated from a source text containing extended BNF format
+grammar rules.  This format was the only grammar definition
+language provided in earlier versions of \HTK\ and hence 
+\htool{HParse} also provides backwards compatibility. 
+\index{standard lattice format}
+
+\htool{HParse} task grammars are very easy to write, but they 
+do not allow fine control
+over the actual network used by the recogniser. 
+The tool \htool{HBuild} works directly at the SLF level to provide
+this detailed control.  Its main function is to 
+enable a large word network to be decomposed into
+a set of small self-contained sub-networks using as input an extended
+SLF format.  This enhances the
+design process and avoids the need for unnecessary repetition.
+
+\htool{HBuild} can also be used to perform a number
+of special-purpose functions.  Firstly, it can construct 
+word-loop and word-pair grammars automatically.  Secondly,
+it can incorporate a statistical bigram
+language model into a network.  These can be generated from label
+transcriptions using \htool{HLStats}.  However,
+\HTK\ supports the standard ARPA MIT-LL text format for backed-off
+N-gram language models, and hence, import from other sources is possible.
+ 
+Whichever tool is used to generate a word network, it is important
+to ensure that the generated network represents the intended grammar.
+It is also helpful to have some measure of the difficulty of the
+recognition task.  To assist with this, the tool \htool{HSGen} is
+provided.  This tool will generate example word sequences from
+an SLF network using random sampling.  It will also estimate the
+perplexity of the network.
+
+When a word network is loaded into a recogniser, 
+a dictionary is consulted to convert each
+word in the network into a sequence of phone HMMs.   The dictionary can
+have multiple pronunciations in which case several sequences may be joined
+in parallel to make a word.  Options exist in this process to automatically
+convert the dictionary entries to context-dependent triphone
+models, either within a word or cross-word.  Pronouncing 
+dictionaries are a vital resource in building speech recognition
+systems and, in practice, word pronunciations can be derived from
+many different sources.  The \HTK\ tool \htool{HDMan} enables a dictionary
+to be constructed automatically from different sources.  Each source
+can be individually edited and translated and merged to form a
+uniform \HTK\ format dictionary.
+
+The various facilities for describing a word network and expanding into a
+HMM level network suitable for building a recogniser are implemented
+by the \HTK\ library module \htool{HNet}.  The facilities for loading
+and manipulating dictionaries are implemented by the \HTK\ library module
+\htool{HDict} and  for loading
+and manipulating language models are implemented by
+\htool{HLM}.  These facilities and those provided by 
+\htool{HParse}, \htool{HBuild}, \htool{HSGen}, 
+\htool{HLStats} and \htool{HDMan} are
+the subject of this chapter.
+
+\mysect{How Networks are Used}{netuse}
+
+Before delving into the details of word networks\index{networks!in recognition} and dictionaries, it will
+be helpful to understand their r\^{o}le in building a speech recogniser
+using \HTK.  Fig~\href{f:recsys} illustrates the overall recognition
+process.  A word network is defined using HTK Standard Lattice Format
+(SLF).  An SLF word network is just a text file and it can be written
+directly with a text editor or a tool can be used to build it. \HTK\ provides 
+two such tools, \htool{HBuild} and
+\htool{HParse}.  These both take as input a textual description and
+output an SLF file. 
+% Another way to generate SLF files is to use Entropic's \textit{grapHvite} package, which includes a 
+% graphical tool that allows the required networks to be constructed on
+% the screen.  
+Whatever method is chosen, word network SLF generation 
+is done \textit{off-line}
+and is part of the system build process.
+
+An SLF file contains a list of nodes representing words and a
+list of arcs representing the transitions between words.   The transitions
+can have probabilities attached to them and these can be used to indicate
+\textit{preferences} in a grammar network.  They can also be used to
+represent bigram probabilities in a back-off bigram network and 
+\htool{HBuild} can generate such a bigram network automatically.
+In addition to an SLF file, a \HTK\ recogniser requires a 
+dictionary to supply pronunciations for each word in the network
+and a set of acoustic HMM phone models. 
+Dictionaries are input via the \HTK\ interface module \htool{HDict}.
+
+The dictionary, HMM set and word network are input to the \HTK\ library
+module \htool{HNet} whose function is to generate an equivalent network of
+HMMs. Each word in the dictionary may have several pronunciations and in
+this case there will be one branch in the network corresponding to each
+alternative pronunciation. Each pronunciation may consist either of a list
+of phones or a list of HMM names. In the former case, \htool{HNet} can
+optionally expand the HMM network to use either word internal triphones or
+cross-word triphones.
+Once the HMM network has been constructed, it can be
+input to the decoder module \htool{HRec} and used to recognise
+speech input.  Note that HMM network construction is performed \textit{on-line}
+at recognition time as part of the initialisation process.
+
+\centrefig{recsys}{100}{Overview of the Recognition Process}
+
+For convenience, \HTK\ provides a recognition\index{recognition!overall process} tool called \htool{HVite}
+to allow the functions provided by \htool{HNet} and \htool{HRec}
+to be invoked from the command line. \htool{HVite} is particularly
+useful for running experimental evaluations on test speech stored
+in disk files and for basic testing using live audio input.
+However, application developers
+should note that \htool{HVite} is just a shell containing calls to
+load the word network, dictionary and models; generate the recognition
+network and then repeatedly recognise each input utterance.
+For embedded applications, it may well be appropriate to
+dispense with \htool{HVite} and call the functions in 
+\htool{HNet} and \htool{HRec} directly from the application.
+The use of \htool{HVite} is explained in the next chapter.
+
+\mysect{Word Networks and Standard Lattice Format}{slfintro}
+
+\index{standard lattice format}
+This section provides a basic introduction to the \HTK\ Standard Lattice
+Format (SLF). SLF files are used for a variety of functions some of
+which lie beyond the scope of the standard \HTK\ package.   The
+description here is limited to those features of SLF which are required
+to describe word networks suitable for input to \htool{HNet}.  The
+following Chapter describes the further features of SLF used for
+representing the output of a recogniser. For reference, a full
+description of SLF is given in Chapter~\ref{c:htkslf}.
+
+\index{SLF!format}
+A word network in SLF\index{SLF} consists of a list of nodes and a list of arcs.  
+The nodes represent words and the arcs represent the transition between
+words\footnote{More precisely, nodes represent the ends of
+words and arcs represent the transitions between word ends.
+This distinction becomes important when describing
+recognition output since acoustic scores are attached
+to arcs not nodes. }.  
+Each node and arc definition is written on a single line and
+consists of a number of fields. Each field specification consists of a
+``name=value'' pair. Field names can be any length but all commonly used
+field names consist of a single letter.  By convention, field names
+starting  with a capital letter are mandatory  whereas field names
+starting with a lower-case letter are optional.  Any line beginning with
+a \texttt{\#} is a comment and is ignored.
+
+\centrefig{wdnet}{80}{A Simple Word Network}
+
+The following example should illustrate the basic format \index{SLF!word network}
+of an SLF word network file.  It corresponds to the network
+illustrated in Fig~\href{f:wdnet} which represents all sequences
+consisting of the words ``bit'' and ``but'' starting with the
+word ``start'' and ending with the word ``end''.  As will be
+seen later, the start and end words will be mapped to a silence
+model so this grammar allows speakers to 
+say ``bit but but bit bit ....etc''.
+\begin{verbatim}
+    # Define size of network: N=num nodes and L=num arcs
+    N=4 L=8
+    # List nodes: I=node-number, W=word
+    I=0 W=start
+    I=1 W=end
+    I=2 W=bit
+    I=3 W=but
+    # List arcs: J=arc-number, S=start-node, E=end-node
+    J=0 S=0 E=2
+    J=1 S=0 E=3
+    J=2 S=3 E=1
+    J=3 S=2 E=1
+    J=4 S=2 E=3
+    J=5 S=3 E=3
+    J=6 S=3 E=2
+    J=7 S=2 E=2
+\end{verbatim}
+Notice that the first line which defines the size of the network must be
+given before any node or arc definitions.
+A node is a \textit{network start node} if it has no predecessors,
+and a node is \textit{network end node} if it has no successors.
+There must be one and only one network start node and one network
+end node.
+In the above, node 0 is a network start node and node 1 is a
+network end node.
+The choice of the names ``start'' and ``end'' for these nodes
+has no significance.
+
+\centrefig{wdnet1}{80}{A Word Network Using Null Nodes}
+
+A word network can have null nodes indicated by the special
+predefined word name \texttt{!NULL}.  Null nodes are useful for reducing
+the number of arcs required.  For example, the \textit{Bit-But}
+network could be defined as follows\index{SLF!null nodes}
+\begin{verbatim}
+    # Network using null nodes
+    N=6 L=7
+    I=0 W=start
+    I=1 W=end
+    I=2 W=bit
+    I=3 W=but
+    I=4 W=!NULL
+    I=5 W=!NULL
+    J=0 S=0 E=4
+    J=1 S=4 E=2
+    J=2 S=4 E=3
+    J=3 S=2 E=5
+    J=4 S=3 E=5
+    J=5 S=5 E=4
+    J=6 S=5 E=1
+\end{verbatim}
+In this case, there is no significant saving, however, if there
+were many words in parallel, the total number of arcs would be
+much reduced by using null nodes to form common start and end points for
+the loop-back connections.
+
+By default, all arcs are equally likely.  However, the optional
+field \texttt{l=x} can be used to attach the log transition probability
+\texttt{x} to an arc.  For example, if the word ``but'' was twice
+as likely as ``bit'', the arcs numbered 1 and 2 in the last example
+could be changed to
+\begin{verbatim}
+    J=1 S=4 E=2 l=-1.1
+    J=2 S=4 E=3 l=-0.4
+\end{verbatim}
+Here the probabilities have been normalised to sum to 1, however,
+this is not necessary.  The recogniser simply adds the scaled log probability
+to the path score and hence it can be regarded as an additive
+word transition penalty.\index{SLF!arc probabilities}
+
+\mysect{Building a Word Network with \htool{HParse}}{usehparse}
+
+Whilst the construction of a word level SLF network file by hand
+is not difficult, it can be somewhat tedious.  In earlier versions
+of \HTK, a high level grammar notation based on extended 
+Backus-Naur\index{extended Backus-Naur Form}
+Form (EBNF\index{EBNF}) was used to specify recognition grammars.  This 
+\textit{HParse}
+format was read-in directly by the recogniser and compiled into
+a finite state recognition network at run-time.
+
+\inthisversion \textit{HParse} format is still supported but in the form of
+an \textit{off-line} compilation into an SLF word network which can
+subsequently be used to drive a recogniser.  
+
+A HParse format\index{HParse format} grammar\index{grammar} consists of an 
+extended form of regular expression
+enclosed within parentheses.  Expressions are constructed
+from sequences of words and the  metacharacters
+\begin{description}
+\item[\texttt{|}] denotes alternatives
+\item[\texttt{[ ]}] encloses options
+\item[\texttt{\{ \}}] denotes zero or more repetitions
+\item[\texttt{< >}] denotes one or more repetitions
+\item[\texttt{<< >>}] denotes context-sensitive loop
+\end{description}
+The following examples will illustrate the use of all of these
+except the last which is a special-purpose facility provided
+for constructing context-sensitive loops as found in for example,
+context-dependent phone loops and word-pair grammars.  It is described
+in the reference entry for \htool{HParse}\index{hparse@\htool{HParse}}.
+
+As a first example, suppose
+that a simple isolated word single digit recogniser\index{digit recogniser} was required.
+A suitable syntax would be
+\begin{verbatim}
+     (
+        one | two | three | four | five |
+        six | seven | eight | nine | zero
+     )
+\end{verbatim}
+This would translate into the network shown in part (a) of
+Fig.~\href{f:digitnets}.
+If this HParse format syntax definition
+was stored in a file called {\tt digitsyn},
+the equivalent SLF word network would be generated in the
+file \texttt{digitnet} by typing
+\begin{verbatim}
+     HParse digitsyn digitnet
+\end{verbatim}
+
+The above digit syntax assumes that each input digit is
+properly end-pointed.  This
+requirement can be removed by adding a silence model
+before and after the digit
+\begin{verbatim}
+     (
+        sil (one | two | three | four | five |
+        six | seven | eight | nine | zero) sil
+     )
+\end{verbatim}
+As shown by graph (b) in Fig.~\href{f:digitnets}, the allowable sequence of
+models now consists of silence followed by a digit followed by silence. 
+If a sequence of digits needed to be recognised then angle brackets can
+be used to indicate one or more repetitions, the HParse grammar
+\begin{verbatim}
+     (
+        sil < one | two | three | four | five |
+        six | seven | eight | nine | zero > sil
+     )
+\end{verbatim}
+would accomplish this.
+Part (c) of Fig.~\href{f:digitnets}
+shows the network that would result in this case.
+
+\centrefig{digitnets}{120}{Example Digit Recognition Networks}
+
+HParse\index{HParse format!variables} grammars can define 
+variables to represent sub-expressions.
+Variable names start with a dollar symbol and they are given values
+by definitions of the form
+\begin{verbatim}
+   $var = expression ;
+\end{verbatim}
+For example, the above connected digit grammar could be rewritten as
+\begin{verbatim}
+     $digit = one | two | three | four | five |
+              six | seven | eight | nine | zero;
+     (
+        sil < $digit > sil
+     )
+\end{verbatim}
+Here \texttt{\$digit} is a variable whose value is the expression appearing
+on the right hand side of the assignment.  Whenever the name of a variable
+appears within an expression, the corresponding expression is substituted.
+Note however that variables must be defined before use, hence, recursion
+is prohibited.
+
+As a final refinement of the digit grammar, the start and end silence
+can be made optional by enclosing them within square brackets thus
+\begin{verbatim}
+     $digit = one | two | three | four | five |
+              six | seven | eight | nine | zero;
+     (
+        [sil] < $digit > [sil]
+     )
+\end{verbatim}
+Part (d) of Fig.~\href{f:digitnets}
+shows the network that would result in this last case.
+
+HParse format grammars are a convenient way of specifying 
+task grammars\index{task grammar} for interactive voice interfaces.  As a final
+example, the following defines a simple grammar for the control
+of a telephone by voice.
+\begin{verbatim}
+     $digit  = one | two | three | four | five |
+               six | seven | eight | nine | zero;
+     $number = $digit { [pause] $digit};
+     $scode  = shortcode $digit $digit;
+     $telnum = $scode | $number;
+     $cmd    = dial $telnum | 
+               enter $scode for $number |
+               redial | cancel;
+     $noise  = lipsmack | breath | background;
+     ( < $cmd | $noise > )
+\end{verbatim}
+The dictionary entries for \texttt{pause}, \texttt{lipsmack}, 
+\texttt{breath} and \texttt{background} would reference HMMs trained
+to model these types of noise and the corresponding output symbols
+in the dictionary would be null.
+
+Finally, it should be noted that when the HParse 
+format\index{HParse format!in V1.5} was used in
+earlier versions of \HTK, word grammars contained word pronunciations
+embedded within them.  This was done by using the reserved node names
+\texttt{WD\_BEGIN} and \texttt{WD\_END} to delimit word boundaries. To
+provide backwards compatibility, \htool{HParse} can process these old
+format networks but when doing so it outputs a dictionary as well as a
+word network.  This compatibility mode\index{HParse format!compatibility mode} is defined fully in the
+reference section, to use it the configuration variable
+\texttt{V1COMPAT}\index{v1compat@\texttt{V1COMPAT}} must be set 
+true or the \texttt{-c} option set.
+
+Finally on the topic of word 
+networks\index{word networks!tee-models in}, it is important to note that
+any network containing an unbroken loop of one or more tee-models
+will generate an error.  
+For example, if \texttt{sp} is a single state tee-model used to 
+represent short pauses, then the following network would generate an
+error\index{tee-models!in networks}
+\begin{verbatim}
+    ( sil < sp | $digit > sil )
+\end{verbatim}
+the intention here is to recognise a sequence of digits which may
+optionally be separated by short pauses.  However, the syntax allows
+an endless sequence of \texttt{sp} models and hence, the recogniser could
+traverse this sequence without ever consuming any input.  The solution to
+problems such as these is to rearrange the network.  For example, the
+above could be written as
+\begin{verbatim}
+    ( sil < $digit sp > sil )
+\end{verbatim}
+%$
+
+\mysect{Bigram Language Models}{biglms}
+
+\index{language models!bigram}
+Before continuing with the description of network generation
+and, in particular, the use of \htool{HBuild}\index{hbuild@\htool{HBuild}}, the 
+use of bigram language models needs to be described.
+Support for statistical language models in \HTK\ is provided
+by the library module \htool{HLM}.  Although the interface to
+\htool{HLM}\index{hlm@\htool{HLM}} can support general N-grams\index{N-grams},  
+the facilities for
+constructing and using N-grams are limited to bigrams.
+
+A bigram language model can be built using \htool{HLStats}\index{hlstats@\htool{HLStats}}
+invoked as follows where it is a assumed that all of the
+label files used for
+training are stored in an MLF called \texttt{labs}
+\begin{verbatim}
+    HLStats -b bigfn -o wordlist labs
+\end{verbatim}
+All words used in the label files must be listed in the \texttt{wordlist}.
+This command will read all of the transcriptions in \texttt{labs},
+build a table of
+bigram counts in memory, and then output a back-off bigram\index{back-off bigrams}
+to the file \texttt{bigfn}.  The formulae used for this are
+given in the reference entry for \htool{HLStats}.  However, the 
+basic idea is encapsulated in the following formula
+\[
+   p(i,j) = \left\{
+      \begin{array}{ll}
+           (N(i,j) - D )/N(i) & \mbox{if $N(i,j) > t$} \\
+                  b(i) p(j)  & \mbox{otherwise}
+       \end{array}
+   \right. 
+\]
+where $N(i,j)$ is the number of times word $j$ follows word $i$ and
+$N(i)$ is the number of times that word $i$ appears.
+Essentially, a small part of the available probability mass
+is deducted from the higher bigram counts and distributed amongst
+the infrequent bigrams.  This process is called \textit{discounting}.
+The default value for the discount constant $D$ is 0.5 but 
+this can be altered using the configuration variable 
+\texttt{DISCOUNT}\index{discount@\texttt{DISCOUNT}}.
+When a bigram count falls below the threshold
+$t$, the bigram is backed-off to the unigram probability suitably scaled
+by a back-off weight in order to ensure that all bigram probabilities for a given
+history sum to one.
+
+Backed-off bigrams\index{back-off bigrams!ARPA MIT-LL format} are 
+stored in a text file using the standard
+ARPA MIT-LL format which as used in \HTK\ is as follows
+
+\begin{verbatim}
+    \data\
+    ngram 1=<num 1-grams>
+    ngram 2=<num 2-ngrams>
+
+    \1-grams:
+    P(!ENTER)      !ENTER  B(!ENTER)
+    P(W1)           W1     B(W1)
+    P(W2)           W2     B(W2)
+    ...
+    P(!EXIT)       !EXIT   B(!EXIT)
+
+    \2-grams:
+    P(W1 | !ENTER)  !ENTER W1
+    P(W2 | !ENTER)  !ENTER W2
+    P(W1 | W1)      W1     W1
+    P(W2 | W1)      W1     W2
+    P(W1 | W2)      W2     W1
+    ....
+    P(!EXIT | W1)   W1     !EXIT
+    P(!EXIT | W2)   W2     !EXIT
+    \end\
+\end{verbatim}
+where all probabilities are stored as base-10 logs.  The default
+start and end words, \texttt{!ENTER} and \texttt{!EXIT} can be changed
+using the \htool{HLStats} \texttt{-s} option.
+
+For some applications, a simple matrix style of bigram representation
+may be more appropriate.  If the \texttt{-o} option is omitted in
+the above invocation of \htool{HLStats}, then a simple full bigram
+matrix will be output using the format
+\begin{verbatim}
+    !ENTER    0   P(W1 | !ENTER) P(W2 | !ENTER) .....
+    W1        0   P(W1 | W1)     P(W2 | W1)     .....
+    W2        0   P(W1 | W2)     P(W2 | W2)     .....
+    ...
+    !EXIT     0   PN             PN             .....
+\end{verbatim} 
+where the probability $P(w_j|w_i)$ is given by row $i,j$ of the matrix.
+If there are a total of N words in the vocabulary then \texttt{PN}
+in the above is set to $1/(N+1)$, this ensures that the last row
+sums to one.  As a very crude form of smoothing, a floor can be set
+using the \texttt{-f minp} option to prevent any entry falling
+below \texttt{minp}.  Note, however, that this does not affect the 
+bigram entries in the first
+column which are zero by definition.  Finally, as with the storage
+of tied-mixture and discrete probabilities, a run-length encoding
+scheme is used whereby any value can be followed by an 
+asterisk and a repeat count (see section~\ref{s:tmix}).
+
+\mysect{Building a Word Network with \htool{HBuild}}{usehbuild}
+
+\sidefig{decinet}{62}{Decimal Syntax}{-2}{
+As mentioned in the introduction, the main function of \htool{HBuild}
+is allow a word-level network to be constructed from
+a main lattice and a set of sub-lattices\index{sub-lattices}.  Any lattice
+can contain node definitions which refer to other lattices.
+This allows a word-level recognition network to be decomposed
+into a number of sub-networks which can be reused at different
+points in the network.  
+}\index{hbuild@\htool{HBuild}}
+
+For example, suppose that decimal number
+input was required.  A suitable network structure would be
+as shown in Fig.~\href{f:decinet}.  However, to write this directly
+in an SLF file would require the digit loop to be written twice.
+This can be avoided by defining the digit loop as a sub-network
+and referencing it within the main \textit{decimal} network as
+follows
+
+\begin{verbatim}
+    # Digit network
+    SUBLAT=digits
+    N=14 L=21
+    # define digits
+    I=0  W=zero
+    I=1  W=one
+    I=2  W=two
+    ...
+    I=9  W=nine
+    #  enter/exit & loop-back null nodes
+    I=10 W=!NULL
+    I=11 W=!NULL
+    I=12 W=!NULL
+    I=13 W=!NULL
+    # null->null->digits
+    J=0 S=10 E=11
+    J=1 S=11 E=0
+    J=2 S=11 E=1
+    ...
+    J=10 S=11 E=9
+    # digits->null->null
+    J=11 S=0 E=12
+    ...
+    J=19 S=9 E=12
+    J=20 S=12 E=13
+    # finally add loop back
+    J=21 S=12 E=11
+    .
+
+    # Decimal netork
+    N=5 L=4
+    # digits -> point -> digits
+    I=0 W=start
+    I=1 L=digits
+    I=2 W=pause
+    I=3 L=digits
+    I=4 W=end
+    # digits -> point -> digits
+    J=0 S=0 E=1
+    J=1 S=1 E=2
+    J=2 S=2 E=3
+    J=3 S=3 E=4
+\end{verbatim}
+The sub-network is identified by the field 
+\texttt{SUBLAT}\index{sublat@\texttt{SUBLAT}} in the header
+and it is terminated by a single period on a line by itself.  The
+main body of the sub-network is written as normal.
+Once defined, a sub-network can be substituted into a higher level
+network using an \texttt{L} field in a node definition, as in nodes
+1 and 3 of the decimal network above.
+
+Of course, this process can be continued and a higher level network
+could reference the decimal network wherever it needed decimal
+number entry.
+
+\centrefig{bobig}{100}{Back-off Bigram Word-Loop Network}
+
+One of the commonest form of recognition network is the 
+word-loop\index{word-loop network}
+where all vocabulary items are placed in parallel with a loop-back
+to allow any word sequence to be recognised.  This is the basic
+arrangement used in most dictation or transcription applications.
+\htool{HBuild} can build such a loop automatically from a list
+of words.  It can also read in a bigram in either ARPA MIT-LL 
+format or HTK matrix format and attach a bigram probability to
+each word transition.  Note, however, that using a full bigram
+language model means that every distinct pair of words must
+have its own unique loop-back transition.  This increases the size of
+the network considerably and slows down the recogniser.
+When a back-off bigram is used, however, backed-off transitions
+can share a common loop-back transition.  Fig.~\href{f:bobig}
+illustrates this.  When backed-off bigrams are input via an ARPA MIT-LL 
+format file, \htool{HBuild} will exploit this where possible.
+
+Finally, \htool{HBuild} can automatically construct a 
+word-pair grammar\index{word-pair grammar} as 
+used in the ARPA Naval Resource Management task.
+
+
+\mysect{Testing a Word Network using \htool{HSGen}}{usehsgen}
+
+When designing task grammars, it is useful to be able to check
+that the  language defined by the final word network is as envisaged.
+One simple way to check this is to use the network as a generator by
+randomly traversing it and outputting the name of each word node
+encountered.  \HTK\ provides a very simple tool called 
+\htool{HSGen}\index{hsgen@\htool{HSGen}}
+for doing this.
+
+As an example if the file \texttt{bnet} contained the simple Bit-But
+netword described above and the file \texttt{bdic} contained a corresponding
+dictionary then the command
+\begin{verbatim}
+    HSGen bnet bdic
+\end{verbatim}
+would generate a random list of examples of the language
+defined by  \texttt{bnet}, for example,
+\begin{verbatim}
+    start bit but bit bit bit end 
+    start but bit but but end 
+    start bit bit but but end 
+    .... etc
+\end{verbatim}
+This is perhaps not too informative in this case but for more
+complex grammars, this type of output can be quite illuminating.
+
+\htool{HSGen} will also estimate the empirical entropy
+by recording
+the probability of each sentence generated\index{sentence generation}.  
+To use this facility, it
+is best to suppress the sentence output and generate a large number
+of examples.  For example, executing
+\begin{verbatim}
+    HSGen -s -n 1000 -q bnet bdic
+\end{verbatim}
+where the \texttt{-s} option requests statistics, the \texttt{-q} option
+suppresses the output and \texttt{-n 1000} asks for 1000 sentences
+would generate the following output
+\begin{verbatim}
+    Number of Nodes = 4 [0 null], Vocab Size = 4
+    Entropy = 1.156462,  Perplexity = 2.229102
+    1000 Sentences: average len = 5.1, min=3, max=19
+\end{verbatim}
+
+\mysect{Constructing a Dictionary}{usehdman}
+
+As explained in section~\ref{s:netuse}, the word level network is expanded by
+\htool{HNet} to create the network of HMM instances needed by the recogniser.
+The way in which each word is expanded is determined from a
+dictionary\index{dictionary!construction}.
+
+A dictionary for use in \HTK\ has a very simple format.\index{dictionary!formats}
+Each line consists of a single word pronunciation with format
+\begin{verbatim}
+    WORD [ '['OUTSYM']' ] [PRONPROB] P1 P2 P3 P4 ....
+\end{verbatim}
+where \texttt{WORD} represents the word, followed by the optional
+parameters \texttt{OUTSYM} and \texttt{PRONPROB}, where
+\texttt{OUTSYM} is the symbol to output when that word is
+recognised (which must be enclosed in square brackets, \verb|[| and
+\verb|]|) and \texttt{PRONPROB} is the pronunciation probability
+($0.0$ - $1.0$).  \texttt{P1}, \texttt{P2}, \ldots is the sequence of
+phones or HMMs to be used in recognising that word. The output symbol
+and the pronunciation probability are optional. If an output symbol is
+not specified, the name of the word itself is output. If a
+pronunciation probability is not specified then a default of 1.0 is
+assumed.  Empty square brackets,
+\texttt{[]}, can be used to suppress any output when that word is recognised.
+For example, a dictionary might contain
+\begin{verbatim}
+    bit           b  ih t 
+    but           b  ah t
+    dog    [woof] d  ao g
+    cat    [meow] k  ae t
+    start  []     sil
+    end    []     sil
+\end{verbatim}
+
+\noindent
+If any word has more than one pronunciation, then the word
+has a repeated entry, for example,
+\begin{verbatim}
+    the           th iy
+    the           th ax 
+\end{verbatim}
+corresponding to the stressed and unstressed forms of the word
+``the''.\index{dictionary!output symbols}
+
+The pronunciations in a dictionary are normally at the phone
+level as in the above examples.  However, if context-dependent
+models are wanted, these can be included directly in the dictionary.
+For example, the Bit-But entries might be written as
+\begin{verbatim}
+    bit           b+ih  b-ih+t  ih-t 
+    but           b+ah  b-ah+t  ah-t
+\end{verbatim}
+In principle, this is never necessary since \htool{HNet} can perform context
+expansion automatically, however, it saves computation to do this
+off-line as part of the dictionary construction process.  Of course,
+this is only possible for word-internal context dependencies.
+Cross-word dependencies can only be generated by \htool{HNet}.
+
+\centrefig{dmaker}{110}{Dictionary Construction using \htool{HDMan}}
+
+Pronouncing dictionaries are a valuable resource and if produced
+manually, they can require considerable investment.  There are
+a number of commercial and public domain dictionaries available,
+however, these will typically have differing formats and will
+use different phone sets.  To assist in the process of
+dictionary construction, \HTK\ provides a tool called \htool{HDMan}
+which can be used to edit and merge differing source dictionaries
+to form a single uniform dictionary.  The way that
+\htool{HDMan}\index{hdman@\htool{HDMan}} works is illustrated in Fig.~\href{f:dmaker}.
+
+Each source dictionary file must have one pronunciation per line and the
+words must be sorted into alphabetical order.  The word entries must be
+valid \HTK\ strings as defined in section~\ref{s:htkstrings}.  If an
+arbitrary character sequence is to be allowed, then the input edit
+script should have the command \texttt{IM RAW} as its first command.
+
+The basic operation of 
+\htool{HDMan} is to scan the input streams and for each new word
+encountered, copy the entry to the output.  In the figure,  a word list
+is also shown.  This is optional but if included 
+\htool{HDMan} only copies words in the list.  Normally, \htool{HDMan}
+copies just the first pronunciation that it finds for any word. Thus,
+the source dictionaries are usually arranged in order of
+\textit{reliability}, possibly preceded by a small dictionary of special
+word pronunciations. For example, in Fig.~\href{f:dmaker}, the main
+dictionary might be \texttt{Src2}.  \texttt{Src1} might be a small 
+dictionary containing correct pronunciations for words in \texttt{Src2}
+known to have  errors in them. Finally, \texttt{Src3} might be a large
+poor quality dictionary (for example, it could be generated
+by a rule-based text-to-phone system) which is included as a last resort
+source of pronunciations for words not in the main dictionary.
+
+As shown in the figure, \htool{HDMan} can apply a set of editing
+commands to each source dictionary and it can also edit the
+output stream.  The commands available are described in full in
+the reference section.  They operate in a similar way to
+those in \htool{HLEd}.  Each set of commands is written in
+an edit script with one command per line.  Each input edit script
+has the same name as the corresponding source dictionary but with
+the extension \texttt{.ded} added.  The output edit script is stored
+in a file called \texttt{global.ded}\index{global@\texttt{global.ded}}.  
+The commands provided
+include replace and delete at the word and phone level, context-sensitive
+replace and automatic conversions to left biphones, right biphones
+and word internal triphones.\index{dictionary!edit commands}
+
+When \htool{HDMan} loads a dictionary it adds word boundary symbols to
+the start and end of each pronunciation and then deletes them when
+writing out the new dictionary.  The default for these word boundary
+symbols is \texttt{\#} but it can be redefined using the \texttt{-b}
+option.  The reason for this is to allow context-dependent edit commands 
+to take account of word-initial and word-final phone positions.  
+The examples below will illustrate this.
+
+Rather than go through each \htool{HDMan} edit command in detail, some examples
+will illustrate the typical manipulations that can be performed
+by \htool{HDMan}.  Firstly, suppose that a dictionary transcribed
+unstressed ``-ed'' endings as \texttt{ih0 d}
+but the required dictionary
+does not mark stress but uses a schwa in such cases, that is,
+the transformations\index{mp@\texttt{MP} command}\index{sp@\texttt{SP} command}
+\begin{verbatim}
+    ih0 d  #   ->   ax d
+    ih0        ->   ih  (otherwise)
+\end{verbatim}
+are required.
+These could be achieved by the following 3 commands
+\begin{verbatim}
+    MP axd0 ih0 d #
+    SP axd0 ax d #
+    RP ih ih0
+\end{verbatim}
+The context sensitive replace is achieved by merging all sequences
+of \texttt{ih0 d \#} and then splitting the result into the sequence
+\texttt{ax d \#}.  The final \texttt{RP} command\index{rp@\texttt{RP} command} then unconditionally
+replaces all occurrences of \texttt{ih0} by \texttt{ih}.
+As a second similar example, suppose that all examples of \texttt{ax l}
+(as in ``bottle'') are to be replaced by the single phone \texttt{el}
+provided that the immediately following phone is a non-vowel.
+This requires the use of the \texttt{DC} command\index{dc@\texttt{DC} command} to define a
+context consisting of all non-vowels, then a merge using  \texttt{MP}
+as above followed by a context-sensitive replace
+\begin{verbatim}
+    DC nonv l r w y .... m n ng #
+    MP axl ax l
+    CR el * axl nonv
+    SP axl ax l
+\end{verbatim}
+the final step converts all non-transformed cases of \texttt{ax l}
+back to their original form.
+
+As a final example, a typical output transformation applied via
+the edit script \texttt{global.ded} will convert all phones to
+context-dependent form and append a short pause model \texttt{sp}
+at the end of each pronunciation.  The following two commands will
+do this
+\begin{verbatim}
+    TC
+    AS sp
+\end{verbatim}
+For example, these commands would convert the dictionary entry
+\begin{verbatim}
+    BAT b ah t
+\end{verbatim}
+into
+\begin{verbatim}
+    BAT b+ah b-ah+t ah-t sp
+\end{verbatim}
+
+Finally, if the \texttt{-l} option is set, 
+\htool{HDMan} will generate a log file containing
+a summary of the pronunciations used from each source and
+how many words, if any are missing.  It is also possible to
+give \htool{HDMan} a phone list using the \texttt{-n} option.
+In this case, \htool{HDMan} will record how many times each phone
+was used and also, any phones that appeared in pronunciations but
+are not in the phone list.  This is useful for detecting errors and 
+unexpected phone symbols in the source dictionary.
+
+\mysect{Word Network Expansion}{netexpand}
+
+\index{word network@expansion rules}
+Now that word networks and dictionaries have been explained, 
+the conversion of word level networks
+to model-based recognition networks will be described.  Referring
+again to Fig~\href{f:recsys}, this expansion
+is performed automatically by the module \htool{HNet}.  By default,
+\htool{HNet} attempts to infer the required expansion from the
+contents of the dictionary and the associated list of HMMs.
+However, 5 configurations parameters are supplied to apply
+more precise control where required:
+\texttt{ALLOWCXTEXP}\index{allowcxtexp@\texttt{ALLOWCXTEXP}}, 
+\texttt{ALLOWXWRDEXP}\index{allowxwrdexp@\texttt{ALLOWXWRDEXP}}, 
+\texttt{FORCECXTEXP}\index{forcecxtexp@\texttt{FORCECXTEXP}}, 
+\texttt{FORCELEFTBI}\index{forceleftbi@\texttt{FORCELEFTBI}} and
+\texttt{FORCERIGHTBI}\index{forcerightbi@\texttt{FORCERIGHTBI}}.
+
+The expansion proceeds in four stages.
+\begin{enumerate}
+\item \textit{Context definition} \\
+The first step is to determine how model
+names are constructed from the dictionary entries and whether
+cross-word context expansion should be performed.
+The dictionary is scanned and each distinct phone is 
+classified as either
+\begin{enumerate}
+\item \textit{Context Free} \\
+   In this case, the phone is skipped when determining context.
+   An example is a model (\texttt{sp}) for short pauses.
+   This will typically be inserted at the end of every word
+    pronunciation but since it tends to cover a very short 
+    segment of speech it should not block context-dependent
+    effects in a cross-word triphone system.
+\item \textit{Context Independent} \\
+   The phone only exists in context-independent form.  A typical
+   example would be a silence model (\texttt{sil}).
+   Note that the distinction that would be made by \htool{HNet} between
+   \texttt{sil} and \texttt{sp} is that whilst both would
+   only appear in the HMM set
+   in context-independent form, \texttt{sil} would appear in the contexts
+   of other phones whereas \texttt{sp} would not.
+\item \textit{Context Dependent}  \\
+        This classification depends on whether a phone appears in the context
+        part of the name and whether
+        any context dependent versions of the phone exist in the HMMSet.
+         Context Dependent phones will be subject to model name expansion.
+\end{enumerate}
+
+\item \textit{Determination of network type} \\
+The default behaviour is to produce the simplest network
+possible. If the dictionary is closed (every phone name appears
+in the HMM list), then no expansion of phone names is performed.
+The resulting network is generated by straightforward
+substitution of each dictionary pronunciation for each
+word in the word network.  If the dictionary is not closed, 
+then if word internal context expansion
+would find each model in the HMM set then  word internal 
+context expansion is used.
+Otherwise, full cross-word
+context expansion is applied.
+
+The determination of the network type\index{network type} can be modified by
+using the configuration parameters mentioned earlier.  By default
+\texttt{ALLOWCXTEXP} is set true. If \texttt{ALLOWCXTEXP} is set false, then 
+no expansion of phone names is performed and each phone corresponds to the
+model of the same name. The default value of \texttt{ALLOWXWRDEXP} is false thus
+preventing context expansion across word boundaries. This also limits the
+expansion of the phone labels in the dictionary to word internal contexts
+only. If \texttt{FORCECXTEXP} is set true, then context expansion will be
+performed. For example, if the HMM set contained all monophones, all biphones
+and all triphones, then given a monophone dictionary, the default behaviour of
+\htool{HNet} would be to generate a monophone recognition network since the
+dictionary would be closed.  However, if \texttt{FORCECXTEXP} is set true and
+\texttt{ALLOWXWRDEXP} is set false then word internal context expansion will 
+be performed.  If \texttt{FORCECXTEXP} is set true and \texttt{ALLOWXWRDEXP} is
+set true then full cross-word context expansion will be performed.
+
+\item \textit{Network expansion} \\
+Each word in the word network is transformed into a \textit{word-end} 
+node preceded by the sequence of model nodes corresponding to
+the word's pronunciation.
+For cross word context expansion, the initial and final context 
+dependent phones (and any preceding/following context independent
+ones) are duplicated as many times as is necessary
+to cater for each different cross
+word context.  Each duplicated word-final phone is followed by
+a similarly duplicated word-end node.
+Null words are simply transformed into word-end nodes with
+no preceding model nodes.
+   
+\item \textit{Linking of models to network nodes} \\
+Each model node is linked to the corresponding HMM definition.
+In each case, the required HMM model name is 
+determined from the phone name and the surrounding
+context names.  The algorithm used for this is
+\begin{enumerate}
+\item Construct the context-dependent name and see if the
+      corresponding model exists.
+\item Construct the context-independent name and see if the
+      corresponding  model exists.
+\end{enumerate}
+If the configuration variable \texttt{ALLOWCXTEXP} is false (a) 
+is skipped and if the configuration variable \texttt{FORCECXTEXP} is true
+(b) is skipped.  If no matching model is found, an error is
+generated.  When the right context
+is a boundary or \texttt{FORCELEFTBI} is true, then the
+context-dependent name takes the form of a left biphone, that is,
+the phone \texttt{p} with left context \texttt{l} becomes \texttt{l-p}. 
+When the left context
+is a boundary or \texttt{FORCERIGHTBI} is true, then the
+context-dependent name takes the form of a right biphone, that is,
+the phone \texttt{p} with right context \texttt{r} becomes \texttt{p+r}.
+Otherwise, the context-dependent name is a full triphone, that is,
+\texttt{l-p+r}.
+Context-free phones are skipped in this process so
+\begin{verbatim}
+           sil aa r sp y uw sp sil
+\end{verbatim}
+would be expanded as
+\begin{verbatim}
+           sil sil-aa+r aa-r+y sp r-y+uw y-uw+sil sp sil
+\end{verbatim}
+assuming that \texttt{sil} is context-independent and \texttt{sp} is
+context-free. 
+\index{cfwordboundary@\texttt{CFWORDBOUNDARY}} For word-internal systems, 
+the context expansion can be further controlled via the configuration variable
+\texttt{CFWORDBOUNDARY}. When set true (default setting) context-free phones
+will be treated as word boundaries so
+\begin{verbatim}
+           aa r sp y uw sp
+\end{verbatim}
+would be expanded to
+\begin{verbatim}
+           aa+r aa-r sp y+uw y-uw sp
+\end{verbatim}
+Setting \texttt{CFWORDBOUNDARY} false would produce
+\begin{verbatim}
+           aa+r aa-r+y sp r-y+uw y-uw sp
+\end{verbatim}
+
+\end{enumerate}
+Note that in practice, stages (3) and (4) above actually proceed concurrently
+so that for the first and last phone of context-dependent models, logical
+models which have the same underlying physical model can be merged.
+
+\centrefig{mononet}{100}{Monophone Expansion of Bit-But Network}
+
+Having described the expansion process in some detail, some simple
+examples will help clarify the process.  All of these are based
+on the Bit-But word network illustrated in Fig.~\href{f:wdnet}.
+Firstly, assume that the dictionary contains simple monophone
+pronunciations, that is
+\begin{verbatim}
+    bit        b  i  t 
+    but        b  u  t
+    start      sil
+    end        sil
+\end{verbatim}
+and the HMM set consists of just monophones
+\begin{verbatim}
+    b  i  t  u  sil
+\end{verbatim}
+In this case, \htool{HNet} will find a closed dictionary.  There will
+be no expansion and it will directly generate the network 
+shown in Fig~\href{f:mononet}.  In this figure, the rounded boxes
+represent model nodes and the square boxes represent word-end nodes.
+
+Similarly, if the dictionary
+contained word-internal triphone pronunciations such as
+\begin{verbatim}
+    bit        b+i  b-i+t  i-t 
+    but        b+u  b-u+t  u-t
+    start      sil
+    end        sil
+\end{verbatim}
+and the HMM set contains all the required models
+\begin{verbatim}
+    b+i  b-i+t  i-t b+u  b-u+t  u-t  sil
+\end{verbatim}
+then again \htool{HNet} will find a closed dictionary
+and the network shown in Fig.~\href{f:wintnet} would be generated.
+
+\centrefig{wintnet}{100}{Word Internal Triphone Expansion of Bit-But Network}
+
+If however the dictionary contained just the simple monophone pronunciations
+as in the first case above, but the HMM set contained just triphones,
+that is
+\begin{verbatim}
+    sil-b+i  t-b+i  b-i+t  i-t+sil  i-t+b  
+    sil-b+u  t-b+u  b-u+t  u-t+sil  u-t+b  sil
+\end{verbatim}
+then \htool{HNet} would perform full cross-word expansion and
+generate the network shown in Fig.~\href{f:xwrdnet}.
+
+\centrefig{xwrdnet}{100}{Cross-Word Triphone Expansion of Bit-But Network}
+
+Now suppose that still using the simple monophone pronunciations,
+the HMM set contained all monophones, biphones and triphones.  In this
+case, the default would be to generate the monophone network of
+Fig~\href{f:mononet}.  If \texttt{FORCECXTEXP} is true but 
+\texttt{ALLOWXWRDEXP} is set false then the word-internal 
+network\index{word-internal network expansion}
+of Fig.~\href{f:wintnet} would be generated.  Finally, if both
+\texttt{FORCECXTEXP}  and 
+\texttt{ALLOWXWRDEXP} are set true then the cross-word network
+\index{cross-word network expansion}
+of Fig.~\href{f:xwrdnet} would be generated. 
+
+\mysect{Other Kinds of Recognition System}{othernets}
+
+Although the recognition facilities of \HTK\ are aimed primarily
+at sub-word based connected word recognition, it can nevertheless
+support a variety of other types of recognition system.
+
+To build a phoneme recogniser, a word-level network is defined using
+an SLF file in the usual
+way except that each ``word'' in the network represents a single phone.
+The structure of the network will typically be a loop in which all
+phones loop back to each other.\index{phone recognition}
+
+The dictionary then contains an entry for each ``word'' such that the word and
+the pronunciation are the same, for example, the dictionary might contain
+\begin{verbatim}
+    ih ih
+    eh eh
+    ah ah
+    ... etc
+\end{verbatim}
+
+Phoneme recognisers often use biphones to provide some measure of
+context-dependency.  Provided that the HMM set contains all the necessary
+biphones, then \htool{HNet} will expand a simple phone loop into a context-sensitive
+biphone loop simply by setting the configuration variable 
+\texttt{FORCELEFTBI} or \texttt{FORCERIGHTBI} to true, as appropriate.
+
+Whole word recognisers can be set-up in a similar way.  The word network
+is designed using the same considerations as for a sub-word based system
+but the dictionary gives the name of the whole-word HMM in place of each
+word pronunciation.\index{whole word recognition}
+
+Finally, word spotting\index{word spotting} systems can be defined by placing each keyword
+in a word network in parallel with the appropriate filler models.
+The keywords can be whole-word models or subword based.  Note in this
+case that word transition penalties placed on the transitions can be
+used to gain fine control over the false alarm rate.
+
+
+%%% Local Variables: 
+%%% mode: plain-tex
+%%% TeX-master: "htkbook"
+%%% End: 

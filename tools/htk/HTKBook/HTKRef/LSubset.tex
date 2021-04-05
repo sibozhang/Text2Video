@@ -1,0 +1,60 @@
+%
+% HLMBook - V.Valtchev    26/05/98
+%
+% Updated - Gareth Moore  15/01/02
+%
+
+\newpage
+\mysect{LSubset}{LSubset}
+
+\mysubsect{Function}{LSubset-Function}
+
+\index{lsubset@\htool{LSubset}|(}
+This program will resolve a word map against a class map and produce a
+new word map which contains the class-mapped words. The tool is typically
+used to generated a vocabulary-specific $n$-gram word map which is then 
+supplied to \htool{LBuild} to build the actual language models.
+
+All class symbols present in the class map will be added to the output
+map. The \texttt{-a} option can be used to set the maximum number of
+new class symbols in the final word map. Note that the word-class map
+resolution procedure is identical to the the one used in \htool{LSubset}
+when filtering $n$-gram files.
+
+\mysubsect{Use}{LSubset-Use}
+
+\htool{LSubset} is invoked by typing the command line
+\begin{verbatim}
+   LSubset [options] inMapFile classMap outMapFile
+\end{verbatim}
+The word map and class map are loaded, word-class mappings performed and 
+a new map is saved to \texttt{outMapFile}. The output map's name will be
+set to 
+\begin{verbatim}
+Name = inMapName%%classMapName
+\end{verbatim}
+
+The allowable options to \htool{LSubset} are as follows
+
+\begin{optlist}
+
+  \ttitem{-a n}  Set the maximum number of new classes that can be added 
+ 	to the output map (default 1000).
+
+\end{optlist}
+\stdopts{LSubset}
+
+\mysubsect{Tracing}{LSubset-Tracing}
+
+\htool{LSubset} does not provide any trace options. However, trace 
+information is available from the underlying library modules 
+\htool{LWMap} and \htool{LCMap} by seeting the appropriate trace
+configuration parameters.
+
+\index{lsubset@\htool{LSubset}|)}
+
+
+
+
+
+

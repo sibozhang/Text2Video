@@ -1,0 +1,235 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young  30/10/95
+%
+
+\newpage
+\mysect{HSLab}{HSLab}
+
+\newcommand{\hbut}[1]{\texttt{#1}}
+\newcommand{\hbbut}[1]{\fbox{\texttt{#1}}}
+
+\mysubsect{Function}{HSLab-Function}
+
+\index{hslab@\htool{HSLab}|(}
+\htool{HSLab} is an interactive label editor for manipulating speech label files. 
+An example of using \htool{HSLab} would be to load a sampled waveform file, 
+determine the boundaries of the speech units of interest and assign labels 
+to them. Alternatively, an existing label file can be loaded and edited by
+changing current label boundaries, deleting and creating new labels.
+\htool{HSLab} is the only tool in the HTK package which makes use of the 
+graphics library \htool{HGraf}.
+
+When started \htool{HSLab} displays a window which is split into two parts: a
+display section and a control section (see Fig~\href{f:hslab}). 
+The display section contains the plotted speech waveform with the 
+associated labels. The control section consists of a palette of buttons 
+which are used to invoke the various facilities available in the tool. 
+The buttons are laid out into three different groups depending on the 
+function they perform. Group one (top row) contains buttons related to 
+basic input/output commands. 
+Group two (middle row) implements the viewing and record/playback functions. 
+The buttons in group three (bottom row) are used for labelling. To invoke a 
+particular function, place the mouse pointer onto the corresponding button 
+and click once. All commands which require further interaction with the user 
+after invocation will display guiding text in the message area telling the 
+user what he or she is expected to do next. For example, to delete a label, 
+the user will click on \hbut{Delete}, the message ``Please select label to delete'' 
+will appear in the message area and the user will be expected to click in that 
+part of the display section corresponding to the label to be deleted (not on 
+the label itself).
+
+A {\em marked region} is a slice of the waveform currently visible in the 
+window. A region is marked by clicking on \hbut{Mark} and specifying two 
+boundaries by clicking in the display section. 
+When marked, a region will be displayed in inverse colours. In the presence 
+of a marked region the commands \hbut{Play}, \hbut{Label} and \hbut{Label as} 
+will be applied to the specified region rather than to the whole of the 
+waveform visible on the screen. 
+Part of the waveform can also be made into a marked region with the commands 
+\hbut{Zoom Out} and \hbut{Select}. \hbut{Zoom Out} will take the user back 
+to the previous level of magnification and the waveform being displayed before 
+the execution of the command will become a marked region. 
+\hbut{Select} will make the part of the waveform corresponding to a particular 
+label into a marked region. This can be useful for playing back existing labels. 
+
+Labelling is carried out with \hbut{Label } and \hbut{Label as}. \hbut{Label}
+will assign {\em The Current Label} to a specified slice of the waveform,
+whilst \hbut{Label as} will prompt the user to type-in the labelling string. 
+{\em The Current Label} is shown in the button in the bottom right corner of 
+the control section.  It defaults to ``Speech'' and it can be changed by clicking 
+on the button it resides in. 
+Multiple alternative transcriptions are manipulated using the \hbut{Set [?]} and 
+\hbut{New} buttons. The former is used to select the desired transcription, the 
+latter is used to create a new alternative transcription.
+
+\centrefig{hslab}{120}{HSLab display window}
+
+\mysubsect{Use}{HSLab-Use}
+
+\htool{HSLab} is invoked by typing the command line
+\begin{verbatim}
+   HSLab [options] dataFile
+\end{verbatim}
+where \texttt{dataFile} is a data file in any of the supported formats with a 
+\texttt{WAVEFORM} sample kind.   If the given data file does not exist, then
+\htool{HSLab} will assume that a new file is to be recorded with this name.
+
+The available options for \htool{HSLab} are
+
+\begin{optlist}
+  \ttitem{-a} With this switch present, the numeric part of the global labelling
+  string is automatically incremented after every \texttt{Label} operation.
+
+  \ttitem{-i file} This option allows transcription files to be output to the
+  named master label file (MLF). 
+
+  \ttitem{-n} Normally \htool{HSLab} expects to load an existing label file
+  whose name is derived from the speech data file. This option tells 
+  \htool{HSLab} that a new empty transcription is to be created for the loaded 
+  data-file.
+
+  \ttitem{-s string} This option allows the user to set the string displayed
+  in the ``command'' button used to trigger external commands.
+
+\stdoptF
+\stdoptG
+\stdoptI
+\stdoptL
+\stdoptX
+\end{optlist}
+\stdopts{HSLab}
+
+The following is a summary of the function of each \htool{HSLab}
+button.
+
+\begin{optlist}
+  \ttitem{\hbbut{Load}} Load a speech data file and associated transcription.
+      If changes have been made to the currently loaded transcription 
+      since it was last saved the user will be prompted to save these 
+      changes before loading the new file.
+
+  \ttitem{\hbbut{Save}} Save changes made to the transcription into a specified
+      label file.
+
+  \ttitem{\hbbut{About}} Print information about HSLab.
+
+  \ttitem{\hbbut{Quit}} Exit from \htool{HSLab}. If alterations have been made 
+      to the currently loaded transcription since it was last saved, the user 
+      will be prompted to save these changes before exiting.
+
+  \ttitem{\hbbut{Command}} This button is used to trigger an external command which 
+      can process the waveform file currently loaded in \htool{HSLab}. This 
+      is accomplished by setting the environment variable \texttt{HSLABCMD} to the 
+      shell command required to perform the processing. When the \texttt{Command}
+      button is pressed, any occurrence of \texttt{\$} in the shell command is 
+      replaced by the name of the currently loaded waveform file. Note that 
+      only the filename without its extension is substituted. The string 
+      displayed in the ``command'' button can be changed using the \texttt{-s} 
+      option.
+
+  \ttitem{\hbbut{Mark}} Mark a region of the displayed waveform. The user 
+      is prompted to specify the start and the end point of a region with
+      the mouse pointer. The marked region will be displayed in inverse 
+      colours. Only one region can be marked at a time.
+
+  \ttitem{\hbbut{Unmark}} Unmark a previously marked region.
+
+  \ttitem{\hbbut{<--}} Scroll the display to the left.
+
+  \ttitem{\hbbut{-->}} Scroll the display to the right.
+
+  \ttitem{\hbbut{Z.In}} Zoom into a part of the displayed waveform. If there is 
+      a currently marked region then that region will be zoomed into, 
+      otherwise, the user will be prompted to select a slice of the 
+      waveform by specifying two points using the mouse pointer.
+
+  \ttitem{\hbbut{Z.Out}} Restore the previous viewing level.  
+
+  \ttitem{\hbbut{Restore}} Display the complete waveform into the window. Any 
+      marked regions will be unmarked.  
+
+  \ttitem{\hbbut{Play}} If there is a marked region of the waveform then
+      that portion of the signal will be played through the internal speaker.
+      Otherwise, the command will apply to the waveform visible on the 
+      screen.
+
+  \ttitem{\hbbut{Rec}} This initiates recording from the audio input device. The maximum
+      duration of a recording is limited to 2 mins at 16KHz sampling rate. Two bar-graphs 
+      are displayed: the first (red) shows the number of samples recorded, the second
+      bar (green) displays the energy of the incoming signal. Once pressed, the
+      \texttt{Rec} button changes into \texttt{Stop} which, in turn, is used to terminate
+      the operation. When finished, the audio data stored in the buffer is written
+      out to disk. Each recording is stored in alternating files 
+      \texttt{dataFile\_0} and \texttt{dataFile\_1}.
+
+  \ttitem{\hbbut{Pause}} Clicking on this button pauses/un-pauses the recording operation.
+
+  \ttitem{\hbbut{Volume}} This button is used to select the playback volume of the
+      audio device.
+
+  \ttitem{\hbbut{x1}} This button selects the current level of waveform magnification.
+      The available factors are $\times 1$,  $\times 2$,  $\times 4$,  $\times 8$, 
+       $\times 16$, and  $\times 32$.
+
+  \ttitem{\hbbut{Label}} If a marked region exists, then the waveform contained in the 
+      region will be labelled with {\em The Current Label}. Otherwise, the 
+      command will be applied to the waveform visible on the screen.
+
+  \ttitem{\hbbut{Labelas}} Same as above, however, the user is prompted to type in 
+      the labelling string.
+
+  \ttitem{\hbbut{Delete}} Delete a label.
+
+  \ttitem{\hbbut{Edit}} Edit the string of a label.
+
+  \ttitem{\hbbut{Select}} Select a label as a marked region.
+
+  \ttitem{\hbbut{Adjust}} Adjust the boundaries of a label.  To select the label 
+      boundary to adjust, click in the display near to the label boundary.
+
+  \ttitem{\hbbut{Set [?]}} This button is used to select the current alternative 
+      transcription displayed and used in \htool{HSLab}.
+
+  \ttitem{\hbbut{New}} Creates a new alternative transcription. If an empty alternative 
+      transcription already exists, then a new transcription is not created.
+
+  \ttitem{\hbbut{Undo}} Single level undo operation for labelling commands.
+
+  \ttitem{\hbbut{Speech}} Change the current labelling string (the button in the 
+  bottom right of the control area).
+\end{optlist}
+
+The following ``mouse'' shortcuts are provided. To mark a region position the pointer at
+one of the desired boundaries, then press the left mouse button and while holding it down
+position the pointer at the other region boundary. Upon releasing the mouse button the 
+marked region will be highlighted. To play a label position the mouse cursor anywhere within
+the corresponding label ``slice'' in the label area of the display and click the left
+mouse button.
+
+\mysubsect{Tracing}{HSLab-Tracing}
+\htool{HSLab} does not provide any trace options.
+\index{hslab@\htool{HSLab}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

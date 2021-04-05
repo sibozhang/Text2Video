@@ -1,0 +1,2068 @@
+%!PS-Adobe-2.0 EPSF-1.2
+%%Title: tcover.eps
+%%Creator: CLARIS EPSF Export Filter V1.0
+%%CreationDate:1/21/96  12:01:01 a.m.
+%%BoundingBox: 10 238 374 773                                                                          
+%%QDBoundingBox: 10.500 19.500 373.222 553.500                                                           
+%%DocumentProcessColors: Cyan Magenta Yellow Black
+%%ObjectsIncluded: tText=T tLine=T tRect=T tRRect=T tOval=T tArc=T tFree=T tPoly=T tBMap=T tNote=T tBez=T tPMap=T 
+%%AttributesIncluded: kBaWPattType=T kPixPattType=T kGradientType=T 
+%%EndComments
+/MAV 300 dict def
+MAV begin 
+/useClip true def 
+/top    0 def 
+/left   1 def 
+/bottom 2 def 
+/right  3 def 
+/CM     6 array def 
+/CTM    6 array def 
+/CTMR   6 array def 
+/MTC    6 array def 
+/blimit 1500 def 
+/bcnt   0 def 
+/rbox 8 array def 
+/segbox 8 array def 
+/bbox1 4 array def 
+/c1 3 array def 
+/c2 3 array def 
+/d 3 array def    
+/delta 3 array def 
+/mycurrentrgbcolor 3 array def 
+/ulx 0 def 
+/uly 1 def 
+/llx 2 def 
+/lly 3 def 
+/urx 4 def 
+/ury 5 def 
+/lrx 6 def 
+/lry 7 def 
+/sp [0 0] def 
+/ep [0 0] def 
+/bbox 4 array def 
+/pbox 4 array def 
+/scrnProc currentscreen 3 1 roll pop pop def
+/currentcolorscreen where {
+begin
+currentcolorscreen
+end
+3 1 roll pop pop 
+4 2 roll pop pop 
+5 -2 roll pop pop 
+6 -2 roll pop pop 
+/kProc exch def 
+/bProc exch def 
+/gProc exch def 
+/rProc exch def 
+} if 
+/Max {2 copy gt {pop}{exch pop} ifelse} bind def
+/Min {2 copy lt {pop}{exch pop} ifelse} bind def
+/cellPenW 72.0 /currentcolorscreen where
+{begin currentcolorscreen end pop pop
+10 1 roll pop pop 8 1 roll pop pop
+ 6 1 roll pop pop Max Max Max }
+{currentscreen pop pop} ifelse div 2.0 div def
+%%BeginProcSet : rect 
+/rect { 
+ /saveobj save def 
+ R PC PF LC SS 
+ saveobj restore 
+} bind def 
+%%EndProcSet 
+%%BeginProcSet : R 
+/R { 
+ newpath
+ pbox astore pop
+ 0 792 translate 1 -1 scale CTMR currentmatrix pop exch translate
+ /objectCord mstore def
+ pbox right get 2 div
+ dup pbox left get exch sub
+ pbox left 3 -1 roll put 
+ dup pbox right 3 -1 roll put
+ pbox bottom get 2 div 
+ dup pbox top get exch sub
+ pbox top 3 -1 roll put
+ dup pbox bottom 3 -1 roll put
+ translate 
+ CTM currentmatrix pop
+ 57.3 mul rotate
+ RT
+} bind def
+%%EndProcSet
+%%BeginProcSet : SaveScreenBW
+ /SaveScreenBW {
+ currentscreen
+ /scrnProc exch def
+ /scrnAngle exch def
+ /scrnFreq exch def
+ } bind def
+%%EndProcSet
+%%BeginProcSet : RestoreScreenBW
+ /RestoreScreenBW {
+ scrnFreq scrnAngle MAV /scrnProc get setscreen
+ } bind def
+%%EndProcSet
+%%BeginProcSet : SetFreqAngleBW
+ /SetFreqAngleBW {
+ currentscreen
+ 3 1 roll
+ pop pop
+ setscreen
+ } bind def
+%%EndProcSet
+%%BeginProcSet : SaveScreenColor 
+ /SaveScreenColor {
+ currentcolorscreen
+ /grayProc exch def
+ /grayAngle exch def
+ /grayFreq exch def
+ /bProc exch def
+ /bAngle exch def
+ /bFreq exch def
+ /gProc exch def
+ /gAngle exch def
+ /gFreq exch def
+ /rProc exch def
+ /rAngle exch def
+ /rFreq exch def
+ } bind def
+%%EndProcSet
+%%BeginProcSet : RestoreColorScreen
+ /RestoreColorScreen {
+ rFreq rAngle MAV /rProc get gFreq gAngle MAV /gProc get bFreq bAngle MAV /bProc get grayFreq grayAngle MAV /grayProc get setcolorscreen
+ } bind def
+%%EndProcSet
+%%BeginProcSet : SetFreqAngleColor
+ /SetFreqAngleColor { 
+ currentcolorscreen 
+ 3 1 roll pop pop
+ 4 2 roll pop pop
+ 5 -2 roll pop pop
+ 6 -2 roll pop pop
+ 4 1 roll 
+ 6 1 roll 
+ 8 1 roll 
+ 10 1 roll 
+ setcolorscreen 
+ } bind def 
+%%EndProcSet 
+/initmsaverestore { 
+userdict begin 
+/mdict 10 dict def 
+mdict begin 
+/mindex -1 def 
+/mstacksize 25 def 
+/mstack mstacksize array def 
+/incmindex { 
+/mindex mindex 1 add def 
+} bind def 
+/decmindex { 
+/mindex mindex 1 sub def 
+} bind def 
+/checkmindex { 
+mindex 0 lt { 
+(%ERROR: msave/mrestore stack underflow: Offending command 'mrestore'
+) print flush 
+stop 
+} 
+{ 
+mindex mstacksize ge { 
+(%ERROR: msave/mrestore stack overflow: Offending command 'msave'
+) print flush 
+stop 
+} if 
+} ifelse 
+} bind def 
+/mpush { 
+incmindex 
+checkmindex 
+mstack mindex 
+3 -1 roll put 
+} bind def 
+/mpop { 
+checkmindex 
+mstack mindex get 
+decmindex 
+} bind def 
+end 
+end 
+} bind def 
+/msave { 
+mdict begin 
+matrix currentmatrix mpush 
+end 
+} bind def 
+/mrestore { 
+mdict begin 
+mpop setmatrix 
+end 
+} bind def 
+/msavelevel { 
+mdict begin 
+mindex 1 add 
+end 
+} bind def 
+/mstore {
+matrix currentmatrix
+} bind def
+/AutoSizeY {
+0 0 pl
+dup 3 1 roll
+4 -1 roll  
+add
+pl exch pop
+exch sub
+} bind def
+/pl {  
+transform
+0.25 sub round 0.25 add exch
+0.25 sub round 0.25 add exch
+itransform
+} bind def
+/pll {
+transform
+round exch
+round exch
+itransform
+} bind def
+/pr { 
+dtransform
+round exch
+round exch
+idtransform
+} bind def
+/m { 
+pl  moveto
+} bind def
+/l { 
+pl lineto
+} bind def
+/c { 
+pl curveto
+} bind def
+/rm { 
+pr rmoveto
+} bind def
+/rl { 
+pr rlineto
+} bind def
+/ar { 
+5 -2 roll pl
+5 2 roll
+arc
+} bind def
+/an { 
+5 -2 roll pl
+5 2 roll
+arcn
+} bind def
+/MakePatternFont {
+/FontDict 20 dict def
+FontDict begin
+/FontName exch def
+/Encoding exch def
+/FontMatrix [1 0 0 1 0 0 ] def
+/FontType 3 def
+/FontBBox [ 0 0 1 1 ] def
+/PatternDict exch def
+/RenderPattern {
+patternDict exch get
+exec
+} bind def
+/BuildChar {
+exch begin
+1 0 0 0 1 1 setcachedevice
+Encoding exch get RenderPattern
+end
+} bind def
+FontName FontDict definefont pop
+end
+} bind def
+/SnapToPattenGrid
+	{
+	exch
+	dup 0 lt {
+		1 index sub
+	} if
+	1 index
+	div truncate
+	mul
+} bind def
+/FillPatternString {
+dup length
+1 sub
+0 1 3 -1 roll {
+2 index
+2 index
+3 -2 roll
+put
+} for
+pop pop
+} bind def
+/AutoSizeY {
+	0.0 exch dtransform
+	round
+	idtransform exch pop
+} bind def
+ /AutoSizeX {
+	0.0 dtransform
+	exch
+	round
+	exch
+	idtransform pop
+} bind def 
+/AutoCellSize {
+	AutoSizeY
+	exch
+	AutoSizeX
+	exch
+} bind def
+/CheckPath {
+	false
+	{ pop pop pop true exit}
+	{ pop pop pop true exit}
+	{ pop pop pop pop pop pop pop true exit}
+	{ pop true exit}
+	pathforall
+} bind def
+/PatternFill {					%		patternCharacter
+	/patternString 1 string def
+	/cm mstore def
+	patternMatrix setmatrix
+	1 1 AutoCellSize
+	dup 0 eq { pop 1} if
+	exch
+	dup 0 eq { pop 1} if
+	exch
+	/patternSize exch 24.0 mul def
+	/PatternSizeX exch 24.0 mul patternString length mul def
+	/flaterror 0 def
+	patternString FillPatternString
+	gsave
+		flaterror 1 add setflat
+		flattenpath
+		pathbbox
+	grestore
+	psy add flaterror add psy SnapToPattenGrid
+	exch psx add flaterror add psx SnapToPattenGrid
+	3 -1 roll flaterror sub psy SnapToPattenGrid
+	4 -1 roll flaterror sub psx SnapToPattenGrid
+	4 2 roll pll
+	4 2 roll pll
+	/llxsnap exch def
+	/llysnap exch def
+	/urxsnap exch def
+	/urysnap exch def
+	gsave
+		useClip true eq {clip}{eoclip} ifelse newpath
+		/PatternFont findfont [psx 0.0 0.0 psy 0.0 0.0] makefont setfont
+		llysnap patternSize urysnap {
+			llxsnap exch moveto
+			llxsnap PatternSizeX urxsnap {
+				pop
+				patternString show
+				%currentpoint am
+			} for
+		} bind for
+	grestore
+	cm setmatrix
+} bind def				%		End 'PatternFill'
+/DefaultPatternFont {
+	/cm mstore def
+	patternMatrix setmatrix
+	1 1 AutoCellSize
+	dup 0 eq { pop 1} if
+	exch
+	dup 0 eq { pop 1} if
+	exch
+	/psy exch iSizeY mul def
+	/psx exch iSizeX mul def
+	/patternDict 64 dict def
+	patternDict begin
+		/NotDef {} def
+		/LiteDiagLines {
+			iSizeX iSizeY false [iSizeX 0.0 0.0 iSizeY -1.0 mul  0.0 iSizeY]
+			{pat}
+			imagemask
+		} bind def
+	end
+	/CustEncoding 256 array def
+	0 255 1 {
+		CustEncoding exch /NotDef put
+	} bind for
+	CustEncoding 65 /LiteDiagLines put
+	patternDict CustEncoding /PatternFont MakePatternFont
+	/pathSegProc {
+		strokepath
+		CheckPath {
+			65 PatternFill newpath
+		} if
+	} bind def
+	cm setmatrix
+} bind def
+/XRound {
+	dup
+	3 -1 roll
+	exch mul round
+	exch div
+} bind def
+/RoundMatrix {
+	/i 0 def
+	dup {
+		100000.0 XRound
+		1 index
+		exch i exch put
+		/i i 1 add def
+	} forall
+} bind def
+/GetBoxesRatio {
+3 -1 roll sub
+7 1 roll
+exch sub
+6 1 roll
+3 -1 roll sub
+5 1 roll
+exch sub
+4 1 roll
+3 -1 roll div
+3 1 roll
+exch div
+exch
+} bind def
+%%BeginProcSet : Text Attributes Procs
+/T {792 exch sub} bind def
+/sx 0 def
+/sy 0 def
+/ex 0 def
+/ey 0 def
+/lw  0 def
+/siz 0 def
+/U {gsave 0 setlinecap
+/lw siz 0.078125 mul def  /ey exch neg def /ex exch def /sy exch neg def /sx exch def
+fontkind plain eq 
+ {
+  lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto stroke
+ }
+ {
+   currentdict /outlineFontSize known outlineFontSize 0 gt and
+     {
+       fontkind outline eq
+         {
+           /sy sy 0.0119444 siz mul sub def
+           /ey ey 0.0119444 siz mul sub def
+           gsave 
+           1 1 1 setrgbcolor lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto stroke
+           grestore
+           lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto
+           strokepath 0.0119444 siz mul setlinewidth stroke
+         } if
+       fontkind shadow eq fontkind outlineshadow eq or
+         {
+           /sy sy 0.0358332 siz mul sub def
+           /ey ey 0.0358332 siz mul sub def
+           lw setlinewidth
+           lw 2 div sx add sy
+           lw 2 div sub moveto
+           lw 2 div ex add ey
+           lw 2 div sub lineto stroke 
+           gsave
+           1 1 1 setrgbcolor lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto stroke
+           grestore
+           lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto
+           strokepath 0.0119444 siz mul setlinewidth stroke
+         } if
+      } if
+ } ifelse
+grestore} bind def
+/plain 1 def
+/outline 2 def
+/shadow 3 def
+/outlineshadow 4 def
+/fess {
+	currentdict /outlineFontSize known {
+		/outlineFontSize 2 index def
+	} if
+	findfont exch dup /siz exch def scalefont setfont
+} bind def
+/SHDW {gsave siz oldfontname fess siz 0.055 mul x add y siz 0.05 mul sub moveto c show grestore} def
+/NRML {gsave 1 1 1 setrgbcolor siz oldfontname fess x y moveto c show grestore siz /Outline fess  x y moveto c show} def
+/S {
+fontkind plain eq {neg moveto show} if
+fontkind outline eq {neg /y exch def /x exch def /c exch def NRML} if
+fontkind shadow eq {neg /y exch def /x exch def /c exch def SHDW NRML} if
+fontkind outlineshadow eq {neg /y exch def /x exch def /c exch def SHDW NRML} if
+} bind def
+/F {
+/fontkind exch def
+fontkind plain eq {fess} if
+fontkind outline eq {dup /oldfontname exch def exch dup /siz exch def exch OLF} if
+fontkind shadow eq {dup /oldfontname exch def exch dup /siz exch def exch OLF} if
+fontkind outlineshadow eq {dup /oldfontname exch def exch dup /siz exch def exch OLF} if
+} bind def
+/makeoutlinedict 15 dict def
+/makeoutlinefont
+ {
+  makeoutlinedict begin
+   /uniqueid exch def
+   /strokewidth exch def
+   /newfontname exch def
+   /basefontname exch def
+   FontDirectory basefontname known not {
+    /basefontname /Times-Roman def
+   } if
+   /basefontdict basefontname findfont def
+   /numentries basefontdict maxlength 1 add def
+   basefontdict /UniqueID known not
+   {/numentries numentries 1 add def} if
+   /outfontdict numentries dict def
+   basefontdict
+   {
+     exch dup /FID ne {exch outfontdict 3 1 roll put} {pop pop} ifelse
+	  }forall
+   outfontdict /FontName newfontname put
+   outfontdict /PaintType 2 put
+   outfontdict /StrokeWidth strokewidth put
+   outfontdict /UniqueID uniqueid put
+   newfontname outfontdict definefont pop
+  end
+  }def
+/UID {
+ findfont dup /UniqueID known
+  {/UniqueID get 1 add}
+  {pop 1}
+  ifelse
+} def
+/OLF {
+dup
+/Outline
+1000 62 div
+4 -1 roll
+UID
+/outlineFontSize 5 index def
+makeoutlinefont
+/Outline findfont exch scalefont setfont
+} def
+/CopyEncoding {
+findfont
+/Encoding get
+dup length array
+/tarrayz exch def
+tarrayz 0
+3 -1 roll
+putinterval
+tarrayz
+} bind def
+/Re-encode {
+dup length array copy
+/eap 0 def
+exch {
+dup type /integertype eq {
+/eap exch def
+} {
+1 index
+exch
+eap exch
+put
+/eap eap 1 add def
+} ifelse
+} forall
+} bind def
+/EncodeFont	{
+findfont dup
+length dict
+begin
+{	1 index /FID ne
+{ def }
+{ pop pop } ifelse
+} forall
+/FontName exch def
+/Encoding exch def
+FontName currentdict
+end
+definefont pop
+} bind def
+%%EndProcSet
+%%BeginProcSet : clip2pathbbox
+/clip2pathbbox {
+	/magicNum linewidth 2 div 1 2 sqrt div mul def
+	pathbbox
+	/urymn exch magicNum add def
+	/urxmn exch magicNum add def
+	/llymn exch magicNum sub def
+	/llxmn exch magicNum sub def
+	newpath llxmn llymn moveto llxmn urymn lineto urxmn urymn lineto urxmn llymn lineto
+	closepath clip newpath
+} bind def
+%%EndProcSet 
+%% Line takes the following arguments:
+%% linewidth xEnd yEnd xStart yStart
+%%BeginProcSet : Line
+/Line {
+MAV /LC get length 0 ne
+{
+	gsave
+			newpath
+			MAV /ArrowType get length 0 eq
+			MAV /SD get length 0 eq and
+			{2 setlinecap /UseClip {clip2pathbbox} def }
+			{0 setlinecap /UseClip {} def } ifelse
+			0 792 translate
+			1 -1 scale
+			CTM currentmatrix pop
+			/yStart exch def /xStart exch def /yEnd exch def /xEnd exch def /linewidth exch def
+			MAV /ArrowType get length 0 eq xStart xEnd ne yStart yEnd ne and and
+			{xStart yStart moveto xEnd yEnd lineto UseClip xStart yStart moveto xEnd yEnd lineto}
+			{xStart yStart moveto xEnd yEnd lineto} ifelse
+			linewidth setlinewidth SD strokepath
+			CheckPath {LC PF ArrowType} if
+	grestore
+}
+{pop pop pop pop pop} ifelse
+} bind def
+%% Line takes the following arguments:
+%% linewidth xEnd yEnd xStart yStart
+%%BeginProcSet : ZeroLine
+/ZeroLine {
+	gsave
+		newpath
+		MAV /ArrowType get length 0 ne {
+			/UseClip {} def
+			0 792 translate
+			1 -1 scale
+			pop pop pop pop pop
+			CTM currentmatrix pop
+			ArrowType
+		} if
+	grestore
+} bind def
+/CompensateForStroke {
+	sin currentlinewidth mul
+	exch
+	cos currentlinewidth mul
+	dup 0 translate
+	4 -1 roll exch 2.0 mul sub
+	3 1 roll
+	2.0 mul sub
+} bind def
+/arrowdict 10 dict def
+arrowdict begin
+	/SwallowTail {
+		newpath
+		0.0 0.0 moveto
+		1.0 -.5 lineto
+		.666 0.0 lineto
+		1.0 .5 lineto
+		closepath
+	} bind def
+	/Triangular {
+		newpath
+		0.0 0.0 moveto
+		1.0 -.5 lineto
+		1.0 .5 lineto
+		closepath
+	} bind def
+	/OpenTri {
+		newpath
+		1.0 0.5 moveto
+		0.0 0.0 lineto
+		1.0 -0.5 lineto
+	} bind def
+	/ClosedTri {
+		newpath
+		1.0 0.5 moveto
+		0.0 0.0 lineto
+		1.0 -0.5 lineto
+		closepath
+	} bind def
+	/SlashBar {
+		newpath
+		0.5 -.5 moveto
+		-.5 0.5 lineto
+	} bind def
+	/Dot {
+		newpath
+		0.5 0.0 moveto
+		0 0 1 0 360 arc
+		closepath
+	} bind def
+	/ExtSlashBar {
+		newpath
+		1.0 -.5 moveto
+		0.0 0.5 lineto
+	} bind def
+end
+/ScaleArrowHead {
+	0 0 4 -2 roll
+	0 0 1 1
+	8 -4 roll GetBoxesRatio
+	scale
+} bind def
+/DrawArrowHead {
+	gsave
+	[] 0 setdash
+	currentpoint translate rotate
+	{
+		4 copy
+		gsave
+			initmatrix
+			100 200 translate
+			msave
+				ScaleArrowHead pop
+				arrowdict exch get exec
+			mrestore
+			strokepath
+			0 0 3 index 3 index
+			pathbbox 8 4 roll
+			GetBoxesRatio
+			4 2 roll
+		grestore
+		3 index 1.0 exch sub
+		6 -1 roll
+		{
+			2 index mul
+			0 translate
+		}{
+			pop
+		} ifelse
+		msave
+			ScaleArrowHead scale
+			arrowdict exch get exec
+		mrestore
+		strokepath
+	} {
+		msave
+		ScaleArrowHead
+		arrowdict exch get exec
+		mrestore
+	} ifelse
+		CheckPath {
+			LC PF
+		} if
+	grestore
+} bind def
+%%EndProcSet 
+%%BeginProcSet : SR 
+/SR { 
+ pbox left get pbox top get moveto 
+ pbox right get pbox top get lineto 
+ pbox right get pbox bottom get lineto 
+ pbox left get pbox bottom get lineto 
+ closepath
+} bind def 
+%%EndProcSet 
+%%BeginProcSet : RR1 
+/RR1 {
+pbox top get pbox bottom get sub abs
+pbox left get pbox right get sub abs
+2 copy lt {
+Min
+2 div dup dup dup
+pbox left get add pbox left 3 -1 roll put
+pbox right get exch sub pbox right 3 -1 roll put
+pbox left get pbox bottom get moveto
+pbox right get 0 3 -1 roll 90 -90 arcn
+pbox left get 0 3 -1 roll -90 90 arcn closepath
+} {
+Min
+2 div dup dup dup
+pbox bottom get exch sub pbox bottom 3 -1 roll put
+pbox top get add pbox top 3 -1 roll put
+pbox left get pbox bottom get moveto
+pbox left get add pbox top get
+2 index
+180 0 arc
+dup pbox left get add pbox bottom get
+3 -1 roll 0 180 arc
+closepath
+} ifelse
+} bind def
+%%EndProcSet 
+%%BeginProcSet : RR2 
+/RR2 { 
+dup dup dup dup dup dup dup dup 
+pbox top get add pbox top 3 -1 roll put 
+pbox left get add pbox left 3 -1 roll put 
+pbox bottom get exch sub pbox bottom 3 -1 roll put 
+pbox right get exch sub pbox right 3 -1 roll put 
+pbox bottom get add pbox left get exch moveto 
+pbox right get pbox bottom get 3 -1 roll 90 0 arcn 
+pbox right get pbox top get 3 -1 roll  0 270 arcn 
+pbox left get pbox top get 3 -1 roll  270 180 arcn 
+pbox left get pbox bottom get 3 -1 roll 180 90 arcn closepath
+} bind def 
+%%EndProcSet
+%%BeginProcSet : E
+/E {
+1.415 setmiterlimit
+CM currentmatrix pop
+pbox right get pbox left get sub abs dup
+pbox bottom get pbox top get sub abs dup 3 -1 roll
+lt {exch dup 3 -1 roll exch div 1 exch}
+{dup 3 -1 roll exch div 1} ifelse scale 
+0 0 3 -1 roll 2 div 0 360 arc closepath
+CM setmatrix
+} bind def
+%%EndProcSet
+%%BeginProcSet : A1
+/A1 {msave
+pbox right get pbox left get sub abs dup
+pbox bottom get pbox top get sub abs dup 3 -1 roll
+lt {exch dup 3 -1 roll exch div 1 exch}
+{dup 3 -1 roll exch div 1} ifelse scale 
+0 0 3 -1 roll 2 div 5 -1 roll -90 add 5 -1 roll -90 add arcn
+mrestore} bind def
+%%EndProcSet
+%%BeginProcSet : A2
+/A2 {msave 0 0 moveto A1 closepath mrestore} def
+%%EndProcSet
+
+
+%%BeginProcSet : BitMap
+/BitMap {
+ /buffer ^1 string def
+ ^2 ^5 2 div add 792 ^3 sub ^6 2 div add translate
+ ^4 57.3 mul rotate
+  0 ^5 2 div sub 0 ^6 2 div sub translate
+ ^5 ^6 scale
+ ^5 ^6 ^7 [^5 0 0 -^6 0 ^6] {currentfile buffer readhexstring pop} image
+}bind def 
+%%EndProcSet 
+%%BeginProcSet : note 
+/note {
+gsave pbox astore pop
+0 792 translate 1 -1 scale CTM currentmatrix pop exch translate
+pbox right get pbox left get sub 2 div
+pbox bottom get pbox top get sub 2 div
+translate 57.3 mul rotate setlinewidth
+noteBody aload pop moveto
+noteBody length 2 div 1 sub cvi{lineto}repeat
+dogEar aload pop moveto
+dogEar length 2 div 1 sub cvi{lineto}repeat
+0.992 0.975 0.507 setrgbcolor gsave fill grestore
+gsave newpath
+stickem aload pop moveto
+stickem length 2 div 1 sub cvi{lineto}repeat
+0.760 0.760 0.760 setrgbcolor fill 
+grestore
+0 0 0 setrgbcolor stroke
+noteShadow aload pop moveto
+noteShadow length 2 div 1 sub cvi{lineto}repeat
+dogEarShadow aload pop moveto
+dogEarShadow length 2 div 1 sub cvi{lineto}repeat
+0 0 0 setrgbcolor gsave stroke grestore fill
+grestore
+}bind def
+%%EndProcSet 
+
+
+%%BeginProcSet : RGB4toGray4
+ /redTbl4   [0 0 1 1 1 1 2 2 3 3 3 4 4 4 5 5] def
+ /greenTbl4 [0 1 1 2 2 3 3 4 4 5 6 6 7 7 7 8] def
+ /blueTbl4  [0 0 0 0 1 1 1 1 1 1 1 1 1 2 2 2] def
+ /RGB4toGray4 {
+	currentfile RGBBuf readhexstring pop pop
+	/i 0 def
+	/j 0 def
+	grayBuf length {
+		RGBBuf i get dup
+		-4 bitshift redTbl4 exch get
+		exch 15 and greenTbl4 exch get add
+		RGBBuf i 1 add  get dup
+		-4 bitshift blueTbl4 exch get 3 -1 roll add  4 bitshift
+		exch 15 and redTbl4 exch get
+		RGBBuf i 2 add  get dup
+		-4 bitshift greenTbl4 exch get 3 -1 roll add
+		exch 15 and blueTbl4 exch get add or
+		grayBuf j 3 -1 roll put
+		/i i 3 add def
+		/j j 1 add def
+	} repeat
+	grayBuf
+} bind def
+%%EndProcSet
+%%BeginProcSet : RGB8toGray8
+/RGB8toGray8 {
+	currentfile RGBBuf readhexstring pop pop
+	/i 0 def
+	/j 0 def
+	grayBuf length {
+		RGBBuf i get 0.33 mul
+		RGBBuf i 1 add get 0.55 mul add
+		RGBBuf i 2 add get 0.12 mul add round cvi
+		grayBuf j 3 -1 roll put
+		/i i 3 add def
+		/j j 1 add def
+	} repeat
+	grayBuf
+} bind def
+%%EndProcSet
+%%BeginProcSet : RGB24toGray8
+/RGB24toGray8 {RGB8toGray8} bind def
+%%EndProcSet
+%%BeginProcSet : RGB2toGray2
+ /redTbl2   [0 0 1 1] def
+ /greenTbl2 [0 1 1 2] def
+ /blueTbl2  [0 0 0 0] def
+ /RGB2toGray2 {
+	currentfile RGBBuf readhexstring pop pop
+	/i 0 def
+	/j 0 def
+	grayBuf length {
+		RGBBuf i get dup dup dup
+		-6 bitshift redTbl2 exch get
+		exch -4 bitshift 3 and
+		greenTbl2 exch get add
+		exch -2 bitshift 3 and
+		blueTbl2 exch get add
+		6 bitshift exch 3 and
+		redTbl2 exch get
+		RGBBuf i 1 add  get dup dup dup
+		-6 bitshift greenTbl2 exch get
+		exch -4 bitshift 3 and
+		blueTbl2 exch get add
+		4 -1 roll add
+		4 bitshift 4 -1 roll or
+		3 1 roll -2 bitshift 3 and
+		redTbl2 exch get exch 3 and
+		greenTbl2 exch get add
+		RGBBuf i 2 add  get dup dup dup
+		-6 bitshift blueTbl2 exch get
+		5 -1 roll add
+		2 bitshift 5 -1 roll or
+		4 1 roll -4 bitshift 3 and
+		redTbl2 exch get
+		exch -2 bitshift 3 and
+		greenTbl2 exch get add
+		exch 3 and
+		greenTbl2 exch get add or
+		grayBuf j 3 -1 roll put
+		/i i 3 add def
+		/j j 1 add def
+	} repeat
+	grayBuf
+} bind def
+%%EndProcSet
+%%EndProcSet
+%%BeginProcSet : RGB1toGray1
+/RGB1toGray1 {
+	currentfile RGBBuf readhexstring pop pop
+	/i 0 def
+	/j 0 def
+	grayBuf length {
+		RGBBuf i get dup dup
+		1 bitshift 128 and exch
+		3 bitshift 64 and or exch
+		5 bitshift 32 and or
+		RGBBuf i 1 add get dup
+		-1 bitshift 16 and exch
+		1 bitshift 8 and or or
+		RGBBuf i 2 add get dup dup
+		-5 bitshift 4 and exch
+		-3 bitshift 2 and or exch
+		-1 bitshift 1 and or or
+		/i i 3 add def
+		/j j 1 add def
+	} repeat
+	grayBuf
+} bind def
+%%EndProcSet
+%%BeginProcSet : RGB16toGray8
+/RGB16toGray8 {RGB8toGray8} bind def
+%%EndProcSet
+%%BeginProcSet : BW 
+/ScalePoint {
+	0 0
+	4 -2 roll
+	0 0 1 1
+	8 4 roll GetBoxesRatio scale
+} bind def
+/PointDict 4 dict def
+PointDict begin
+/XPoint {
+		-.5 .5 moveto
+		.5 -.5 lineto
+		.5 .5 moveto
+		-.5 -.5 lineto
+	} bind def
+	/DiamondPoint {
+		0.0 .5 moveto
+		.5 0.0 lineto
+		0.0 -0.5 lineto
+		-.5 0.0 lineto
+		closepath
+	} bind def
+	/PlusPoint {
+		0.0 .5 moveto
+		0.0 -.5 lineto
+		-.5 0.0 moveto
+		.5 0.0 lineto
+	} bind def
+	/SquarePoint {
+		-.5 .5 moveto
+		.5 .5 lineto
+		.5 -.5 lineto
+		-.5 -.5 lineto
+		closepath
+	} bind def
+end
+/DrawPoint {
+	gsave
+		[] 0 setdash
+		0 setlinecap
+		translate
+		msave
+			ScalePoint
+			PointDict exch get exec
+		mrestore
+		1.0 setlinewidth stroke
+	grestore
+} bind def
+%%EndProcSet 
+%%BeginProcSet : Wall object Procs
+%%EndProcSet
+%%BeginProcSet : Subscriber 
+/Subscriber { 
+ msave 
+ R PC PF LC SS newpath
+ mrestore 
+} bind def 
+%%EndProcSet 
+/StripFromFront { 
+dup length
+2 index sub
+3 1 roll
+exch 3 -1 roll
+getinterval
+} bind def
+/MakePathArray { 
+ /k 0 def 
+ {/k k 1 add def pop pop}{/k k 1 add def pop pop}{/k k 1 add def pop pop pop pop pop pop}{/k k 1 add def }pathforall 
+ k array
+ /k 0 def 
+ {{moveto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+ {{lineto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+ {{curveto} 7 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+ {{closepath} 1 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+pathforall 
+}bind def 
+/MakeFlatPathArray { 
+/k 0 def 
+{/k k 1 add def pop pop}{/k k 1 add def pop pop}{pop pop pop pop pop pop}{}pathforall 
+k array
+/k 0 def 
+{{moveto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+{{lineto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+{ pop pop pop pop pop pop} 
+{} 
+pathforall 
+}bind def 
+/FractionalLine {
+2 index sub
+.00001 mul
+exch
+3 index sub
+.00001 mul
+4 -1 roll add
+3 1 roll
+add
+} bind def
+/calcLineLength {
+ exch
+ 4 -1 roll
+ sub
+ dup mul
+ 3 1 roll exch
+ sub
+ dup mul
+ add sqrt
+} bind def
+/InitTotalLineLength {
+ /oldY exch def
+ /oldX exch def
+ theDash aload pop currentLineLength add setdash
+} bind def
+/AccumeLineLength {
+ 3 copy pop
+ 2 copy
+ oldX oldY
+ 4 2 roll calcLineLength
+ /segmentLength exch def
+ /currentLineLength currentLineLength segmentLength add def
+ /oldY exch def
+ /oldX exch def
+} bind def
+/DecumeLastLineLength {
+ /currentLineLength currentLineLength segmentLength sub def
+} bind def
+/DrawFlattendSegment {
+ /pointCount 2 def
+ dup 0 lt { pop 0 } if
+ fpc
+ 3 1 roll
+ 2 index
+ 1 index
+ gt {
+ 2 copy get
+ dup length
+ dup 3 eq {
+ pop
+ dup 0 get
+ exch 1 get
+ 2 copy InitTotalLineLength  
+ m
+ } {
+ } ifelse
+ } {
+ pop 1 index
+ } ifelse
+ dup 1 add
+ 3 index
+ exch sub
+ dup 10 gt { pop 10} if
+ {
+ 1 add
+ 2 copy
+ get aload pop
+ AccumeLineLength
+ exec
+ } repeat
+ 3 1 roll pop pop
+ DecumeLastLineLength
+} bind def
+/IncFPC {
+ fpc add
+ /fpc exch def
+} bind def
+/DrawFlatPathArray {
+ fpc
+ 0 { 
+ dup 2 index
+ 1 sub
+ lt { 
+ flatPathArray exch
+ newpath
+ 1 sub DrawFlattendSegment
+ gsave
+ pathSegProc
+ grestore
+ newpath
+ }
+ {
+ pop pop
+ exit
+ } ifelse
+ } loop
+} bind def
+/RecordFirstSubSegment {
+ closepathArray 0 pathArray 0 get
+ put
+ closepathArray 1
+ pathArray 0 get aload pop pop
+ pathArray 1 get dup length 3 eq {
+ aload pop pop
+ } {
+ newpath
+ 0 0 moveto
+ aload pop exec
+ /segmentArray flattenpath MakeFlatPathArray def
+ segmentArray 1 get aload pop pop
+ } ifelse
+ FractionalLine {lineto} 3 array astore
+ put
+} bind def
+/AppendClosePath {
+ closepathArray 0 get 2 {lineto} put
+ flatPathArray fpc closepathArray 0 get put
+ 1 IncFPC
+ flatPathArray fpc closepathArray 1 get put
+ 1 IncFPC
+} bind def
+/RecordCurrentDash {
+ /theDash
+ currentdash 2 array astore def
+ /currentLineLength 0 def
+} bind def
+/PatternStroke {
+	0 setlinecap
+ RecordCurrentDash
+ /saveFlat currentflat def
+ .5 setflat
+ /pathArray MakePathArray def
+ /closepathArray 2 array def
+ /pathLength pathArray length def
+ /flatPathArray 513 array def
+ /currentLineLength 0 def
+ /fpc 0 def
+ pathArray pathLength 1 sub get
+ length 1 eq {
+ /usingClosepath true def
+ RecordFirstSubSegment
+ /pathLength pathLength 1 sub def
+ } {
+ /usingClosepath false def
+ } ifelse
+ 0 1 pathLength 1 sub {
+ pathArray exch get
+ dup length 3 eq {
+ fpc 1 add 512 ge {
+ DrawFlatPathArray
+ fpc 2 ge {
+ flatPathArray flatPathArray fpc 2 sub get 0 put
+ flatPathArray flatPathArray fpc 1 sub get 1 put
+ /fpc 2 def
+ }{
+ /fpc 0 def
+ } ifelse
+ } if
+ flatPathArray exch fpc exch put
+ 1 IncFPC
+ } {
+ dup length 7 eq {
+ newpath
+ /nToStrip 0 def
+ fpc 1 gt {
+ flatPathArray fpc 2 sub get aload pop pop m
+ flatPathArray fpc 1 sub get aload pop exec
+ /nToStrip 2 def
+ } {
+ fpc 1 eq {
+ flatPathArray fpc 1 sub get aload pop exec
+ /nToStrip 2 def
+ } if
+ } ifelse
+ aload pop exec
+ /segmentArray flattenpath MakeFlatPathArray def
+ /segmentArray nToStrip segmentArray StripFromFront def
+ segmentArray length fpc add 512 lt {
+ flatPathArray fpc segmentArray putinterval
+ segmentArray length IncFPC
+ } {
+ DrawFlatPathArray
+ fpc 1 gt {
+ flatPathArray flatPathArray fpc 2 sub get 0 exch put
+ flatPathArray flatPathArray fpc 1 sub get 1 exch put
+ /fpc 2 def
+ }{
+ /fpc 0 def
+ } ifelse
+ segmentArray length 512 lt {
+ flatPathArray fpc segmentArray putinterval
+ segmentArray length IncFPC
+ } {
+ segmentArray length
+ /exitLoop false def
+ 0 
+ {
+ 2 copy sub
+ dup 500 gt {
+ pop 500
+ } { 
+ /exitLoop true def
+ } ifelse 
+ segmentArray 2 index 2 index getinterval
+ flatPathArray fpc 3 -1 roll putinterval
+ dup IncFPC
+ add 
+ exitLoop {
+ exit 
+ } {
+ DrawFlatPathArray
+ fpc 1 gt {
+ flatPathArray flatPathArray fpc 2 sub get 0 exch put
+ flatPathArray flatPathArray fpc 1 sub get 1 exch put
+ /fpc 2 def
+ }{
+ /fpc 0 def
+ } ifelse
+ } ifelse
+ } loop
+ } ifelse
+ } ifelse
+ } if
+ } ifelse
+ } for
+ fpc 0 gt {
+ usingClosepath {
+ AppendClosePath
+ } if
+ DrawFlatPathArray
+ } if
+ saveFlat setflat
+} bind def
+
+
+%%BeginProcSet : rampdelta
+/rampdelta {
+/len 0 3 -1 roll add def
+/i2 0 3 -1 roll add def
+/i1 0 3 -1 roll add def
+/nRampSteps len cellPenW div cvi 1 add dup 512 gt {pop 512} if def
+/rampPenW len nRampSteps div def
+rampColors i1 get aload pop c1 astore pop
+rampColors i2 get aload pop c2 astore pop
+c2 0 get c1 0 get sub nRampSteps div d 0 3 -1 roll put
+c2 1 get c1 1 get sub nRampSteps div d 1 3 -1 roll put
+c2 2 get c1 2 get sub nRampSteps div d 2 3 -1 roll put
+d aload pop
+} bind def
+%%EndProcSet
+%%BeginProcSet : adddelta
+/adddelta {
+d astore pop
+ mycurrentrgbcolor c1 copy pop
+c1 0 get d 0 get add c2 0 3 -1 roll put
+c1 1 get d 1 get add c2 1 3 -1 roll put
+c1 2 get d 2 get add c2 2 3 -1 roll put
+c2 aload pop setrgbcolor
+c2 mycurrentrgbcolor copy pop
+} bind def
+%%EndProcSet
+%%BeginProcSet : rampline
+/rampline {
+segbox ulx get rampPenW add segbox ulx 3 -1 roll put
+segbox llx get rampPenW add segbox llx 3 -1 roll put
+segbox ulx get segbox uly get moveto
+segbox llx get segbox lly get lineto
+delta aload pop adddelta stroke
+}bind def
+%%EndProcSet
+%%BeginProcSet : slantrampseg
+/slantrampseg {
+gsave newpath
+segbox ulx get segbox urx get sub abs
+rampdelta delta astore pop
+segbox ulx get rampPenW .5 mul sub segbox ulx 3 -1 roll put
+segbox llx get rampPenW .5 mul sub segbox llx 3 -1 roll put
+rampColors exch get aload mycurrentrgbcolor copy pop setrgbcolor
+rampPenW setlinewidth nRampSteps {rampline} repeat
+grestore
+}bind def
+%%EndProcSet
+%%BeginProcSet : flipramp
+/flipramp {
+rampColors 0 get rampColors 3 get rampColors 0 3 -1 roll put rampColors 3 3 -1 roll put
+rampColors 1 get rampColors 2 get rampColors 1 3 -1 roll put rampColors 2 3 -1 roll put
+} bind def
+%%EndProcSet
+%%BeginProcSet : leftrbox
+/leftrbox {
+rbox segbox copy pop	
+rbox urx get rbox ulx get sub
+flipRatio mul dup 
+segbox ulx get add segbox urx 3 -1 roll put
+segbox llx get add segbox lrx 3 -1 roll put
+} bind def
+%%EndProcSet
+%%BeginProcSet : rightrbox
+/rightrbox {
+rbox segbox copy pop	
+rbox urx get rbox ulx get sub
+flipRatio mul dup 
+segbox ulx get add segbox ulx 3 -1 roll put
+segbox llx get add segbox llx 3 -1 roll put
+} bind def
+%%EndProcSet
+%%BeginProcSet : drawslantramp
+/drawslantramp {
+segbox urx get segbox ulx get sub 3 div dup dup dup dup dup dup dup dup dup
+segbox ulx get add segbox urx 3 -1 roll put
+segbox llx get add segbox lrx 3 -1 roll put
+segbox aload pop
+0 0 1 slantrampseg
+segbox astore pop
+segbox ulx get add segbox ulx 3 -1 roll put
+segbox llx get add segbox llx 3 -1 roll put
+segbox urx get add segbox urx 3 -1 roll put
+segbox lrx get add segbox lrx 3 -1 roll put
+segbox aload pop
+1 1 2 slantrampseg
+segbox astore pop
+segbox ulx get add segbox ulx 3 -1 roll put
+segbox llx get add segbox llx 3 -1 roll put
+segbox urx get add segbox urx 3 -1 roll put
+segbox lrx get add segbox lrx 3 -1 roll put
+2 2 3 slantrampseg
+}bind def
+%%EndProcSet
+%%BeginProcSet : tan
+/tan {
+dup sin exch cos div
+}bind def
+%%EndProcSet
+%%BeginProcSet : rampbox
+/rampbox {
+pbox top get dup rbox uly 3 -1 roll put rbox ury 3 -1 roll put
+pbox left get dup rbox ulx 3 -1 roll put rbox llx 3 -1 roll put
+pbox bottom get dup rbox lly 3 -1 roll put rbox lry 3 -1 roll put
+pbox right get dup rbox urx 3 -1 roll put rbox lrx 3 -1 roll put
+}bind def
+%%EndProcSet
+%%BeginProcSet : rampbox
+/LoadSegBox {
+4 copy
+segbox llx 6 -1 roll put
+segbox lly 5 -1 roll put
+segbox lrx 4 -1 roll put
+segbox lry 6 -1 roll put
+segbox urx 5 -1 roll put
+segbox ury 3 -1 roll put
+segbox ulx 4 -1 roll put
+segbox uly 3 -1 roll put
+} bind def
+/TransToCenter {
+gsave
+flattenpath
+pathbbox
+grestore
+2 index
+sub 2.0 div exch
+3 index sub 2.0 div
+4 -1 roll add
+3 1 roll add
+translate
+} bind def
+/RotRampGrad {
+gsave
+TransToCenter
+-1.0 mul 180.0 add rotate
+flattenpath
+pathbbox 
+clip
+newpath
+LoadSegBox
+flipRatio 1 lt dup{flipramp}if flipRatio 0 gt and
+{
+/flipRatio 1.0 flipRatio sub def
+segbox rbox copy pop leftrbox drawslantramp flipramp rightrbox drawslantramp
+}
+{drawslantramp} ifelse
+grestore
+} bind def
+/bbg {
+pbox exch get
+} bind def
+%%BeginProcSet : DR
+/DR {		% Directional ramp
+/workingMatrix mstore def
+objectCord setmatrix
+flipramp
+gsave
+flattenpath pathbbox
+grestore
+pbox bottom 3 -1 roll put pbox right 3 -1 roll put pbox top 3 -1 roll put pbox left 3 -1 roll put
+rampAngle RotRampGrad
+RF
+workingMatrix setmatrix
+}bind def
+%%EndProcSet
+%%BeginProcSet : ramparc
+/ramparc {
+gsave
+circum rampdelta delta astore pop
+/rampPenW 60.0 nRampSteps div def
+/ang1 exch rampAngle sub def 
+/ang2 rampPenW ang1 add def 
+rampColors exch get aload mycurrentrgbcolor copy pop setrgbcolor 1 setlinewidth
+nRampSteps {ramparcseg}repeat
+grestore
+}bind def
+%%EndProcSet
+%%BeginProcSet : ramparcseg
+/ramparcseg {
+newpath
+rampcenter aload pop moveto
+rampcenter aload pop rampradius ang2 ang1 arcn fill
+/ang1 ang2 def 
+/ang2 ang2 rampPenW add def
+delta aload pop adddelta
+}bind def
+%%EndProcSet
+/GetRadius {
+rbox urx get rbox llx get sub 2 div rampcenter 0 get abs add dup mul
+rbox lly get rbox ury get sub 2 div rampcenter 1 get abs add dup mul
+add sqrt
+} bind def
+%%BeginProcSet : circularRamp
+/circularRamp {
+rampbox
+/rampradius GetRadius def
+CalcCrcm
+flipramp
+0 0 0 1 ramparc
+1 60 1 2 ramparc
+2 120 2 3 ramparc
+flipramp
+0 180 0 1 ramparc
+1 240 1 2 ramparc
+2 300 2 3 ramparc
+}bind def
+%%EndProcSet
+/GetCircumf {
+2.0 mul 3.1415926 mul
+} bind def
+/CalcCrcm {
+rampradius GetCircumf
+/circum exch 6.0 div def
+} bind def
+%%BeginProcSet : CR
+/CR {
+gsave
+clip
+MTC currentmatrix pop
+CTM setmatrix
+flattenpath
+pathbbox pbox bottom 3 -1 roll put pbox right 3 -1 roll put pbox top 3 -1 roll put pbox left 3 -1 roll put
+pbox left get pbox right get sub abs 2 div 
+pbox left get add rampcenter 0 get add rampcenter 0 3 -1 roll put
+pbox top get pbox bottom get sub abs 2 div
+pbox top get add rampcenter 1 get add rampcenter 1 3 -1 roll put
+circularRamp
+MTC setmatrix
+grestore
+RF
+}bind def
+%%EndProcSet
+%%BeginProcSet : shaperamp
+/SBR {
+gsave
+clip
+/workingMatrix mstore def
+objectCord setmatrix
+flattenpath
+/BaseBox pathbbox 4 array astore def
+/len BaseBox 2 get BaseBox 0 get sub dup mul
+BaseBox 3 get BaseBox 1 get sub dup mul
+add sqrt
+12.0 div
+def
+/EndBox
+BaseBox aload pop
+3 -1 roll sub
+3 1 roll
+exch sub
+/dbx exch def
+/dby exch def
+BaseBox aload pop pop pop
+/blly exch def
+/bllx exch def
+sbox 0 get 100.0 div dby mul blly add
+sbox 1 get 100.0 div dbx mul bllx add
+sbox 2 get 100.0 div dby mul blly add
+sbox 3 get 100.0 div dbx mul bllx add
+exch
+4 -2 roll
+exch
+4 -2 roll
+4 array astore
+def
+BaseBox EndBox ShapeBurst
+workingMatrix setmatrix
+grestore
+} bind def
+%%EndProcSet
+/GetBoxCenter {
+2 index
+sub 2.0 div
+3 -1 roll add
+3 1 roll
+1 index sub
+2.0 div add
+exch
+} bind def
+/GetInterBox {
+/boxInter exch def
+4 1 7 {
+-1 roll
+7 index
+} for
+sub boxInter mul
+8 -1 roll add
+7 1 roll
+sub boxInter mul
+7 -1 roll add
+6 1 roll
+sub boxInter mul
+6 -1 roll add
+5 1 roll
+sub boxInter mul
+5 -1 roll add
+4 1 roll
+} bind def
+/GetBoxCenterDeltas {
+GetBoxCenter
+6 2 roll
+GetBoxCenter
+3 -1 roll exch sub
+3 1 roll sub
+exch
+} bind def
+/GetBoxCornerDeltas {
+pop pop
+4 2 roll pop pop
+3 -1 roll sub
+3 1 roll exch sub
+exch
+} bind def
+%%BeginProcSet : getpath 
+/getpath {
+/k 0 def
+{/k k 1 add def pop pop}{/k k 1 add def pop pop}{/k k 1 add def pop pop pop pop pop pop}{}pathforall
+/pfa k array def
+/k 0 def
+{{moveto} 3 array astore pfa k 3 -1 roll put /k k 1 add def}
+{{lineto} 3 array astore pfa k 3 -1 roll put /k k 1 add def}
+{{curveto} 7 array astore pfa k 3 -1 roll put /k k 1 add def}
+{}pathforall
+}bind def
+%%EndProcSet
+/ShapeBurst {
+getpath
+newpath
+/SBERect exch 4 array copy def
+/SBBRect exch 4 array copy def
+/interRect1 SBBRect aload pop SBERect aload pop .3333333 GetInterBox 4 array astore def
+/interRect2 SBBRect aload pop SBERect aload pop .6666666 GetInterBox 4 array astore def
+0 0 1 SBBRect interRect1 ShapeBurstSeg
+msave
+interRect1 0 get interRect1 1 get translate
+SBBRect aload pop interRect1 aload pop GetBoxesRatio scale
+SBBRect 0 get -1.0 mul SBBRect 1 get -1.0 mul translate
+1 1 2 interRect1 interRect2 ShapeBurstSeg
+mrestore
+msave
+interRect2 0 get interRect2 1 get translate
+SBBRect aload pop interRect2 aload pop GetBoxesRatio scale
+SBBRect 0 get -1.0 mul SBBRect 1 get -1.0 mul translate
+2 2 3 interRect2 SBERect ShapeBurstSeg
+mrestore
+} bind def
+/ShapeBurstSeg {
+/sbr1 exch 4 array copy def
+/sbr0 exch 4 array copy def
+/blx sbr0 0 get def
+/bly sbr0 1 get def
+len rampdelta delta astore pop
+sbr0 aload pop sbr1 aload pop GetBoxesRatio
+/ratioY exch def
+/ratioX exch def
+sbr0 aload pop sbr1 aload pop GetBoxCornerDeltas
+/dlly exch nRampSteps div def
+/dllx exch nRampSteps div def
+/scaleStepX 1.0 ratioX sub nRampSteps div def
+/scaleStepY 1.0 ratioY sub nRampSteps div def
+/currentScaleX 1.0 scaleStepX sub def
+/currentScaleY 1.0 scaleStepY sub def
+/translationX blx dllx add def
+/translationY bly dlly add def
+/currentScaleX 1.0  def
+/currentScaleY 1.0  def
+/translationX blx def
+/translationY bly def
+rampColors exch get aload mycurrentrgbcolor copy pop setrgbcolor
+nRampSteps {
+msave
+translationX translationY translate
+currentScaleX currentScaleY scale
+blx -1.0 mul bly -1.0 mul translate
+pfa {aload pop exec} forall fill
+delta aload pop adddelta
+/translationX translationX dllx add def
+/translationY translationY dlly add def
+/currentScaleX currentScaleX scaleStepX sub def
+/currentScaleY currentScaleY scaleStepY sub def
+mrestore
+} repeat
+msave
+translationX translationY translate
+currentScaleX currentScaleY scale
+blx -1.0 mul bly -1.0 mul translate
+pfa {aload pop exec} forall fill
+mrestore
+} bind def
+%%EndProlog
+initmsaverestore
+/tctm matrix currentmatrix def
+tctm RoundMatrix setmatrix
+/patternMatrix mstore def
+10 setmiterlimit
+2 setlinecap
+newpath
+%@BeginText
+save
+%%IncludeFont: NewCenturySchlbk-Roman
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+1 0 19.500 10.500 0.000 0.000 53.000 152.335 rect
+%@EndRect
+gsave
+86.667 46.000 T translate
+0.0 rotate
+1 1 scale
+48.000 (NewCenturySchlbk-Roman) plain F
+0.000 0.000 0.000 setrgbcolor 
+(I) -76.000 17.000 S
+(n) -56.453 17.000 S
+(s) -27.132 17.000 S
+(i) -4.914 17.000 S
+(d) 10.203 17.000 S
+(e) 37.765 17.000 S
+( ) 61.765 17.000 S
+grestore
+%@EndText
+%
+%tfBegGrp
+%
+%@BeginText
+restore
+save
+%%IncludeFont: Helvetica-Bold
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Helvetica-Bold /Helvetica-Bold EncodeFont
+
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+1 0 146.500 79.500 0.000 0.000 128.000 93.328 rect
+%@EndRect
+gsave
+126.164 210.500 T translate
+0.0 rotate
+1 1 scale
+128.000 (_Helvetica-Bold) plain F
+0.000 0.000 0.000 setrgbcolor 
+(H) -46.000 36.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+1 0 146.500 224.500 0.000 0.000 128.000 93.328 rect
+%@EndRect
+gsave
+271.164 210.500 T translate
+0.0 rotate
+1 1 scale
+128.000 (_Helvetica-Bold) fess
+0.000 0.000 0.000 setrgbcolor 
+(K) -46.000 36.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+1 0 114.500 144.500 0.000 0.000 170.000 104.187 rect
+%@EndRect
+gsave
+196.593 199.500 T translate
+0.0 rotate
+1 1 scale
+170.000 (_Helvetica-Bold) fess
+0.000 0.000 0.000 setrgbcolor 
+(T) -52.000 47.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%@BeginText
+restore
+save
+%%IncludeFont: NewCenturySchlbk-Roman
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+1 0 330.500 202.500 0.000 0.000 120.000 170.722 rect
+%@EndRect
+gsave
+287.861 390.500 T translate
+0.0 rotate
+1 1 scale
+24.000 (NewCenturySchlbk-Roman) plain F
+0.000 0.000 0.000 setrgbcolor 
+(J) -51.199 -40.000 S
+(o) -37.851 -40.000 S
+(o) -25.851 -40.000 S
+(p) -13.851 -40.000 S
+( ) -0.070 -40.000 S
+(J) 6.597 -40.000 S
+(a) 19.945 -40.000 S
+(n) 33.292 -40.000 S
+(s) 47.953 -40.000 S
+(e) 59.062 -40.000 S
+(n) 71.062 -40.000 S
+0.000 0.000 0.000 setrgbcolor 
+(J) -51.644 -16.000 S
+(u) -38.296 -16.000 S
+(l) -23.636 -16.000 S
+(i) -16.078 -16.000 S
+(a) -8.519 -16.000 S
+(n) 4.828 -16.000 S
+( ) 19.488 -16.000 S
+(O) 26.156 -16.000 S
+(d) 44.824 -16.000 S
+(e) 58.605 -16.000 S
+(l) 70.605 -16.000 S
+(l) 78.164 -16.000 S
+0.000 0.000 0.000 setrgbcolor 
+(D) -62.753 8.000 S
+(a) -44.085 8.000 S
+(v) -30.738 8.000 S
+(e) -17.847 8.000 S
+( ) -5.847 8.000 S
+(O) 0.820 8.000 S
+(l) 19.488 8.000 S
+(l) 27.046 8.000 S
+(a) 34.605 8.000 S
+(s) 47.953 8.000 S
+(o) 59.062 8.000 S
+(n) 71.062 8.000 S
+0.000 0.000 0.000 setrgbcolor 
+(P) -77.402 32.000 S
+(h) -61.394 32.000 S
+(i) -46.734 32.000 S
+(l) -39.175 32.000 S
+( ) -31.617 32.000 S
+(W) -24.949 32.000 S
+(o) -1.406 32.000 S
+(o) 10.593 32.000 S
+(d) 22.593 32.000 S
+(l) 36.375 32.000 S
+(a) 43.933 32.000 S
+(n) 57.281 32.000 S
+(d) 71.941 32.000 S
+0.000 0.000 0.000 setrgbcolor 
+(S) -53.402 56.000 S
+(t) -38.285 56.000 S
+(e) -28.945 56.000 S
+(v) -16.945 56.000 S
+(e) -4.054 56.000 S
+( ) 7.945 56.000 S
+(Y) 14.613 56.000 S
+(o) 31.511 56.000 S
+(u) 43.511 56.000 S
+(n) 58.171 56.000 S
+(g) 72.832 56.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: ArialMT-CondensedLight
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_ArialMT-CondensedLight /ArialMT-CondensedLight EncodeFont
+
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+1 0 412.500 18.500 0.000 0.000 26.000 119.000 rect
+%@EndRect
+gsave
+78.000 425.500 T translate
+0.0 rotate
+1 1 scale
+24.000 (_ArialMT-CondensedLight) plain F
+0.000 0.000 0.000 setrgbcolor 
+(V) -59.000 9.000 S
+(e) -45.001 9.000 S
+(r) -33.757 9.000 S
+(s) -25.009 9.000 S
+(i) -13.765 9.000 S
+(o) -6.517 9.000 S
+(n) 6.226 9.000 S
+( ) 18.970 9.000 S
+(2) 26.968 9.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC {0.000 0.000 0.000 setrgbcolor } def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+3.000 122.000 410.000 14.000 410.000 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC {0.000 0.000 0.000 setrgbcolor } def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+3.000 122.000 443.000 14.000 443.000 Line
+%@EndLine
+%@BeginText
+restore
+save
+%%IncludeFont: NewCenturySchlbk-Roman
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+1 0 537.500 34.500 0.000 0.000 16.000 320.000 rect
+%@EndRect
+gsave
+194.500 545.500 T translate
+0.0 rotate
+1 1 scale
+14.000 (NewCenturySchlbk-Roman) plain F
+0.000 0.000 0.000 setrgbcolor 
+(©) -159.917 5.000 S
+( ) -149.602 5.000 S
+(E) -145.712 5.000 S
+(n) -135.602 5.000 S
+(t) -127.050 5.000 S
+(r) -121.602 5.000 S
+(o) -115.388 5.000 S
+(p) -108.388 5.000 S
+(i) -100.349 5.000 S
+(c) -95.940 5.000 S
+( ) -89.726 5.000 S
+(C) -85.836 5.000 S
+(a) -75.726 5.000 S
+(m) -67.940 5.000 S
+(b) -55.492 5.000 S
+(r) -47.706 5.000 S
+(i) -41.492 5.000 S
+(d) -37.083 5.000 S
+(g) -29.043 5.000 S
+(e) -21.524 5.000 S
+( ) -14.524 5.000 S
+(R) -10.634 5.000 S
+(e) -0.524 5.000 S
+(s) 6.475 5.000 S
+(e) 12.956 5.000 S
+(a) 19.956 5.000 S
+(r) 27.742 5.000 S
+(c) 33.956 5.000 S
+(h) 40.169 5.000 S
+( ) 48.721 5.000 S
+(L) 52.611 5.000 S
+(a) 61.949 5.000 S
+(b) 69.735 5.000 S
+(o) 77.521 5.000 S
+(r) 84.521 5.000 S
+(a) 90.735 5.000 S
+(t) 98.521 5.000 S
+(o) 103.969 5.000 S
+(r) 110.969 5.000 S
+(y) 117.183 5.000 S
+( ) 124.703 5.000 S
+(1) 128.592 5.000 S
+(9) 136.378 5.000 S
+(9) 144.165 5.000 S
+(6) 151.951 5.000 S
+grestore
+%@EndText
+restore
+%%Trailer
+end

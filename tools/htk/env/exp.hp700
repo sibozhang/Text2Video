@@ -1,0 +1,7 @@
+export CPU=hp700
+export HTKCF='+e -O -I/usr/include/X11R5 -I/usr/include/audio -I/opt/audio/include -D_HPUX_SOURCE -Aa -DHPUX_AUDIO -DUSE_TIMER'
+export HTKLF='-L/opt/audio/lib -lAlib'
+export HTKCC='cc'
+export LPATH=/lib:/usr/lib:/usr/lib/X11R5
+export SHRLF='-b'
+export LIBEXT='sl'

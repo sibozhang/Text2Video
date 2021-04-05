@@ -1,0 +1,135 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young and Dave Ollason  11/11/95
+%
+
+
+\newpage
+\mysect{HSmooth}{HSmooth}
+
+\mysubsect{Function}{HSmooth-Function}
+
+\index{hsmooth@\htool{HSmooth}|(}
+This program is used to smooth a set of context-dependent tied mixture
+or discrete HMM's using deleted interpolation.  
+The program operates as a replacement for the second pass of \htool{HERest}
+when working in {\it parallel mode}\footnote{It is not,of course,
+necessary to have multiple processors to use this program since each 
+`parallel' activation can be executed sequentially on a single
+processor}.  It reads in the $N$ sets of accumulator files containing the
+statistics accumulated during the first pass and then interpolates the
+mixture weights between each context dependent model and its corresponding 
+context independent version.  The interpolation weights are chosen to 
+maximise the likelihood of each deleted block with respect to the 
+probability distributions estimated from all other blocks.
+
+\mysubsect{Use}{HSmooth-Use}
+
+\htool{HSmooth} is invoked via the command line
+\begin{verbatim}
+   HSmooth [options] hmmList accFile ...
+\end{verbatim}
+where {\tt hmmList} contains the list of context dependent models
+to be smoothed and each {\tt accFile} is a file of the form
+{\tt HERN.acc} dumped by a previous execution of \htool{HERest} with the {\tt -p}
+option set to {\tt N}.  The HMM definitions are loaded and then for
+every state and stream of every context dependent model X, the optimal
+interpolation weight is found for smoothing between the mixture
+weights determined from the X accumulators alone and those determined
+from the context independent version of X.  The latter is computed simply
+by summing the accumulators across all context dependent allophones of X.
+
+The detailed operation of \htool{HSmooth} is controlled by the following
+command line options
+\begin{optlist}
+  \ttitem{-b f}  Set the value of epsilon for convergence 
+      in the binary chop  optimisation procedure to {\tt f}.
+       The binary chop  optimisation procedure for each
+       interpolation weight terminates when the gradient is
+       within epsilon of zero (default 0.001).
+  
+  \ttitem{-c N}  Set maximum number of interpolation iterations
+       for the binary chop  optimisation procedure to be N
+       (default 16).
+
+\ttitem{-d dir} Normally \htool{HSmooth} expects to find the HMM definitions
+      in the current directory.  This option tells \htool{HSmooth} to look in
+      the directory {\tt dir} to find them.
+
+
+   \ttitem{-m N}  Set the minimum number of training examples 
+    required for any model to {\tt N}.  If the actual number
+    falls below this value, the HMM is not updated and the original
+    parameters are used for the new version (default value 1).
+
+  \ttitem{-o ext}  This causes the file name extensions of the
+      original models (if any) to be replaced by {\tt ext}.
+
+  \ttitem{-s file} This causes statistics on occupation of each
+      state to be output to the named file.  
+      
+  \ttitem{-u flags} By default, \htool{HSmooth} updates all of the HMM parameters,
+      that is, means, variances and transition probabilities. This 
+      option causes just the parameters indicated by the {\tt flags}
+      argument to be updated, this argument is a string containing one
+      or more of the letters {\tt m} (mean), {\tt v} (variance) ,
+      {\tt t} (transition) and {\tt w} (mixture weight).  The 
+      presence of a letter enables
+      the updating of the corresponding parameter set.
+
+  \ttitem{-v f}  This sets the minimum variance (i.e. diagonal element of
+      the covariance matrix) to the real value {\tt f} (default value
+      0.0).
+  
+  \ttitem{-w f}  Any mixture weight which falls below the global
+            constant {\tt MINMIX} is treated as being zero.
+      When this parameter is  set,  all mixture weights  are floored
+      to {\tt f * MINMIX}.
+     
+  \ttitem{-x ext}  By default, \htool{HSmooth} expects a HMM definition for 
+      the model X to be stored in a file called {\tt X}.  This
+      option causes \htool{HSmooth} to look for the HMM definition in the
+      file {\tt X.ext}.
+
+\stdoptB
+\stdoptH
+\stdoptM
+
+\end{optlist}
+\stdopts{HSmooth}
+
+\mysubsect{Tracing}{HSmooth-Tracing}
+
+\htool{HSmooth} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting.
+   \ttitem{00002} show interpolation weights.
+   \ttitem{00004} give details of optimisation algorithm.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hsmooth@\htool{HSmooth}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

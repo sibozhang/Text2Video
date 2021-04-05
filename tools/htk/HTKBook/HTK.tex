@@ -1,0 +1,373 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                 */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% General HTK macros - Julian Odell 23/04/97
+%             (made plain version) Rich Wareham 19/07/00
+%
+
+% HTK Documentation Utilities
+
+\usepackage[dvips]{epsfig}
+\usepackage{html}
+\usepackage{color}
+\usepackage{supertabular}
+
+%begin{latexonly}
+\usepackage{calc}
+\usepackage{ifthen} % Only include for tex
+\newcommand{\iftex}[1]{ #1 }    % Do tex
+\newcommand{\ifhtml}[1]{    }   % Dont do HTML
+%end{latexonly}
+\html{
+ \newcommand{\iftex}[1]{    }   % Dont do tex
+ \newcommand{\ifhtml}[1]{ #1 }  % Do HTML
+
+ % And set the page colour
+ \pagecolor{white}
+}
+
+\newcommand{\ifoddpage}[3] { 
+  \ifthenelse{\isodd{\pageref{f:#1}} } {#2} {#3} 
+}
+\newcommand{\ifevenpage}[3] { 
+  \ifthenelse{\isodd{\pageref{f:#1}} } {#3} {#2} 
+}
+
+\newcommand{\htmlparbox}[2] {
+  \ifhtml{ \parbox{#1} {#2} }
+}
+
+\newcommand{\figDir}{HTKFigs/}
+
+% Global Constants and document settings
+
+%begin{latexonly}
+\setlength{\oddsidemargin}{\oddsidemargin - 1cm}
+\setlength{\textwidth}{\textwidth + 3cm}
+\setlength{\topmargin}{\topmargin - 2cm}
+\setlength{\textheight}{\textheight + 4cm}
+%end{latexonly}\newlength{\pictextwidth}
+
+
+% Basics
+
+%\href{key}
+
+% Hack to allow us to generate PDF and PS. 
+%begin{latexonly}
+  \providecommand{\href}[1]{\ref{#1}}
+  \renewcommand{\href}[1]{\ref{#1}}
+%end{latexonly}
+
+% Only do thin if we are generating HTML
+\html{
+  \newcommand{\href}[1]{\ref{#}}
+}
+
+%\hequation{equation}{eqlabel}
+\newcommand{\hequation}[2]{
+\begin{equation} #1 \label{e:#2}
+\end{equation}
+}
+
+% Headings
+
+\newcounter{tabctr}[chapter]
+\newcounter{figctr}[chapter]
+
+\def\thetabctr{\thechapter.\arabic{tabctr}}
+\def\thefigctr{\thechapter.\arabic{figctr}}
+\def\thesecctr{\thechapter.\arabic{section}}
+
+\newcommand{\mychaptitle}{}
+\newcommand{\mysecttitle}{}
+
+\newcommand{\mychap}[2]{
+  \newpage
+  \chapter{#1}\label{c:#2}
+  \iftex{ \renewcommand{\mychaptitle}{\bfseries \rmfamily #1}
+          \markboth{\mychaptitle}{\mysecttitle} }
+}
+
+\newcommand{\mysect}[2]{
+  \section{#1}\label{s:#2}
+  \iftex{ \renewcommand{\mysecttitle}
+               { \bfseries \rmfamily \thesecctr \hspace{0.5cm} #1}
+          \markboth{\mychaptitle}{\mysecttitle} }
+}
+
+\newcommand{\mysubsect}[2]{
+  \subsection{#1}\label{s:#2}
+%  \iftex{ \markboth{\mychaptitle}{\mysecttitle\ - #1} } % Too long
+}
+
+% Formatting Macros
+
+\newcommand{\htool}[1]{\textsc{#1}}
+\newcommand{\ttitem}[1]{\item[{\tt #1}]}
+\newcommand{\fwitem}[2]{\item[{\makebox[#1][l]{\tt #2}}]}
+\newcommand{\mathitem}[1]{\item[$ #1 $]}
+\newcommand{\incop}{\mbox{$ \:+\!\!=\; $}}
+\newcommand{\bm}[1]{{\mbox{\boldmath $#1$}}}
+\newcommand{\transpose}{{\scriptstyle\sf T}}
+
+\newenvironment{optlist}{
+  \begin{list}{??}{
+  }
+}{
+  \end{list}
+}
+
+\newenvironment{varlist}{
+  \begin{list}{??}{
+  }
+}{
+  \end{list}
+}
+
+\newenvironment{program}{
+  \ttfamily
+  \begin{tabbing}
+    +++ \= ++ \= ++ \= ++ \= ++ \= ++ \= ++ \= ++ \= ++ \= ++ \= ++ \= ++ \= \kill
+}{
+  \end{tabbing}
+}
+
+% Table captions are quite special
+
+%\tabcap{tabname}{caption}
+\newcommand{\tabcap}[2]{
+  \refstepcounter{tabctr}
+  \label{t:#1}
+  \mbox{ \rule{0cm}{0.6cm} 
+           \textbf{ Table. \thetabctr\ \ #2} }
+}
+
+% All the various figure macros
+
+%\dofig{picname}{width_in_mm}{caption}{capspace}
+\newcommand{\dofig}[4]{
+    
+   \begin{center}\parbox{#2mm} { \begin{center}
+      \setlength{\epsfxsize}{#2mm}
+      \epsfbox{\figDir/#1.eps}  %  DIRECTORY OPTION
+      \refstepcounter{figctr}
+      \begin{center}
+        \textbf{ Fig. \thefigctr\ \  #3}   
+      \end{center}     \label{f:#1} \end{center} } \end{center}
+
+}
+
+%\putfig{picname}{width_in_mm}{caption}
+\newcommand{\putfig}[3]{
+   \dofig{#1}{#2}{#3}{0}
+}
+
+%\centrefig{picname}{width_in_mm}{caption}
+\newcommand{\centrefig}[3]{
+   \dofig{#1}{#2}{#3}{0}
+}
+
+%\sidefig{picname}{width_in_mm}{caption}{capspace}{text}
+\newcommand{\sidefig}[5]{
+  \dofig{#1}{#2}{#3}{#4}
+  #5
+}
+
+%\sidepic{picname}{width_in_mm}{text}
+\newcommand{\sidepic}[3]{
+  
+  \begin{center}\parbox{#2mm} { \begin{center}
+    \setlength{\epsfxsize}{#2mm}
+    \epsfbox{\figDir/#1.eps}  %  DIRECTORY OPTION 
+    \label{f:#1} \end{center} }\end{center}
+
+  {#3}
+}
+
+% Now programs
+
+%\doprog{picname}{width_in_mm}{caption}{program}
+\newcommand{\doprog}[4]{
+    
+    \begin{center} \parbox{#2mm} {\noindent
+    \fbox{ \parbox{#2mm}{ \hspace{#2mm}
+       \begin{program}#4\end{program}
+    } }
+
+    \refstepcounter{figctr}
+    \label{f:#1}
+
+    \begin{center}
+      \textbf{ Fig. \thefigctr\ \ #3}   
+    \end{center}   
+    } \end{center} 
+
+}
+
+%\sideprog{progname}{width_in_mm}{caption}{prog}{text}
+\newcommand{\sideprog}[5]{
+  \doprog{#1}{#2}{#3}{#4} 
+   #5
+}
+
+%\progbyprog{width_in_mm}{progname1}{progname2}{caption1}{caption2}{prog1}{prog2}
+\newcommand{\progbyprog}[7]{
+  \doprog{#2}{#1}{#4}{#6}
+  \doprog{#3}{#1}{#5}{#7}
+  \vspace{0.3cm}
+}
+
+
+%\putprog{progname}{width_in_mm}{caption}{prog}
+\newcommand{\putprog}[4]{
+  
+  \begin{center} \begin{figure}
+    \vspace{5mm}
+    \begin{center}
+      \framebox[#2mm]{
+      \begin{minipage}{#2mm}
+           \begin{program}#4\end{program}
+       \end{minipage} }
+
+       \refstepcounter{figctr}
+       \label{f:#1}
+       \vspace{0.4cm}
+         \mbox{ \textbf{ Fig. \thefigctr\ \ #3} }
+    \end{center}
+  \end{figure} \end{center}
+
+}
+
+% This section includes commands for each document covered
+% 
+% Currently this is
+%  The HTKBook
+%  The HAPIBook
+%  The grapHvite book
+%  Inside HTK
+%  Inside grapHvite
+%
+
+% HTKBook stuff
+
+\newcommand{\HTK}{HTK}
+\newcommand{\version}{3.4}
+\newcommand{\inthisversion}{In \HTK\ \version ,\ }
+\newcommand{\HTKFF}{\HTK}
+\newcommand{\HTKBook}{\textit{HTK Book}}
+\newcommand{\ESPSwaves}{\textit{ESPS/waves+}}
+\newcommand{\erno}[1]{\fwitem{2.0cm} {\ \ \ $#1$}}
+\newcommand{\module}[1]{\item[#1]{\ ~}}
+\newcommand{\refpart}{Reference Section}
+
+%\hmkw{hmmKeyword}
+\newcommand{\hmkw}[1]{\mbox{$<$\textsf{#1}$>$}}
+
+%\hmmc{hmmMacro}
+\newcommand{\hmmc}[2]{\mbox{$\sim$\textsf{#1 ``#2''}}}
+
+%\hmmt{hmmMacro}
+\newcommand{\hmmt}[1]{\mbox{$\sim$\textsf{#1}}}
+
+
+% HAPIBook stuff
+
+\newcommand{\HAPI}{{HAPI}}
+\newcommand{\NULL}{{\tt NULL}}
+\newcommand{\findex}[1]{\index{#1@{\bf #1}}}
+\newcommand{\pindex}[1]{\index{configuration parameters!#1}}
+\newcommand{\java}{{\sc Java}}
+\newcommand{\jhapi}{{\sc Jhapi}}
+
+% Common grapHvite phrases
+
+\newcommand{\grapHvite}{\textbf{\textit {grapHvite}}}
+\newcommand{\GNB}{\grapHvite\ Netbuilder}
+\newcommand{\grapHviteOverview} {{\it \grapHvite\ Overview}}
+\newcommand{\seeSec}[1]{see section {\bf \ref{s:#1}}}
+\newcommand{\seeSub}[1]{see {section \bf \ref{s:#1}}}
+\newcommand{\seeFig}[1]{see Fig {\bf \href{f:#1}}}
+\newcommand{\fig}   [1]{figure {\href{f:#1}}}
+\newcommand{\seeApp}[1]{see Appendix {\bf \ref{c:#1}}}
+\newcommand{\app}[1]{Appendix {\bf \ref{c:#1}}}
+\newcommand{\sub}[1]{section {\bf \ref{s:#1}}}
+\newcommand{\sect}[1]{section {\bf \ref{s:#1}}}
+
+% GrapHvite Specific Formats
+
+\newcommand{\facility}[1]{{\it #1}}
+\newcommand{\key}[1]{{\sl #1}}
+\newcommand{\ul}[1]{\underline{#1}}
+\newcommand{\gTerm}[1]{{\bf #1}}
+\newcommand{\network}[1]{{\it #1}}
+\newcommand{\config}[1]{{\it #1}}
+\newcommand{\bb}[1]{{\bf #1}}
+
+% Colourboxes need some highlighting for HTML
+
+ \newcommand{\button}[1]{\colorbox[gray]{0.83}{{\small{\textsf{#1}}}}}
+ \newcommand{\menu}[1]{\colorbox[gray]{0.83}{{\small \textbf{#1}}}}
+ \newcommand{\menuItem}[1]{\colorbox[gray]{0.83}{{\small{ #1}}}}
+ \newcommand{\gLabel}[1]{{\colorbox[gray] {0.83} {\small{\textsf {#1}}}}}  
+
+\newcommand{\moptitem}[1] { \optitem{\menuItem{#1}}}
+\newenvironment{mylist}[1]{
+  \begin{list}{}{
+     \settowidth{\labelwidth} {#1} 
+     \setlength{\leftmargin}{\labelwidth}
+     \addtolength{\leftmargin}{\labelsep}
+     \setlength{\parsep}{0.5ex plus0.2ex minus 0.2ex} 
+     \setlength{\itemsep}{0.3ex}
+     \renewcommand{\makelabel}[1]{##1\hfill}
+} } {
+ \end{list}
+}
+
+\newenvironment{widelist}{
+   \begin{list}{??}{
+       \setlength{\itemindent}{0cm}
+       \setlength{\rightmargin}{0.5cm}
+       \setlength{\leftmargin}{2.5cm}
+       \setlength{\listparindent}{0cm}
+       \setlength{\labelwidth}{\textwidth}
+       \setlength{\labelsep}{0.5cm} }
+}{
+   \end{list}
+}
+
+\newcommand{\doMenu}[1]{
+  \setlength{\epsfysize} {5cm}
+  \raisebox{-5cm}
+  {\epsfbox{#1menu.eps}}  %  DIRECTORY OPTION
+}
+
+\newcommand{\mysubsub}[2]{
+   \subsubsection{#1}\label{s:#2}
+}
+
+% HLM Book - language modelling tools
+
+\newcommand{\HLM}{HLM}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "htkbook"
+%%% End: 

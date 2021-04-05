@@ -1,0 +1,861 @@
+
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young 1/12/97
+%
+
+\mychap{Decoding with \htool{HVite}}{decode}
+
+\sidepic{Tool.decode}{80}{ }
+The previous chapter has described how to construct a recognition
+network specifying what is allowed to be spoken and how
+each word is pronounced.  Given such a network, its associated
+set of HMMs, and an unknown utterance,  the probability of
+any path through the network can be computed.   The task of a 
+decoder is to find those paths which are the most likely.\index{decoder}
+
+As mentioned previously, decoding in \HTK\ is performed by a library
+module called \htool{HRec}.  \htool{HRec} uses the token passing
+paradigm to find the best path and, optionally, multiple alternative
+paths.  In the latter case, it generates a lattice containing the
+multiple hypotheses which can if required be converted to an N-best
+list.  To drive \htool{HRec} from the command line, \HTK\ provides a
+tool called \htool{HVite}.  As well as providing basic recognition,
+\htool{HVite} can perform forced alignments, lattice rescoring and
+recognise direct audio input.  
+
+To assist in evaluating the performance
+of a recogniser using a test database and a set of reference transcriptions, 
+\HTK\ also provides a tool called \htool{HResults} to compute word 
+accuracy and various related statistics.  
+The principles and use of these recognition facilities are described
+in this chapter.
+
+
+\mysect{Decoder Operation}{decop}
+
+\index{decoder!operation}
+As described in Chapter~\ref{c:netdict} and illustrated by
+Fig.~\href{f:recsys}, decoding in \HTK\ is controlled by a recognition
+network compiled from a word-level network, a dictionary and a set of
+HMMs.  The recognition network consists of a set of nodes connected
+by arcs.  Each node is either a HMM model instance or a word-end.
+Each model node is itself a network consisting of states connected by
+arcs.  Thus, once fully compiled, a recognition 
+network\index{recognition!network} ultimately
+consists of HMM states connected by transitions.  However, it can be
+viewed at three different levels: word, model and state.
+Fig.~\href{f:recnetlev} illustrates this hierarchy.
+
+\sidefig{recnetlev}{62}{Recognition Network Levels}{2}{
+For an unknown
+input utterance with $T$ frames, every path from the start node to the
+exit node of the network which passes through exactly $T$ emitting HMM
+states is a potential recognition 
+hypothesis\index{recognition!hypothesis}.
+Each of these paths has a log probability which is computed by summing
+the log probability of each individual transition in the path and the
+log probability of each emitting state generating the corresponding
+observation.  Within-HMM transitions are determined from the HMM
+parameters, between-model transitions are constant and word-end
+transitions are determined by the language model likelihoods attached
+to the word level networks.
+
+The job of the decoder is to find those paths through the network
+which have the highest log probability.  These paths
+are found using a \textit{Token Passing} algorithm.  A token represents
+a partial path through the network extending from time 0 through to time $t$.
+At time 0, a token is placed in every possible start node.  \index{token passing}
+}
+
+Each time step,
+tokens are propagated along connecting transitions stopping whenever they
+reach an emitting HMM state.  When there are multiple exits from a node,
+the token is copied so that all possible paths are explored in parallel.
+As the token passes across transitions and through nodes, its log probability
+is incremented by the corresponding transition and emission probabilities.
+A network node can hold at most $N$ tokens.  Hence, at the end of each time step,
+all but the $N$ best tokens in any node are discarded.
+
+
+As each token passes through the network it must maintain a history
+recording its route.  The amount of detail in this history\index{token history} depends
+on the required recognition output.  Normally, only word sequences
+are wanted and hence, only transitions out of word-end nodes\index{word-end nodes} need
+be recorded.  However, for some purposes, it is useful to know the
+actual model sequence and the time of each model to model transition.
+Sometimes a description of each path down to the state level
+is required.  All of this information, whatever level of detail is
+required, can conveniently be represented using a lattice structure.
+
+Of course, the number of tokens allowed per node and the amount of
+history information requested will have a significant impact on
+the time and memory needed to compute the lattices.  The most
+efficient configuration is $N=1$ combined with just 
+word level history information and this is sufficient
+for most purposes.
+
+A large network will have many nodes and one way to make a significant
+reduction in the computation needed is to only propagate tokens which
+have some chance of being amongst the eventual winners.  This process
+is called \textit{pruning}.  It is implemented at each time step by
+keeping a record of the best token overall and de-activating all
+tokens whose log probabilities fall more than a \textit{beam-width}
+below the best.  For efficiency reasons, it is best to implement primary
+pruning\index{pruning} at the model rather than the state level.  Thus, models
+are deactivated when they have no tokens in any state within the beam and
+they are reactivated whenever active tokens are propagated into them.
+State-level pruning is also implemented by replacing any token by a 
+null (zero probability) token if it falls outside of the beam.
+If the pruning beam-width\index{beam width} is set too small then the most likely
+path might be pruned before its token reaches the end of the utterance.
+This results in a \textit{search error}.  Setting the beam-width is
+thus a compromise between speed and avoiding search errors.
+
+When using word loops with bigram probabilities, tokens emitted from
+word-end nodes will have a language model probability added to them
+before entering the following word.  Since the range of language
+model probabilities is relatively small, a narrower beam can be
+applied to word-end nodes without incurring additional 
+search errors\index{search errors}.
+This beam is calculated relative to the best word-end token and
+it is called a \textit{word-end beam}.  In the case, of a recognition
+network with an arbitrary topology, word-end pruning may still be
+beneficial but this can only be justified empirically.
+
+Finally, a third type of pruning control is provided.  An upper-bound
+on the allowed use of compute resource can be applied by setting
+an upper-limit on the number of models in the network which can
+be active simultaneously.  When this limit is reached, the pruning
+beam-width is reduced in order to prevent it being exceeded.
+
+
+\mysect{Decoder Organisation}{decorg}
+
+The decoding process itself is performed by a set of core functions 
+provided within the library module \htool{HRec}\index{hrec@\htool{HRec}}.  The process
+of recognising a sequence of utterances is illustrated in 
+Fig.~\href{f:decflow}.
+
+\index{decoder!organisation}
+The first stage is to create a \textit{recogniser-instance}.  This is
+a data structure containing the compiled recognition network and
+storage for storing tokens.  The point of encapsulating all of the
+information and storage needed for recognition into a single object is
+that \htool{HRec}\index{hrec@\htool{HRec}} is re-entrant and can support 
+multiple recognisers\index{multiple recognisers}
+simultaneously.  Thus, although this facility is not utilised in the
+supplied recogniser \htool{HVite}\index{hvite@\htool{HVite}}, it does provide applications
+developers with the capability to have multiple recognisers running
+with different networks.
+
+Once a recogniser has been created, each unknown input is 
+processed by first executing a \textit{start recogniser} call, and then
+processing each observation one-by-one.  When all input observations
+have been processed, recognition is completed by generating a lattice.
+This can be saved to disk as a standard lattice format (SLF) file or
+converted to a transcription.
+
+The above decoder organisation is extremely flexible and this is
+demonstrated by the \HTK\ tool \htool{HVite} which is a simple 
+shell program designed to allow \htool{HRec} to be driven from
+the command line.  
+
+Firstly, input
+control in the form of a recognition network allows three distinct modes
+of operation
+
+\sidefig{decflow}{62}{Recognition Processing}{2}{
+\begin{enumerate}
+\item \textit{Recognition} \\
+This is the conventional case in which the recognition network
+is compiled from a task level word network.\index{decoder!recognition mode}
+
+\item \textit{Forced Alignment} \\
+In this case, the  recognition network
+is constructed from a word level transcription (i.e.\ orthography)
+and a dictionary. The compiled network may include optional silences
+between words and pronunciation variants.  Forced alignment is often useful
+during training to automatically derive phone level transcriptions.
+It can also be used in automatic annotation systems.
+\index{decoder!alignment mode}
+
+\item \textit{Lattice-based Rescoring} \\
+In this case, the input network is compiled from a lattice generated
+during an earlier recognition run.  This mode of operation can be
+extremely useful for recogniser development since rescoring can be
+an order of magnitude faster than normal recognition.   The required
+lattices are usually generated by a basic recogniser running with
+multiple tokens, the idea being to generate a lattice containing both
+the correct transcription plus a representative number of confusions.
+Rescoring can then be used to quickly evaluate the performance of more 
+advanced recognisers and the effectiveness of new recognition techniques.
+\index{decoder!rescoring mode}
+
+\end{enumerate}
+
+The second source of flexibility lies in the provision of multiple
+tokens and recognition output
+in the form of a lattice.  In addition to providing a mechanism
+for rescoring, lattice output can be used as a source of multiple
+hypotheses either for further recognition processing or input
+to a natural language processor.  Where convenient, lattice output
+can easily be converted into N-best lists.
+}
+
+Finally, since \htool{HRec} is explicitly driven step-by-step at the
+observation level, it allows fine control over the recognition process and a
+variety of traceback and on-the-fly output possibilities.
+
+For application developers, \htool{HRec} and the \HTK\ library modules
+on which it depends can be linked directly into applications.  It 
+will also be available in the form of an industry standard API.  However, 
+as mentioned earlier the \HTK\ toolkit 
+also supplies a tool called \htool{HVite} which is a shell program
+designed to allow  \htool{HRec} to be driven from the command line.
+The remainder of this chapter will therefore explain the various facilities
+provided for recognition from the perspective of \htool{HVite}.
+
+\mysect{Recognition using Test Databases}{hvrec}
+
+When building a speech recognition system or investigating speech
+recognition algorithms, performance must be monitored by testing
+on databases of test utterances for which reference transcriptions
+are available.  To use \htool{HVite} for this purpose it is
+invoked with a command line of the form
+\begin{verbatim}
+    HVite -w wdnet dict hmmlist testf1 testf2 ....
+\end{verbatim}
+where \texttt{wdnet} is an SLF file containing the word level network, 
+\texttt{dict} is the pronouncing dictionary and hmmlist contains
+a list of the HMMs to use.  The effect of this command is that
+\htool{HVite} will use \htool{HNet} to compile the word level network
+and then use \htool{HRec} to recognise each test file.   The parameter kind
+of these test files must match exactly with that used to train the HMMs.
+For evaluation purposes, test files are normally stored in parameterised
+form but only the basic static coefficients are saved on disk.  For example,
+delta parameters are normally computed during loading.  As explained in
+Chapter~\ref{c:speechio}, \HTK\ can perform a range of parameter conversions
+on loading and these are controlled by configuration variables.  Thus,
+when using \htool{HVite}, it is normal to include a configuration file
+via the \texttt{-C} option in which the required target parameter kind 
+is specified.  Section~\ref{s:recaudio} below on processing direct
+audio input explains the use of configuration files in more detail.
+\index{decoder!evaluation}
+
+In the simple
+default form of invocation given above, \htool{HVite} would
+expect to find each HMM definition in a separate file in the current
+directory and each
+output transcription would be written to a separate file in the current directory.
+Also, of course, there will typically be a large number of test files.
+
+In practice, it is much more convenient to store HMMs in master macro files (MMFs),
+store transcriptions in master label files (MLFs) and list data files
+in a script file.  Thus, a more common form of the above invocation would
+be 
+\begin{verbatim}
+    HVite -T 1 -S test.scp -H hmmset -i results -w wdnet dict hmmlist 
+\end{verbatim}
+where the file \texttt{test.scp} contains the list of test file names,
+\texttt{hmmset} is an MMF containing the HMM definitions\footnote{
+Large HMM sets will often be distributed across a number of MMF files,
+in this case, the \texttt{-H} option will be repeated for each file.},
+and  \texttt{results} is the MLF for storing the recognition output.
+
+\index{decoder!progress reporting}
+As shown, it is usually a good idea to enable basic progress reporting
+by setting the trace option as shown.  This will cause the recognised
+word string to be printed after processing each file.  For example,
+in a digit recognition task the trace output might look like
+\begin{verbatim}
+   File: testf1.mfc
+   SIL ONE NINE FOUR SIL 
+   [178 frames] -96.1404 [Ac=-16931.8 LM=-181.2] (Act=75.0)
+\end{verbatim}
+where the information listed after the recognised string is the total
+number of frames in the utterance, the average 
+log probability\index{average log probability} per frame,
+the total acoustic likelihood, the total language model likelihood and
+the average number of active models.\index{decoder!trace output}
+
+The corresponding transcription
+written to the output MLF form will contain an entry of the form
+\index{decoder!output MLF}
+
+\begin{verbatim}
+    "testf1.rec"
+           0  6200000 SIL  -6067.333008
+     6200000  9200000 ONE  -3032.359131
+     9200000 12300000 NINE -3020.820312
+    12300000 17600000 FOUR -4690.033203
+    17600000 17800000 SIL   -302.439148
+    .   
+\end{verbatim}
+This shows the start and end time of each word and the total log probability.
+The fields output by \htool{HVite} can be controlled using 
+the \texttt{-o}.  For example, the option \texttt{-o ST} would suppress
+the scores and the times to give
+\begin{verbatim}
+    "testf1.rec"
+    SIL 
+    ONE
+    NINE
+    FOUR
+    SIL 
+    .   
+\end{verbatim}
+
+In order to use \htool{HVite} effectively and efficiently, it is important to 
+set appropriate values for its pruning\index{pruning} thresholds and the language model
+scaling parameters.   The main pruning beam is set by the  \texttt{-t} option.
+Some experimentation will be necessary to determine appropriate levels
+but around 250.0 is usually a reasonable starting point.  Word-end pruning
+(\texttt{-v}) and the maximum model limit\index{maximum model limit} (\texttt{-u}) can also be set
+if required, but these are not mandatory and their effectiveness will
+depend greatly on the task.
+
+The relative levels of insertion 
+and deletion errors\index{deletion errors}
+\index{insertion errors} can be controlled
+by scaling the language model\index{language model scaling} likelihoods using the \texttt{-s} option
+and adding a fixed \textit{penalty}   using the \texttt{-p} option.
+For example, setting \texttt{-s 10.0 -p -20.0} would mean that every language
+model log probability $x$ would be converted to $10x - 20$ before being
+added to the tokens emitted from the corresponding word-end node. As
+an extreme example, setting \texttt{-p 100.0}
+caused the digit recogniser above to output
+\begin{verbatim}
+   SIL OH OH ONE OH OH OH NINE FOUR OH OH OH OH SIL 
+\end{verbatim}
+where adding 100 to each word-end transition has resulted in a large number of
+insertion errors.  The word inserted is ``oh'' primarily because it is the
+shortest in the vocabulary. 
+Another problem which may occur during recognition is the inability to arrive
+at the final node in the recognition network after processing the whole
+utterance. \index{forceout@\texttt{FORCEOUT}} The user is made aware of the
+problem by the message ``No tokens survived to final node of network''. The
+inability to match the data against the recognition network is usually caused
+by poorly trained acoustic models and/or very tight pruning beam-widths. In
+such cases, partial recognition results can still be obtained by setting the
+\htool{HRec} configuration variable \texttt{FORCEOUT} true. 
+\index{partial results} The results will be based on the most likely partial 
+hypothesis found in the network.
+
+\mysect{Evaluating Recognition Results}{receval}
+
+\index{decoder!results analysis}
+Once the test data has been processed by the recogniser, the next step is to
+analyse the results. The tool \index{hresults@\htool{HResults}}
+\htool{HResults} is provided for this purpose. \htool{HResults} compares 
+the transcriptions output by \htool{HVite} with the original reference
+transcriptions and then outputs various statistics. \htool{HResults} matches
+each of the recognised and reference label sequences by performing an optimal
+string match\index{string matching} using dynamic programming. Except when
+scoring word-spotter output as described later, it does not take any notice of
+any boundary timing information stored in the files being compared.  The
+optimal string match works by calculating a score for the match with respect to
+the reference such that identical labels match with score 0, a label insertion
+carries a score of 7, a deletion carries a score of 7 and a substitution
+carries a score of 10\footnote{The default behaviour of \htool{HResults} is
+slightly different to the widely used US NIST scoring software which uses
+weights of 3,3 and 4 and a slightly different alignment algorithm. Identical
+behaviour to NIST can be obtained by setting the -n option.}. The optimal
+string match is the label alignment which has the lowest possible score.
+
+Once the optimal alignment has been found, the number of substitution
+errors ($S$), deletion errors ($D$) and insertion errors ($I$) can be
+calculated.  The percentage correct is then
+\begin{equation}
+    \mbox{Percent Correct} = \frac{N-D-S}{N} \times 100\%
+\end{equation}
+where $N$ is the total number of labels in the reference transcriptions.
+Notice that this measure ignores insertion errors.  For many purposes,
+the percentage accuracy defined as
+\begin{equation}
+    \mbox{Percent Accuracy} = \frac{N-D-S-I}{N} \times 100\%
+\end{equation}
+is a more representative figure of 
+recogniser performance\index{recogniser performance}.
+
+\htool{HResults} outputs both of the above measures. As with all 
+\HTK\ tools it can process individual label files and files stored in MLFs.
+Here the examples will assume that both reference and test transcriptions
+are stored in MLFs.
+
+As an example of use, suppose that the MLF \texttt{results} contains
+recogniser output transcriptions, \texttt{refs} contains
+the corresponding reference transcriptions and \texttt{wlist}
+contains a list of all labels appearing in these files.  Then typing the command
+\begin{verbatim}
+    HResults -I refs wlist results
+\end{verbatim}
+would generate something like the following
+\begin{verbatim}
+  ====================== HTK Results Analysis =======================
+    Date: Sat Sep  2 14:14:22 1995
+    Ref : refs
+    Rec : results
+  ------------------------ Overall Results --------------------------
+  SENT: %Correct=98.50 [H=197, S=3, N=200]
+  WORD: %Corr=99.77, Acc=99.65 [H=853, D=1, S=1, I=1, N=855]
+  ===================================================================
+\end{verbatim}
+The first part shows the date and the names of the files being used.
+The line labelled \texttt{SENT} shows the total number of 
+complete sentences which were recognised correctly.  The second line 
+labelled \texttt{WORD} 
+gives the
+recognition statistics\index{recognition!statistics} for the individual words\footnote{
+All the examples here will assume that each label corresponds to a word
+but in general the labels could stand for any recognition unit such as
+phones, syllables, etc.  \htool{HResults} does not care what the labels
+mean but for human consumption, the labels  \texttt{SENT} 
+and \texttt{WORD}  can be changed using the \texttt{-a} and  \texttt{-b} 
+options.}.
+
+It is often useful to visually inspect the 
+recognition errors\index{recognition!errors}.  Setting the
+\texttt{-t} option causes aligned test and reference transcriptions to
+be output for all sentences containing errors.  For example, a typical
+output might be
+\begin{verbatim}
+  Aligned transcription: testf9.lab vs testf9.rec
+   LAB: FOUR    SEVEN NINE THREE
+   REC: FOUR OH SEVEN FIVE THREE
+\end{verbatim}
+here an ``oh'' has been inserted by the recogniser and ``nine''
+has been recognised as ``five''
+
+If preferred, results output can be formatted in an identical
+manner to NIST scoring software\index{NIST scoring software} by setting the  {\tt -h} option.
+For example, the results given above would appear as follows in
+NIST format\index{NIST format}
+\begin{verbatim}
+  ,-------------------------------------------------------------.
+  | HTK Results Analysis at Sat Sep  2 14:42:06 1995            |
+  | Ref: refs                                                   |
+  | Rec: results                                                |
+  |=============================================================|
+  |           # Snt |  Corr    Sub    Del    Ins    Err  S. Err |
+  |-------------------------------------------------------------|
+  | Sum/Avg |  200  |  99.77   0.12   0.12   0.12   0.35   1.50 |
+  `-------------------------------------------------------------'
+\end{verbatim}
+
+When computing recognition results it is sometimes
+inappropriate to distinguish certain labels.  For example, to assess
+a digit recogniser used for voice dialling it might be required to
+treat the alternative vocabulary items ``oh'' and ``zero'' as being
+equivalent.  This can be done by making them equivalent using the
+\texttt{-e} option, that is
+\begin{verbatim}
+    HResults -e ZERO OH  .....
+\end{verbatim}
+If a label is equated to the special label \verb+???+, then it 
+is ignored.  Hence, for example, if the recognition output had
+silence marked by \texttt{SIL}, the setting the option
+\verb+-e ??? SIL+ would cause all the \texttt{SIL} labels to be
+ignored.\index{word equivalence}
+
+\htool{HResults} contains a number of other options.
+Recognition statistics can be generated for each file
+individually by setting the {\tt -f} option and a 
+confusion matrix\index{confusion matrix}
+can be generated by setting the  {\tt -p} option.
+When comparing phone recognition results, \htool{HResults} will
+strip any triphone contexts by setting the  {\tt -s} option.
+\htool{HResults} can also process N-best recognition output.
+Setting the option \texttt{-d N} causes \htool{HResults} to
+search the first \texttt{N} alternatives of each test output
+file to find the most accurate match with the reference labels.
+
+When analysing the performance of a speaker independent recogniser
+it is often useful to obtain accuracy figures on a per speaker basis.
+This can be done using the option \texttt{-k mask} where \texttt{mask}
+is a pattern used to extract 
+the speaker identifier\index{speaker identifier} from the test label file name.  
+The pattern consists of a string of characters which can include
+the pattern matching metacharacters 
+\texttt{*} and \texttt{?} to match zero or more characters and a single character,
+respectively.
+The pattern
+should also contain a string of one or more \texttt{\%} characters which
+are used as a mask to identify the speaker identifier.  
+
+For example,
+suppose that the test filenames had the following structure
+\begin{verbatim}
+    DIGITS_spkr_nnnn.rec
+\end{verbatim}
+where \texttt{spkr} is a 4 character speaker id and \texttt{nnnn}
+is a 4 digit utterance id.  Then executing \htool{HResults} by
+\begin{verbatim}
+    HResults -h -k '*_%%%%_????.*' ....
+\end{verbatim}
+would give output of the form
+\begin{verbatim}
+    ,-------------------------------------------------------------.
+    | HTK Results Analysis at Sat Sep  2 15:05:37 1995            |
+    | Ref: refs                                                   |
+    | Rec: results                                                |
+    |-------------------------------------------------------------|
+    |    SPKR | # Snt |  Corr    Sub    Del    Ins    Err  S. Err |
+    |-------------------------------------------------------------|
+    |    dgo1 |   20  | 100.00   0.00   0.00   0.00   0.00   0.00 |
+    |-------------------------------------------------------------|
+    |    pcw1 |   20  |  97.22   1.39   1.39   0.00   2.78  10.00 |
+    |-------------------------------------------------------------|
+    ......
+    |=============================================================|
+    | Sum/Avg |  200  |  99.77   0.12   0.12   0.12   0.35   1.50 |
+    `-------------------------------------------------------------'
+\end{verbatim}
+
+In addition to string matching, \htool{HResults} can also 
+analyse the results of a recogniser configured for word-spotting.
+In this case, there is no DP alignment.  Instead, each recogniser
+label $w$ is compared with the reference transcriptions.
+If the start and end times of $w$ lie either side of the mid-point
+of an identical label in the reference, then that recogniser label
+represents a \textit{hit}, otherwise it is a \textit{false-alarm} (FA).
+
+The recogniser output must include the log likelihood scores as
+well as the word boundary information.  \index{Figure of Merit}
+These scores are used to compute the \textit{Figure of Merit} (FOM)
+defined by NIST which is an upper-bound estimate on word spotting
+accuracy averaged over 1 to 10 false alarms per hour.
+The FOM\index{FOM} is calculated  as follows where it is assumed that the
+total duration of the test speech is $T$ hours.  For each word, all of
+the spots are ranked in score order.  The percentage of true hits
+$p_i$ found before the $i$'th false alarm is then calculated for 
+$i = 1 \ldots N+1$ where $N$ is the first integer $\ge 10T - 0.5$.
+The figure of merit is then defined as
+\hequation{
+\mbox{FOM} = \frac{1}{10T}(p_1 + p_2 + \ldots + p_N + a p_{N+1})
+}{nistfom}
+where $a = 10T - N$ is a factor that interpolates to 10 false
+alarms per hour.
+
+Word spotting analysis is enabled by setting the \texttt{-w} option
+and the resulting output has the form
+\begin{verbatim}
+  ------------------- Figures of Merit --------------------
+      KeyWord:    #Hits     #FAs  #Actual      FOM
+        BADGE:       92       83      102    73.56
+       CAMERA:       20        2       22    89.86
+       WINDOW:       84        8       92    86.98
+        VIDEO:       72        6       72    99.81
+      Overall:      268       99      188    87.55
+  ---------------------------------------------------------
+\end{verbatim}
+If required the standard time unit of 1 hour as used in the above
+definition of FOM can be changed using the \texttt{-u option}.
+
+
+\mysect{Generating Forced Alignments}{falign}
+
+\index{decoder!forced alignment}
+\sidefig{hvalign}{55}{Forced Alignment}{-4}{
+\htool{HVite} can be made to compute forced alignments by not 
+specifying a network with the \texttt{-w} option but by specifying
+the \texttt{-a} option instead.  In this mode, \htool{HVite} 
+computes a new network for each input utterance using the word
+level transcriptions and a dictionary.  By default, the output
+transcription will just contain the words and their boundaries.
+One of the main uses of forced alignment\index{forced alignment}, 
+however, is to 
+determine the actual pronunciations used in the utterances
+used to train the HMM system in this case, the \texttt{-m}
+option can be used to generate model level output transcriptions.
+}  
+This type of forced alignment is usually part of a \textit{bootstrap}
+process, initially models are trained on the basis of one fixed
+pronunciation per \index{hled@\htool{HLEd}}
+\index{ex@\texttt{EX} command}word\footnote{
+The \htool{HLEd} \texttt{EX} command can be used to compute phone
+level transcriptions when there is only one possible 
+phone transcription
+per word}.  
+Then \htool{HVite} is used in forced alignment mode
+to select the best matching pronunciations.  The new phone level
+transcriptions can then be used to retrain the HMMs.  Since training
+data may have leading and trailing silence, it is usually
+necessary to insert a silence model at the start and end of the
+recognition network.  The  \texttt{-b} option can be used to do this.
+
+As an illustration, executing
+\begin{verbatim}
+    HVite -a -b sil -m -o SWT -I words.mlf \
+       -H hmmset dict hmmlist file.mfc
+\end{verbatim}
+would result in the following sequence of events (see Fig.~\href{f:hvalign}).
+The input file name \texttt{file.mfc} would have its extension replaced by
+\texttt{lab} and then a label file of this name would be searched for.
+In this case, the MLF file \texttt{words.mlf} has been loaded. 
+Assuming that this file contains a word level transcription called
+\texttt{file.lab}, this transcription along with the dictionary \texttt{dict}
+will be used to construct a network equivalent to \texttt{file.lab}
+but with alternative pronunciations included in parallel.  Since \texttt{-b}
+option has been set, the specified \texttt{sil} model will be inserted
+at the start and end of the network.  The decoder then finds the best
+matching path through the network and constructs a lattice which
+includes model alignment information.  Finally, the lattice is converted
+to a transcription and output to the label file \texttt{file.rec}.
+As for testing on a database, alignments will normally be computed on
+a large number of input files so in practice the input files would be listed
+in a \texttt{.scp} file and the output transcriptions would be written
+to an MLF using the \texttt{-i} option.
+
+When the \texttt{-m} option is used, the transcriptions output by \htool{HVite} 
+would by default contain both the model level and 
+word level transcriptions
+\index{transcriptions!word level}.
+\index{transcriptions!model level}
+\index{transcriptions!phone level}
+For example, a typical fragment of the output might be
+\begin{verbatim}
+    7500000  8700000 f  -1081.604736 FOUR 30.000000
+    8700000  9800000 ao  -903.821350
+    9800000 10400000 r   -665.931641
+   10400000 10400000 sp    -0.103585
+   10400000 11700000 s  -1266.470093 SEVEN 22.860001
+   11700000 12500000 eh  -765.568237
+   12500000 13000000 v   -476.323334
+   13000000 14400000 n  -1285.369629
+   14400000 14400000 sp    -0.103585
+\end{verbatim}
+Here the score alongside each model name is the acoustic score for that segment.
+The score alongside the word is just the language model score.
+
+Although the above information can be useful for some purposes, for example
+in bootstrap training, only the model names are required.
+The formatting option \texttt{-o SWT} in the above suppresses all output
+except the model names.\index{decoder!output formatting}
+
+\mysect{Recognition using Direct Audio Input}{recaudio}
+
+\index{decoder!live input}
+In all of the preceding discussion, it has been assumed that input was
+from speech files stored on disk.  These files would normally have
+been stored in parameterised form so that little or no conversion
+of the source speech data was required.   When \htool{HVite}
+is invoked with no files listed on the command line, it assumes that
+input is to be taken directly from the audio input.  In this case,
+configuration variables must be used to specify firstly how the
+speech waveform is to be captured and secondly, how the captured
+waveform is to be converted to parameterised form. 
+
+Dealing with waveform capture\index{waveform capture} first, as described in
+section~\ref{s:audioio}, \HTK\ provides two main forms of control over speech
+capture: signals/keypress and an automatic speech/silence
+detector\index{speech/silence detector}. To use the speech/silence detector
+alone, the configuration file would contain the following
+\begin{verbatim}
+    # Waveform capture
+    SOURCERATE=625.0
+    SOURCEKIND=HAUDIO
+    SOURCEFORMAT=HTK
+    USESILDET=T
+    MEASURESIL=F
+    OUTSILWARN=T
+    ENORMALISE=F
+\end{verbatim}
+
+where the source sampling rate is being set to 16kHz.  Notice that the
+\texttt{SOURCEKIND}\index{sourcekind@\texttt{SOURCEKIND}} must be set to
+\texttt{HAUDIO} and the \texttt{SOURCEFORMAT} must be set to 
+\texttt{HTK}. Setting the Boolean variable 
+\texttt{USESILDET}\index{usesildet@\texttt{USESILDET}} causes the
+speech/silence detector to be used, and the
+\texttt{MEASURESIL}\index{measuresil@\texttt{MEASURESIL}}
+\texttt{OUTSILWARN}\index{outsilwarn@\texttt{OUTSILWARN}} 
+variables result in a measurement being taken of the background silence level
+prior to capturing the first utterance.  To make sure that each input utterance
+is being captured properly, the \htool{HVite} option \texttt{-g} can be set to
+cause the captured wave to be output after each recognition attempt. Note that
+for a live audio input system, the configuration variable
+\texttt{ENORMALISE} should be explicitly set to \texttt{FALSE} both when training models and when performing recognition. Energy normalisation cannot
+be used with live audio input, and the default setting for this variable
+is \texttt{TRUE}.
+
+As an alternative to using the speech/silence detector, a
+signal\index{signals!for recording control} can be used to start and stop
+recording.  For example,
+\begin{verbatim}
+    # Waveform capture
+    SOURCERATE=625.0
+    SOURCEKIND=HAUDIO
+    SOURCEFORMAT=HTK
+    AUDIOSIG=2
+\end{verbatim}
+would result in the Unix interrupt signal (usually the Control-C key) being
+used as a start and stop control\footnote{ The underlying signal number must be
+given, \HTK\ cannot interpret the standard Unix signal names such as
+\texttt{SIGINT} }. Key-press control of the audio input can be obtained by
+setting \texttt{AUDIOSIG} to a negative number.
+
+Both of the above can be used together, in this case, audio capture is disabled
+until the specified signal is received.  From then on control is in the hands
+of the speech/silence detector.
+
+The captured waveform must be converted to the required 
+target parameter kind.  Thus, the configuration file must define
+all of the parameters needed to control the
+conversion of the waveform to the required target kind.
+This process is described in detail in Chapter~\ref{c:speechio}.
+As an example, the following parameters would allow conversion
+to Mel-frequency cepstral coefficients with delta and acceleration
+parameters.
+\begin{verbatim}
+    # Waveform to MFCC parameters
+    TARGETKIND=MFCC_0_D_A
+    TARGETRATE=100000.0
+    WINDOWSIZE=250000.0
+    ZMEANSOURCE=T
+    USEHAMMING = T
+    PREEMCOEF = 0.97
+    USEPOWER = T
+    NUMCHANS = 26
+    CEPLIFTER = 22
+    NUMCEPS = 12
+\end{verbatim}
+Many of these variable settings are the default settings
+and could be omitted, they are included explicitly here as a reminder
+of the main configuration options available.
+
+When \htool{HVite} is executed in direct audio input mode,
+it issues a prompt prior to each input and it is normal to enable
+basic tracing so that the recognition results can be seen.
+A typical terminal output might be
+\begin{verbatim}
+    READY[1]>
+    Please speak sentence - measuring levels
+    Level measurement completed
+    DIAL ONE FOUR SEVEN  
+         ==  [258 frames] -97.8668 [Ac=-25031.3 LM=-218.4] (Act=22.3)
+
+    READY[2]>
+    CALL NINE TWO EIGHT  
+         ==  [233 frames] -97.0850 [Ac=-22402.5 LM=-218.4] (Act=21.8)
+
+    etc
+\end{verbatim}
+If required, a transcription of each spoken input can be output 
+to a label file or an MLF in the usual way by setting the \texttt{-e} option.  
+However, to do this
+a file name must be synthesised.  This is done by using a counter
+prefixed by the value of the
+\htool{HVite} configuration variable
+\texttt{RECOUTPREFIX}\index{recoutprefix@\texttt{RECOUTPREFIX}} and 
+suffixed by the value of \texttt{RECOUTSUFFIX}
+\index{recoutsuffix@\texttt{RECOUTSUFFIX}}.
+For example, with the settings
+\begin{verbatim}
+    RECOUTPREFIX = sjy
+    RECOUTSUFFIX = .rec
+\end{verbatim}
+then the output transcriptions would be stored as 
+\texttt{sjy0001.rec},  \texttt{sjy0002.rec} etc.
+
+
+\mysect{N-Best Lists and Lattices}{nbest}
+
+\index{decoder!N-best}
+As noted in section~\ref{s:decop}, \htool{HVite} can generate 
+lattices\index{lattice generation}
+and N-best\index{N-best} outputs.  To generate an N-best list, the \texttt{-n} option
+is used to specify the number of N-best tokens to store per state and
+the number of N-best hypotheses to generate.  The result is that
+for each input utterance, a multiple alternative 
+transcription\index{multiple alternative transcriptions} is generated.
+For example, setting \texttt{-n 4 20} with a digit 
+recogniser would generate an output of the form
+\begin{verbatim}
+    "testf1.rec"
+    FOUR
+    SEVEN
+    NINE
+    OH
+    /// 
+    FOUR
+    SEVEN
+    NINE
+    OH
+    OH
+    /// 
+
+    etc
+\end{verbatim}
+
+
+The lattices from which the N-best lists are generated can be output by setting
+the option \texttt{-z ext}.  In this case, a lattice called \texttt{testf.ext} will
+be generated for each input test file \texttt{testf.xxx}.  By default, these lattices
+will  be stored in the same directory as the test files, but they can be redirected
+to another directory using the \texttt{-l} option.
+
+\index{output lattice format}
+The lattices generated by \htool{HVite} have the following general form
+\begin{verbatim}
+    VERSION=1.0
+    UTTERANCE=testf1.mfc
+    lmname=wdnet
+    lmscale=20.00  wdpenalty=-30.00
+    vocab=dict
+    N=31   L=56   
+    I=0    t=0.00  
+    I=1    t=0.36  
+    I=2    t=0.75  
+    I=3    t=0.81
+    ... etc
+    I=30   t=2.48  
+    J=0     S=0    E=1    W=SILENCE   v=0  a=-3239.01  l=0.00    
+    J=1     S=1    E=2    W=FOUR      v=0  a=-3820.77  l=0.00    
+    ... etc
+    J=55    S=29   E=30   W=SILENCE   v=0  a=-246.99   l=-1.20   
+\end{verbatim}
+
+The first 5 lines comprise a header which records names of the files used to
+generate the lattice along with the settings of the language model scale and
+penalty factors. Each node in the lattice represents a point in time measured in
+seconds and each arc represents a word spanning the segment of the input
+starting at the time of its start node and ending at the time of its end node.  
+For each such span, \texttt{v} gives the number of the pronunciation used, 
+\texttt{a} gives the acoustic score and \texttt{l} gives the language model
+score.
+
+The language model scores in output lattices do not include the scale factors
+and penalties.  These are removed so that the lattice can be used as a
+constraint network for subsequent recogniser testing.  When using \htool{HVite}
+normally, the word level network file is specified using the \texttt{-w}
+option.  When the \texttt{-w} option is included but no file name is included,
+\htool{HVite} constructs the name of a lattice file from the name of the test
+file and inputs that.  Hence, a new recognition network is created for each
+input file and recognition is very fast.  For example, this is an efficient way
+of experimentally determining optimum values for the language 
+model scale\index{lattice!language model scale factor} and
+penalty factors.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "htkbook"
+%%% End: 

@@ -1,0 +1,202 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young  1/12/97
+%
+
+\newpage
+\mysect{HLEd}{HLEd}
+
+\mysubsect{Function}{HLEd-Function}
+
+\index{hled@\htool{HLEd}|(}
+This program is a simple editor for manipulating label files.
+Typical examples of its use might be to merge a sequence of
+labels into a single composite label or to expand a set of
+labels into a context sensitive set.  \htool{HLEd} works by
+reading in a list of {\em editing} commands from an edit
+script file and then makes an edited copy of one or more 
+label files.  For multiple level files, edit commands are applied
+to the \textit{current level} which is initially the first (i.e.\ 1).
+Other levels may be edited by moving to the required level using the
+\texttt{ML} Move Level command.
+
+Each edit command in the script file must be
+on a separate line.  The first two-letter mnemonic on each line is the command name and
+the remaining letters denote labels\footnote{In earlier versions of 
+HTK, \htool{HLEd} command names consisted of a single letter.  These
+are still supported for backwards compatibility and they are included
+in the command summary produced using the \texttt{-Q} option.  
+However, commands
+introduced since version 2.0  have two letter names.}.
+The commands supported may be divided into
+two sets.  Those in the first set are used to edit individual
+labels and they are as follows
+
+\begin{varlist}
+   \fwitem{2cm}{CH X A Y B}      Change \texttt{Y} in the context of \texttt{A\_B} 
+      to \texttt{X}.  \texttt{A} and/or \texttt{B} may be a \texttt{*} to match 
+      any context, otherwise they must be defined by a \texttt{DC} command
+      (see below).  A
+      block of consecutive \texttt{CH} commands are effectively executed in
+      parallel so that the contexts are those that exist before any of
+      the commands in the block are applied.
+   \fwitem{2cm}{DC A B C ..}     define the context \texttt{A} as the set of labels
+        \texttt{B}, \texttt{C}, etc.   
+   \fwitem{2cm}{DE A B ..}     Delete any occurrences of labels \texttt{A}
+        or \texttt{B} etc. 
+   \fwitem{2cm}{FI A Y B}  Find \texttt{Y} in the context of \texttt{A\_B} 
+      and count the number of occurrences.
+   \fwitem{2cm}{ME X A B ..}     Merge any sequence of labels \texttt{A}
+       \texttt{B} \texttt{C} etc.\  and call the new segment \texttt{X}.
+   \fwitem{2cm}{ML N} Move to label level \texttt{N}.
+   \fwitem{2cm}{RE X A B ..}   Replace all occurrences of labels \texttt{A}
+      or \texttt{B} etc.\ by the label \texttt{X}.
+\end{varlist}
+
+The commands in the second set perform global operations on whole
+transcriptions.  They are as follows.
+
+\begin{varlist}
+   \fwitem{2cm}{DL [N]} Delete all labels in the current level.  If the
+     optional integer arg is given, then level \texttt{N} is deleted.
+   \fwitem{2cm}{EX} Expand all labels either from words to phones using the 
+        first pronunciation from a dictionary when it is specified on the 
+        command line otherwise expand labels of the form 
+        \texttt{A\_B\_C\_D\_...} into a sequence of separate labels 
+        \texttt{A B C D ....}.  This is useful for label formats which 
+        include a complete orthography as a single label or for creating 
+        a set of sub-word labels from a word orthography for a sub-word 
+        based recogniser.  When a label is expanded in this way, the 
+        label duration is divided into equal length segments.  This can
+        only be performed on the root level of a multiple level file.
+   \fwitem{2cm}{FG X} Mark all unlabelled segments of the input
+       file of duration greater than $T_g$ msecs with the label \texttt{X}.
+       The default value for $T_g$ is 50000.0 (=5msecs) but this
+       can be changed using the \texttt{-g} command line option.  This
+       command
+       is mainly used for explicitly labelling inter-word silences in
+       data files for which only the actual speech has been transcribed.
+   \fwitem{2cm}{IS A B}  Insert label \texttt{A} at the start of every
+       transcription and \texttt{B} at the end.  This command is usually
+       used to insert silence labels.
+   \fwitem{2cm}{IT} Ignore triphone contexts in \texttt{CH} and \texttt{FI}
+       commands.
+   \fwitem{2cm}{LC [X]} Convert all phoneme labels to left context
+       dependent.  If \texttt{X} is given then the first phoneme label
+       \texttt{a} becomes \texttt{X-a} otherwise it is left unchanged.
+   \fwitem{2cm}{NB X} The label  \texttt{X} (typically a short pause)
+       should be ignored at word boundaries when using the context
+       commands \texttt{LC}, \texttt{RC} and \texttt{TC}.
+   \fwitem{2cm}{RC [X]} Convert all phoneme labels to right context
+       dependent.  If \texttt{X} is given then the last phoneme label
+       \texttt{z} becomes \texttt{z+X} otherwise it is left unchanged.
+   \fwitem{2cm}{SB X}  Define the label \texttt{X} to be a sentence boundary
+       marker.  This label can then be used in context-sensitive change
+       commands.
+   \fwitem{2cm}{SO}     Sort all labels into time order.
+   \fwitem{2cm}{SP}     Split multiple levels into multiple alternative label lists.
+   \fwitem{2cm}{TC [X[Y]]} Convert all phoneme labels to Triphones, that is
+       left and right context
+       dependent.  If \texttt{X} is given then the first phoneme label
+       \texttt{a} becomes \texttt{X-a+b} otherwise it is left unchanged.
+       If \texttt{Y} is given then the last phoneme label
+       \texttt{z} becomes \texttt{y-z+Y} otherwise  if \texttt{X} is given then it
+        becomes \texttt{y-z+X} otherwise it is left unchanged.
+   \fwitem{2cm}{WB X}  Define \texttt{X} to be an inter-word label. 
+       This command affects the operation of the \texttt{LC}, \texttt{RC}
+       and \texttt{TC} commands.  The expansion of context labels is 
+       blocked wherever an inter-word label occurs.
+\end{varlist}
+
+The source and target label file formats can be 
+defined using the \texttt{-G} and \texttt{-P} command line arguments.  They can
+also be set using the configuration variables \texttt{SOURCELABEL} 
+and \texttt{TARGETLABEL}.  The default for both cases is the HTK format.
+
+\mysubsect{Use}{HLEd-Use}
+
+\htool{HLEd} is invoked by typing the command line
+\begin{verbatim}
+   HLEd [options] edCmdFile labFiles ..
+\end{verbatim}
+This causes \htool{HLEd} to be applied to each \texttt{labFile} in turn
+using the edit commands listed in \texttt{edCmdFile}.  The 
+\texttt{labFiles} may be master label files.
+The available options are
+
+\begin{optlist}
+
+  \ttitem{-b} Suppress label boundary times in output files.
+
+  \ttitem{-d s} Read a dictionary from file {\tt s} and use this
+  for expanding labels when the {\tt EX} command is used.
+
+  \ttitem{-i mlf} This specifies that the output transcriptions
+  are written to the master label file \texttt{mlf}.
+
+  \ttitem{-g t} Set the minimum gap detected by the \texttt{FG} to be \texttt{t}
+      (default 50000.0 = 5msecs).
+     All gaps of shorter duration than \texttt{t} are ignored and not labelled.
+  
+  \ttitem{-l s} Directory to store output label files (default is current directory).
+      When output is directed to an MLF,  this option can be used to
+      add a path to each output file name.  In particular, setting the option
+      \verb+-l '*'+ will cause a label file named \texttt{xxx} to be prefixed
+      by the pattern \verb+"*/xxx"+ in the output MLF file.  This is useful
+      for generating MLFs which are independent of the location of the 
+      corresponding data files.
+
+  \ttitem{-m} Strip all labels to monophones on loading.
+ 
+  \ttitem{-n fn} This option causes a list of all new label names
+      created to be output to the file \texttt{fn}.
+
+\stdoptG
+\stdoptI
+\stdoptP
+\stdoptX
+
+\end{optlist}
+\stdopts{HLEd}
+
+\mysubsect{Tracing}{HLEd-Tracing}
+
+\htool{HLEd} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{000001} basic progress reporting.
+   \ttitem{000002} edit script details.
+   \ttitem{000004} general command operation.
+   \ttitem{000010} change operations.
+   \ttitem{000020} level split/merge operations.
+   \ttitem{000040} delete level operation.
+   \ttitem{000100} edit file input.
+   \ttitem{000200} memory usage.
+   \ttitem{000400} dictionary expansion in \texttt{EX} command
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hled@\htool{HLEd}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

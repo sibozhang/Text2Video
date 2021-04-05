@@ -1,0 +1,201 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright:                                          */
+%/*              2002  Cambridge University                     */
+%/*                    Engineering Department                   */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Gunnar Evermann 10.12.2002
+%
+
+\newpage
+\mysect{HLRescore}{HLRescore}
+
+\mysubsect{Function}{HLRescore-Function}
+
+\index{hlrescore@\htool{HLRescore}|(}
+\htool{HLRescore} is a general lattice post-processing tool. It reads
+lattices (for example produced by \htool{HVite}) and applies one of
+the following operations on them:
+
+\begin{itemize}
+\item finding 1-best path through lattice
+\item pruning lattice using forward-backward scores
+\item expanding lattices with new language model
+\item converting lattices to equivalent word networks
+\item calculating various lattice statistics
+\item converting word MLF files to lattices with a language model
+\end{itemize}
+
+A typical scenario for the use of \htool{HLRescore} is the application
+of a higher order n-gram to the word lattices generated with HVite and
+a bigram. This would involve the following steps:
+
+\begin{itemize}
+\item lattice generation with HVite using a bigram
+\item lattice pruning with HLRescore (\texttt{-t})
+\item expansion of lattices using a trigram (\texttt{-n})
+\item finding 1-best transcription in the expanded lattice
+  (\texttt{-f})
+\end{itemize}
+
+Another common use of HLRescore is the tuning of the language
+model scaling factor and the word insertion penalty for use in
+recognition. Instead of having to re-run a decoder many times with
+different parameter settings the decoder is run once to generate
+lattices. \htool{HLRescore} can be used to find the best transcription
+for a give parameter setting very quickly. These different
+transcriptions can then be scored (using \htool{HResults}) and the
+parameter setting that yields the lowest word error rate can be
+selected. 
+
+Lattices produced by standard HTK decoders, for example,
+\htool{HVite} and \htool{HDecode}, may still contain duplicate word
+paths corresponding to different phonetic contexts caused by
+pronunciation variants or optional between word short pause silence
+models. These duplicate lattice nodes and arcs must be merged to
+ensure that the finite state grammar created from the lattices by HTK
+decoders are deterministic, and therefore usable for recognition. 
+This function is also supported by HLRescore.
+
+
+\mysubsect{Use}{HLRescore-Use}
+
+\htool{HLRescore} is invoked via the command line
+\begin{verbatim}
+   HLRescore [options] vocabFile LatFiles......
+\end{verbatim}
+
+\htool{HLRescore} reads each of the lattice files and performs the
+requested operation(s) on them. At least one of the following
+operations must be selected: find 1-best (\texttt{-f}), write lattices
+(\texttt{-w}), calculate statistics (\texttt{-c}).
+
+
+The detailed operation of \htool{HLRescore} is controlled by the following
+command line options
+\begin{optlist}
+
+  \ttitem{-i mlf} Output transcriptions to master file \texttt{mlf}.
+
+  \ttitem{-l s} Directory in which to store label/lattice files.
+
+  \ttitem{-m s} Direction of merging duplicate nodes and arcs of
+  lattices. The default value is \texttt{b}, indicating a merging in
+  a backward direction starting from the sentence end node of the
+  lattice will be performed. If using direction \texttt{f}, then the
+  forward merging will be performed instead. 
+
+  \ttitem{-n lm} Load ARPA-format n-gram language model from file
+  \texttt{lm} and expand lattice with this LM. All acoustic scores are
+  unchanged but the LM scores are replaced and lattices nodes (i.e.\
+  contexts) are expanded as required by the structure of the LM.
+
+  \ttitem{-wn lm} Load Resource Management format word pair language
+  model from file \texttt{lm} and apply this LM to a lattice converted
+  from a word MLF file. 
+
+  \ttitem{-o s} Choose how the output labels should be formatted.
+        \texttt{s} is a string with certain letters (from \texttt{NSCTWM})
+        indicating binary flags that control formatting options.
+        \texttt{N} normalize acoustic scores by dividing by the duration
+        (in frames) of the segment.
+        \texttt{S} remove scores from output label.  By default 
+        scores will be set to the total likelihood of the segment.
+        \texttt{C} Set the transcription labels to start and end on
+        frame centres. By default start times are set to the start
+        time of the frame and end times are set to the end time of 
+        the frame.
+        \texttt{T} Do not include times in output label files.
+        \texttt{W} Do not include words in output label files
+        when performing state or model alignment.
+        \texttt{M} Do not include model names in output label
+        files.
+
+  \ttitem{-t f [a]} Perform lattice pruning after reading lattices with
+  beamwidth \texttt{f}. If second argument is given lower beam to
+  limit arcs per second to \texttt{a}.
+
+  \ttitem{-u f} Perform lattice pruning before writing output
+  lattices. Otherwise like \texttt{-t}.
+
+  \ttitem{-p f} Set the word insertion log probability to \texttt{f} 
+  (default 0.0).
+  
+  \ttitem{-a f} Set the acoustic model scale factor to \texttt{f}.
+  (default value 1.0).
+
+  \ttitem{-r f} Set the dictionary pronunciation probability scale 
+        factor to \texttt{f}. (default value 1.0).
+
+  \ttitem{-s f} Set the grammar scale factor to \texttt{f}.
+        This factor post-multiplies the language model likelihoods
+        from the word lattices.  (default value 1.0).
+
+  \ttitem{-d} Take pronunciation probabilities from the dictionary
+  instead of from the lattice.
+
+  \ttitem{-c} Calculate and output lattice statistics.
+
+  \ttitem{-f} Find 1-best transcription (path) in lattice.
+
+  \ttitem{-w} Write output lattice after processing.
+
+  \ttitem{-q s} Choose how the output lattice should be formatted.
+         \texttt{s} is a string with certain letters (from \texttt{ABtvaldmn})
+         indicating binary flags that control formatting options.
+         \texttt{A} attach word labels to arcs rather than nodes.
+         \texttt{B} output lattices in binary for speed.
+         \texttt{t} output node times.
+         \texttt{v} output pronunciation information.
+         \texttt{a} output acoustic likelihoods.
+         \texttt{l} output language model likelihoods.
+         \texttt{d} output word alignments (if available).
+         \texttt{m} output within word alignment durations.
+         \texttt{n} output within word alignment likelihoods.
+
+  \ttitem{-y ext}  This sets the extension for output label files to
+        \texttt{ext} (default \texttt{rec}).
+
+\stdoptF
+\stdoptG
+\stdoptH
+\stdoptI
+\stdoptJ
+\stdoptK
+\stdoptP
+
+\end{optlist}
+\stdopts{HLRescore}
+
+\mysubsect{Tracing}{HLRescore-Tracing}
+
+\htool{HLRescore} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{0001} enable basic progress reporting.  
+   \ttitem{0002} output generated transcriptions.
+   \ttitem{0004} show details of lattice I/O
+   \ttitem{0010} show memory usage after each lattice
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the \texttt{TRACE} 
+configuration variable.
+\index{hlrescore@\htool{HLRescore}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

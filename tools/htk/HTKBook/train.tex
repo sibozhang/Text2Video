@@ -1,0 +1,1631 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young 1/12/97
+%
+
+\mychap{HMM Parameter Estimation}{Training}
+
+\sidepic{Tool.train}{80}{ 
+In chapter~\ref{c:HMMDefs} the various types of HMM were described
+and the way in which they are represented within \HTK\ was explained.
+Defining the structure and overall form of a set of HMMs is the first
+step towards building a recogniser.  The second step is to estimate
+the parameters of the HMMs from examples of the data sequences that
+they are intended to model.  This process of parameter estimation
+\index{parameter estimation} is
+usually called \textit{training}. 
+\HTK\ supplies five basic tools for parameter estimation: \htool{HCompV},
+\htool{HInit}, \htool{HRest},  \htool{HERest} and \htool{HMMIRest}.
+\htool{HCompV} and \htool{HInit} are used for initialisation.
+\htool{HCompV} will set the mean and variance of every Gaussian component
+in a HMM definition to be equal to the global mean and variance of the
+speech training data.  This is typically used as an initialisation stage
+for \textit{flat-start} training.
+Alternatively, a more detailed initialisation is
+possible using \htool{HInit} which will compute the parameters of a new
+HMM using a Viterbi style of estimation.  
+}
+
+\htool{HRest} and \htool{HERest} are used to refine the 
+parameters of existing HMMs using Baum-Welch Re-estimation.  
+Like \htool{HInit}, \htool{HRest} 
+performs \textit{isolated-unit} training whereas
+\htool{HERest} operates on complete model sets and performs \textit{embedded-unit}
+training.  In general, whole word HMMs are built using \htool{HInit}
+and \htool{HRest}, and continuous speech sub-word based systems
+are built using \htool{HERest} initialised by either \htool{HCompV} or
+\htool{HInit} and \htool{HRest}.
+
+\htool{HMMIRest} is used to discriminatively train the parameters of a trained
+HMM. This uses modified versions of the Extended Baum-Welch re-estimation
+formulae. Normally \htool{HMMIRest} will use models previously trained using
+\htool{HERest}.
+
+This chapter describes these training tools and their use for 
+estimating the parameters of plain (i.e. untied)
+continuous density HMMs. The use of tying and special cases such as
+tied-mixture HMM sets and discrete probability HMMs are dealt 
+with in later chapters.  The first section of this chapter gives an overview of the
+various training strategies possible with \HTK.  This is then followed
+by sections covering initialisation, isolated-unit training, and
+embedded training.  The chapter continues with a section detailing
+the various formulae used by the training tools. The final section describes
+discriminative training.
+
+\mysect{Training Strategies}{tstrats}
+
+As indicated in the introduction above, the basic operation of 
+the \HTK\ training tools
+involves  reading in a set of one or more HMM definitions, and then using
+speech data to estimate the parameters of  these definitions.  The speech
+data files are normally stored in parameterised form such as \texttt{LPC} or 
+\texttt{MFCC}
+parameters.  However, additional parameters such as delta coefficients are
+normally computed \textit{on-the-fly} whilst loading each file.  
+
+
+\sidefig{isoword}{62}{Isolated Word Training}{-4}{
+In fact,
+it is also possible to use waveform data directly by performing the full parameter
+conversion \textit{on-the-fly}.  Which approach is preferred depends on the
+available computing resources.  The advantages of storing the data already
+encoded are that the data is more compact in parameterised form  and pre-encoding
+avoids wasting compute time converting the data each time that it is read
+in.  However, if the training data is derived from CD-ROMs and they can be
+accessed automatically on-line, then the extra compute may be worth the
+saving in magnetic disk storage.\index{isolated word training}
+
+The methods for configuring speech data
+input to \HTK\ tools were described in detail in chapter~\ref{c:speechio}.
+All of the various input mechanisms are supported by the \HTK\ training
+tools except direct audio input.
+
+The precise way in which the training tools are  used depends on the
+type of HMM system to be built and the form of the available
+training data. Furthermore,
+\HTK\ tools are designed to interface cleanly to each other, so a
+large number of configurations are possible.  In practice, however,
+HMM-based  speech recognisers are either whole-word or sub-word.
+}
+
+As the name suggests,  whole word modelling\index{whole word modelling} refers to a technique
+whereby each individual word in the system vocabulary is modelled by
+a  single HMM.  As shown in Fig.~\href{f:isoword}, whole word HMMs
+are most commonly trained on examples of each word spoken in
+isolation.  If these training examples, which are often called
+\textit{tokens}, have had leading and trailing silence removed, then
+they can be input directly into the training tools without the need
+for any label information. The most common method of building whole
+word HMMs is to firstly use
+\htool{HInit}\index{hinit@\htool{HInit}} to calculate initial 
+parameters for the model and then
+use
+\htool{HRest}\index{hrest@\htool{HRest}} to refine the parameters using Baum-Welch
+re-estimation. Where there is limited training data and recognition
+in adverse noise environments is needed, so-called {\it fixed
+variance} models can offer improved robustness. These are models in
+which all the variances are set equal to 
+the global speech variance\index{global speech variance}
+and never subsequently re-estimated.  The tool
+\htool{HCompV}\index{hcompv@\htool{HCompV}} can be used to 
+compute this global variance.
+\index{training!whole-word}
+
+\centrefig{subword}{90}{Training Subword HMMs}
+
+Although \HTK\ gives full support for building whole-word
+HMM systems, the bulk of its facilities are focused on 
+building sub-word systems in which the basic units are the
+individual sounds of the language called \textit{phones}.
+One HMM is constructed for each such phone\index{phones} and 
+continuous speech\index{continuous speech recognition} 
+is recognised by joining the phones together to 
+make any required vocabulary using a pronunciation dictionary.
+
+\index{training!sub-word}
+The basic procedures involved in training a set of subword models
+are shown in Fig.~\href{f:subword}.  The core process involves the
+embedded training\index{embedded training} tool 
+\htool{HERest}\index{herest@\htool{HERest}}.  \htool{HERest} uses 
+continuously spoken utterances as its source of training data
+and simultaneously re-estimates the complete set of subword HMMs.
+For each input utterance, \htool{HERest} needs a transcription i.e.\ a list of
+the phones in that utterance.  \htool{HERest} then joins together all of the 
+subword HMMs corresponding to this phone list to make a single
+composite HMM.  This composite HMM is used to collect
+the necessary statistics for the re-estimation.  When all of the
+training utterances have been processed, the total set of accumulated
+statistics are used to re-estimate the parameters of all of the phone
+HMMs. 
+It is important to emphasise that in the above process, the transcriptions
+are only needed to identify the sequence of phones in each utterance.
+No phone boundary information is needed.  
+
+The initialisation\index{phone model initialisation} of a 
+set of phone HMMs prior to embedded re-estimation
+using \htool{HERest} can be achieved in two different ways.  As shown on the
+left of Fig.~\href{f:subword}, a small set of hand-labelled 
+\textit{bootstrap} training data can be used along with\index{bootstrapping}
+the isolated training tools \htool{HInit} and \htool{HRest} to
+initialise each phone HMM individually.  When used in this way,
+both \htool{HInit} and \htool{HRest} use the label information
+to extract all the segments of speech corresponding to the current
+phone HMM in order to perform isolated word training.   
+
+A simpler initialisation procedure uses \htool{HCompV} to assign the global
+speech mean and variance to every Gaussian distribution in every phone
+HMM.  This so-called \textit{flat start} procedure implies that during the
+first cycle of embedded re-estimation, each training utterance will be
+uniformly segmented.  The hope then is that enough of the phone models
+align with actual realisations of that phone so that on the second and
+subsequent iterations, the models align as intended.\index{flat start}
+
+One of the major problems to be faced in building any HMM-based
+system is that the amount of training data for each model will be
+variable and is rarely sufficient.  To overcome this, \HTK\ allows
+a variety of sharing mechanisms to be implemented whereby HMM parameters
+are tied together so that the training data is pooled and more robust
+estimates result.  These tyings, along with a variety of other
+manipulations, are performed using the  \HTK\ HMM editor \htool{HHEd}.
+The use of \htool{HHEd}\index{hhed@\htool{HHEd}} is 
+described in a later chapter.  Here it is
+sufficient to note that a phone-based HMM set typically goes through
+several refinement cycles of editing using \htool{HHEd} followed
+by parameter re-estimation using \htool{HERest} before the final model set is
+obtained.
+
+Having described in outline the main training strategies, each
+of the above procedures will be described in more detail.
+
+\mysect{Initialisation using \htool{HInit}}{inithmm}
+
+In order to create a HMM definition, it is first necessary to produce
+a prototype definition.  As explained in Chapter~\ref{c:HMMDefs}, HMM definitions
+can be stored as a text file and hence the simplest way of creating
+a prototype is by using a text editor to manually produce a definition of the form
+shown in Fig~\ref{f:hmm1def}, Fig~\ref{f:hmm2def} etc.  The function of a prototype
+definition is to describe the form and topology of the HMM,  the actual numbers used
+in the definition are not important.   Hence, the vector size and parameter kind should
+be specified and the number of states chosen.  The allowable transitions between states
+should be indicated by putting non-zero values in the corresponding elements of the
+transition matrix and zeros elsewhere.  The rows of the transition matrix must sum to one
+except for the final row which should be all zero.  Each state definition should show the
+required number of streams and mixture components in each stream.  All mean values
+can be zero but diagonal variances should be positive and covariance matrices
+should have positive diagonal elements.  All state definitions can be identical.
+\index{model training!initialisation}
+
+Having set up an appropriate prototype, a HMM can be initialised using the \HTK tool
+\htool{HInit}.   The basic principle of \htool{HInit} depends on the concept of a HMM as
+a generator of speech vectors.  Every training example can be viewed as the output
+of the HMM whose parameters are to be estimated.  
+Thus, if the state that generated each vector in the training
+data was known, then the unknown means and variances could be estimated by averaging all the
+vectors associated with each state.  Similarly, the transition matrix could be estimated
+by simply counting the number of time slots that each state was occupied.  This process
+is described more formally in section~\ref{s:bwformulae} below.
+
+\sidefig{vitloop}{60}{\htool{HInit} Operation}{2}{
+The above idea can be implemented by an iterative scheme as shown in Fig~\href{f:vitloop}.  
+Firstly, the Viterbi\index{Viterbi training}
+algorithm is used to find the most likely state sequence corresponding to
+each training example, then the HMM parameters are estimated.  As a side-effect
+of finding the Viterbi state alignment, the log likelihood of the training data
+can be computed.  Hence, the whole estimation process can be repeated until
+no further increase in likelihood is obtained.
+
+This process requires some initial HMM parameters to get started.  To circumvent
+this problem, \htool{HInit} starts by uniformly segmenting the data and associating
+each successive segment with successive states.  Of course, this only makes sense
+if the HMM is  left-right.  If the HMM is ergodic, then the uniform 
+segmentation\index{uniform segmentation} can be disabled and some other 
+approach taken.  For example,
+\htool{HCompV} can be used as described below.
+
+If any HMM state has multiple mixture components, then the training vectors are
+associated with the mixture component with the highest likelihood.  The number of
+vectors associated with each component within a state can then be used to estimate the mixture
+weights.  In the uniform segmentation stage, a K-means 
+clustering\index{K-means clustering} algorithm is used
+to cluster the vectors within each state.\index{model training!mixture components}
+
+Turning now to the practical use of \htool{HInit}, whole word models can be  initialised by
+typing a command of the form
+}
+
+\begin{verbatim}
+    HInit hmm data1 data2 data3
+\end{verbatim}
+where \texttt{hmm} is the name of the file holding the prototype
+HMM and \texttt{data1}, \texttt{data2}, etc.\  are the
+names of the speech files holding the training examples, each file holding a single example
+with no leading or trailing silence.  The HMM definition can be distributed across a number
+of macro files loaded using the standard \texttt{-H} option.  For example, in
+\begin{verbatim}
+    HInit -H mac1 -H mac2 hmm data1 data2 data3 ...
+\end{verbatim}
+then the macro files \texttt{mac1} and \texttt{mac2} would be loaded first.  If these contained a
+definition for \texttt{hmm}, then no further HMM definition input would be attempted.  If however,
+they did not contain a definition for \texttt{hmm}, then \htool{HInit} would attempt to open a file called
+\texttt{hmm} and would expect to find a definition for \texttt{hmm} within it.  \htool{HInit} can in principle
+load a large set of HMM definitions, but it will only update the parameters of the single named
+HMM.  On completion, \htool{HInit} will write out new versions of all HMM definitions loaded on start-up.
+The default behaviour is to write these to the current directory which has the usually
+undesirable effect of overwriting the prototype definition.  This can be prevented by
+specifying a new directory for the output definitions using the \texttt{-M} option.
+Thus, typical usage of \htool{HInit} takes the form \index{model training!whole word}
+\begin{verbatim}
+    HInit -H globals -M dir1 proto data1 data2 data3 ...
+    mv dir1/proto dir1/wordX
+\end{verbatim}
+Here \texttt{globals} is assumed to hold a global 
+options macro\index{global options macro}  (and possibly others).  
+The actual HMM definition is loaded from the file \texttt{proto} in the current directory and
+the newly initialised definition along with a copy of \texttt{globals} will be written to
+\texttt{dir1}.  Since the newly created HMM will still be called \texttt{proto}, it is renamed
+as appropriate.
+
+For most real tasks, the number of data files required will 
+exceed the command line argument
+limit and a script file\index{script files} is used instead.  
+Hence, if the names of the data files are stored in the file
+\texttt{trainlist} then typing
+\begin{verbatim}
+    HInit -S trainlist -H globals -M dir1 proto
+\end{verbatim}
+would have the same effect as previously.
+
+\centrefig{hinitdp}{90}{File Processing in \htool{HInit}}
+
+When building sub-word models, \htool{HInit} can be used in the same manner as above to initialise
+each individual sub-word HMM.  However, in this case, the training data is typically continuous
+speech with associated label files identifying the speech segments corresponding to
+each sub-word.  To illustrate this, the following command could be used to initialise
+a sub-word HMM for the phone \texttt{ih}
+\begin{verbatim}
+    HInit -S trainlist -H globals -M dir1 -l ih -L labs proto
+    mv dir1/proto dir1/ih
+\end{verbatim}
+where the option \texttt{-l} defines the name of the sub-word model, and 
+the file \texttt{trainlist} is assumed to hold
+\begin{verbatim}
+    data/tr1.mfc
+    data/tr2.mfc
+    data/tr3.mfc
+    data/tr4.mfc
+    data/tr5.mfc
+    data/tr6.mfc
+\end{verbatim}
+In this case,  \htool{HInit} will first try to find label
+\index{model training!sub-word initialisation}
+files corresponding to each data file.  In the example here, the 
+standard \texttt{-L}\index{standard options!aaal@\texttt{-L}} option 
+indicates that they are
+stored in a directory called \texttt{labs}.  As an alternative, they
+could be stored in a Master Label File\index{master label files} (MLF) and 
+loaded via the standard option \texttt{-I}.
+Once the label files have been loaded, each data file is scanned and all segments
+corresponding the label \texttt{ih} are loaded.  Figure~\href{f:hinitdp}
+illustrates this process.
+
+All \HTK\ tools support the \texttt{-T}
+\index{standard options!aaat@\texttt{-T}} trace option and although the details of 
+tracing varies from tool to tool, setting the least significant bit (e.g.\ by \texttt{-T 1}), 
+causes all tools to output top level progress information.  In the case
+of \htool{HInit}, this information includes the log likelihood at each iteration and hence
+it is very useful for monitoring convergence\index{monitoring convergence}.  For example, enabling top level tracing
+in the previous example might result in the following being output
+\begin{verbatim}
+    Initialising  HMM proto . . . 
+     States   :   2  3  4 (width)
+     Mixes  s1:   1  1  1 ( 26  )
+     Num Using:   0  0  0
+     Parm Kind:  MFCC_E_D
+     Number of owners = 1
+     SegLab   :  ih
+     maxIter  :  20
+     epsilon  :  0.000100
+     minSeg   :  3
+     Updating :  Means Variances MixWeights/DProbs TransProbs
+    16 Observation Sequences Loaded
+    Starting Estimation Process
+    Iteration 1: Average LogP =  -898.24976
+    Iteration 2: Average LogP =  -884.05402  Change =    14.19574
+    Iteration 3: Average LogP =  -883.22119  Change =     0.83282
+    Iteration 4: Average LogP =  -882.84381  Change =     0.37738
+    Iteration 5: Average LogP =  -882.76526  Change =     0.07855
+    Iteration 6: Average LogP =  -882.76526  Change =     0.00000
+    Estimation converged at iteration 7
+    Output written to directory :dir1:
+\end{verbatim}
+The first part summarises the structure of the HMM, in this case, the data is
+single stream MFCC coefficients with energy and deltas appended.  The HMM has
+3 emitting states, each single Gaussian and the stream width is 26.  The current
+option settings are then given followed by the convergence information.  In this
+example, convergence was reached after 6 iterations, however if the \texttt{maxIter}
+limit was reached, then the process would terminate regardless.
+
+\htool{HInit} provides a variety of command line options for controlling 
+its detailed behaviour.
+\index{model training!update control}
+The types of parameter 
+estimated by \htool{HInit} can be controlled
+using the \texttt{-u} option, for example, \texttt{-u mtw} would update the means, 
+transition matrices and
+mixture component weights but would leave the variances untouched.  
+A variance floor\index{variance floors}
+can be applied using the \texttt{-v} to prevent any variance getting too small.   This
+option applies the same variance floor to all speech vector elements.  More precise
+control can be obtained by specifying a variance macro (i.e.\ a \texttt{~v} macro)
+called \texttt{varFloor1}\index{varfloorn@\texttt{varFloorN}} for 
+stream 1, \texttt{varFloor2} for stream 2, etc.  Each
+element of these variance vectors then defines a floor for the corresponding HMM variance
+components.
+
+The full list of options supported by \htool{HInit} is described in the \refpart.
+
+\mysect{Flat Starting with \htool{HCompV}}{flatstart}
+
+One limitation of using \htool{HInit} for the initialisation
+of sub-word models is that it requires labelled training data.
+For cases where this is not readily available, an alternative
+initialisation strategy is to make all models equal initially and
+move straight to embedded training using \htool{HERest}.  The
+idea behind this so-called \textit{flat start} training is similar to the
+uniform segmentation strategy adopted by \htool{HInit} since by making
+all states of all models equal, the first iteration of embedded training
+will effectively rely on a uniform segmentation of the data.
+
+\centrefig{flatst}{90}{Flat Start Initialisation}
+
+Flat start\index{flat start} initialisation is provided by the \HTK\ tool \htool{HCompV} whose operation
+is illustrated by Fig~\href{f:flatst}.  The input/output of HMM definition files
+and training files in \htool{HCompV}\index{hcompv@\htool{HCompV}} works in exactly the same way as described above for
+\htool{HInit}.  It reads in a prototype HMM definition and some training data
+and outputs a new definition in which every mean and covariance is equal to 
+the global speech mean and covariance.  Thus, for example, the following
+command would read a prototype definition called \texttt{proto}, read in all speech
+vectors from \texttt{data1}, \texttt{data2}, \texttt{data3}, etc, 
+compute the global mean and covariance
+and write out a new version of \texttt{proto} in \texttt{dir1} with this mean and
+covariance.
+\begin{verbatim}
+    HCompV -m -H globals -M dir1 proto data1 data2 data3 ...
+\end{verbatim}
+
+The default operation of \htool{HCompV} is only to update the covariances of the HMM
+and leave the means unchanged.  The use of the \texttt{-m} option above causes the
+means to be updated too.  This apparently curious default behaviour arises because
+\htool{HCompV} is also used to initialise the variances in so-called
+\textit{Fixed-Variance} HMMs. These are HMMs initialised in the normal way except
+that all covariances are set equal to the global speech covariance and never
+subsequently changed.\index{fixed-variance}
+
+Finally, it should be noted that \htool{HCompV} can also be used to generate 
+variance floor macros by using the \texttt{-f} option.
+\index{variance floor macros!generating}
+
+\mysect{Isolated Unit Re-Estimation using \htool{HRest}}{resthmm}
+
+\sidefig{restloop}{60}{\htool{HRest} Operation}{2}{ \htool{HRest} is the final tool in the set
+designed to manipulate isolated unit HMMs.  Its operation is very similar to
+\htool{HInit} except that, as shown in Fig~\href{f:restloop},  it expects the input
+HMM definition to have been initialised and it uses Baum-Welch 
+re-estimation\index{Baum-Welch re-estimation!isolated unit} in place
+of Viterbi training.  This involves finding the probability of being in each
+state at each time frame using the \textit{Forward-Backward} algorithm.
+This probability is then used to form weighted averages
+for the HMM parameters.  Thus, whereas Viterbi training makes a hard decision
+as to which state each training vector was ``generated'' by,  Baum-Welch 
+takes a soft decision.  This can be helpful when estimating phone-based HMMs
+since there are no hard boundaries between phones in real speech and using
+a soft decision may give better results.\index{forward-backward!isolated unit}
+The mathematical details of the Baum-Welch re-estimation
+process are given below in section~\ref{s:bwformulae}.
+
+\htool{HRest} is usually applied directly to the models generated by \htool{HInit}. Hence for
+example, the generation of a sub-word model for the phone \texttt{ih} begun
+in section~\ref{s:inithmm}
+would be continued by executing the following command
+}
+
+\begin{verbatim}
+    HRest -S trainlist -H dir1/globals -M dir2 -l ih -L labs dir1/ih
+\end{verbatim}
+This will load the HMM definition for \texttt{ih} from \texttt{dir1},
+re-estimate the parameters using the speech segments labelled with \texttt{ih}
+and write the new definition to directory \texttt{dir2}.
+
+If \htool{HRest} is used to build models with a large number of mixture components per state,
+a strategy must be chosen for dealing with \textit{defunct mixture components}.
+These are mixture components which have very little associated training data and
+as a consequence either the variances or the corresponding mixture weight becomes
+very small. If either of these events happen, the mixture component is effectively
+deleted and provided that at least one component in that state is left, a warning
+is issued.  If this behaviour is not desired then the variance can be floored as
+described previously using the \texttt{-v} option (or a variance floor macro)
+and/or the mixture weight can be floored using the \texttt{-w} option.  
+\index{defunct mixture components}
+
+Finally, a problem which can arise when
+using  \htool{HRest} to initialise sub-word models 
+is that of over-short training 
+segments\index{over-short training segments}.  By default, 
+\htool{HRest} ignores all training examples which have fewer frames than
+the model has emitting states.    For example, suppose that a 
+particular phone with 3 emitting states had only a few training
+examples with more than 2 frames of data.  In this case, there would be two
+solutions.  Firstly, the number of emitting states could be reduced.  Since
+\HTK\ does not require all models to have the same number of states,
+this is perfectly feasible.
+Alternatively, some skip transitions could be added and the default
+reject mechanism disabled by setting the \texttt{-t} option.
+Note here that \htool{HInit} has the same reject mechanism and suffers
+from the same problems.  \htool{HInit}, however, does not allow
+the reject mechanism to be suppressed since the uniform segmentation
+process would otherwise fail.
+
+\mysect{Embedded Training using \htool{HERest}}{eresthmm}
+
+\index{model training!embedded}
+Whereas isolated unit training is sufficient for  building whole  word
+models and initialisation of models using hand-labelled \textit{bootstrap}
+data,  the main HMM training procedures for building sub-word systems
+revolve around the  concept of \textit{embedded training}. Unlike the
+processes described so far,  embedded training\index{embedded training} simultaneously updates all
+of the HMMs in a system using all of the training data.  It is performed by
+\htool{HERest}\index{herest@\htool{HERest}} which, unlike \htool{HRest}, performs just a single iteration.  
+\index{Baum-Welch re-estimation!embedded unit}
+
+In outline, \htool{HERest} works as follows.  On startup, \htool{HERest} 
+loads in a complete
+set of HMM definitions.  Every training file must have an associated
+label file which gives a transcription for that file.  Only the
+sequence of labels is used by \htool{HERest}, however, and any boundary location
+information is ignored.  Thus, these transcriptions can be generated
+automatically from the known orthography of what was said and 
+a pronunciation dictionary.
+
+\htool{HERest} processes each training file in turn.  After loading it into memory,
+it uses the associated transcription to 
+construct a  composite HMM which spans the whole utterance.
+This composite HMM is made by concatenating instances of the phone HMMs 
+corresponding to each label in the transcription.  The Forward-Backward
+algorithm is then applied and the sums needed to form the weighted
+averages accumulated in the normal way.  When all of the training
+files have been processed, the new parameter estimates are formed
+from the weighted sums and the updated HMM set is output.
+\index{forward-backward!embedded}
+
+The mathematical details of embedded Baum-Welch re-estimation
+are given below in section~\ref{s:bwformulae}.
+
+In order to use \htool{HERest}, it is first necessary to construct a 
+file containing a list
+of all HMMs in the model set with each model name being written on a separate line.
+The names of the models in this\index{HMM lists}
+list must correspond to the labels used in the transcriptions and there
+must be a corresponding model for every distinct transcription label.
+\htool{HERest} is typically invoked by a command line of the form
+\begin{verbatim}
+    HERest -S trainlist -I labs -H dir1/hmacs -M dir2 hmmlist
+\end{verbatim}
+where \texttt{hmmlist} contains the list of HMMs.  On startup, \htool{HERest} will 
+load the HMM master macro file (MMF) \texttt{hmacs} (there may be
+several of these).  It then searches for a definition for each
+HMM listed in the \texttt{hmmlist}, if any HMM name is not found, 
+it attempts to open a file of the same name in the current directory
+(or a directory designated by the \texttt{-d} option).
+Usually in large subword systems, however, all of the HMM definitions
+will be stored in MMFs.  Similarly, all of the required transcriptions
+will be stored in one or more Master Label Files
+\index{master label files} (MLFs), and in the
+example, they are stored in the single MLF called \texttt{labs}.
+
+\centrefig{herestdp}{90}{File Processing in \htool{HERest}}
+
+Once all MMFs and MLFs have been loaded, \htool{HERest} processes each file in the
+\texttt{trainlist}, and accumulates the required statistics as described
+above.  On completion, an updated  MMF is output to the directory
+\texttt{dir2}.  If a second iteration is required, then \htool{HERest} is reinvoked
+reading in the MMF from \texttt{dir2} and outputting 
+a new one to \texttt{dir3}, and so on.
+This process is illustrated by Fig~\href{f:herestdp}.
+
+When performing embedded training,  it is good practice to
+monitor the performance of the models on unseen test data
+and stop training when no further improvement is obtained.  Enabling
+top level tracing by setting \texttt{-T 1} will cause \htool{HERest} to
+output the overall log likelihood per frame of the training data.
+This measure could be used as a termination condition for
+repeated application of \htool{HERest}.  However, 
+repeated re-estimation to convergence\index{monitoring convergence} 
+may take an impossibly long time.
+Worse still, it can lead to over-training since the models can become too
+closely matched to the training data and fail to generalise well on unseen
+test data.  Hence in practice around 2 to 5 cycles of 
+embedded re-estimation are normally sufficient when training phone
+models.
+
+In order to get accurate acoustic models, a large amount of training
+data is needed.  Several hundred
+utterances are needed for speaker dependent recognition and
+several thousand are needed for
+speaker independent recognition.  In the latter case, a single
+iteration of embedded training
+might take several hours to compute.  There are two mechanisms for 
+speeding up this computation.  Firstly, \htool{HERest} has a pruning
+\index{model training!pruning} mechanism
+incorporated into its forward-backward computation.  \htool{HERest} calculates
+the backward probabilities $\beta_j(t)$ first and then the forward probabilities
+$\alpha_j(t)$.
+The full computation of these probabilities for all values of state $j$
+and time $t$ is unnecessary since many of these combinations will be highly
+improbable.   On the forward pass, \htool{HERest} restricts the computation of
+the $\alpha$ values to just those for which the total log likelihood 
+as determined by the product $\alpha_j(t)\beta_j(t)$ is
+within a fixed distance from the total likelihood $P(\bm{O}|M)$.  This
+pruning is always enabled since it is completely safe and causes no loss
+of modelling accuracy.  
+
+Pruning on the backward pass is also possible.
+However, in this case, the likelihood product $\alpha_j(t)\beta_j(t)$
+is unavailable since $\alpha_j(t)$ has yet to be computed, and hence a 
+much broader {\it beam} must be set to
+avoid pruning errors.  Pruning on the backward path is therefore under
+user control. It is set using the \texttt{-t} option which has two 
+forms.  In the simplest case, a fixed pruning beam is set.  For example,
+using \texttt{-t 250.0} would set a fixed beam of 250.0.  This method
+is adequate when there is sufficient compute time available to 
+use a generously wide beam.  When a narrower beam is used, \htool{HERest} will 
+reject any utterance for which the beam proves to be too narrow.
+This can be avoided by using an incremental threshold.  For example,
+executing 
+\begin{verbatim}
+    HERest -t 120.0 60.0 240.0 -S trainlist -I labs \
+           -H dir1/hmacs -M dir2 hmmlist
+\end{verbatim}
+would cause \htool{HERest} to run normally
+at a beam width\index{beam width} of 120.0.  However, if a pruning 
+error\index{pruning errors} occurs, the
+beam is increased by 60.0 and \htool{HERest} reprocesses the offending training
+utterance.  Repeated errors cause the beam width to be increased
+again and this continues until either the utterance is 
+successfully processed or the upper beam limit is reached, in this
+case 240.0.  Note that errors which occur at very high beam widths
+are often caused by transcription errors, hence, it is best not to
+set the upper limit too high.
+
+\centrefig{parher}{90}{\htool{HERest} Parallel Operation}
+
+\index{model training!in parallel}
+The second way of speeding-up the operation of \htool{HERest} is to use more than
+one computer in parallel.  The way that this is done is to divide the
+training data amongst the available machines and then to run \htool{HERest} on each
+machine such that each invocation of \htool{HERest} 
+uses the same initial set of models but has its own private set of data.
+By setting the option {\tt -p N} where {\tt N} is an integer, \htool{HERest} will
+dump the contents of all its accumulators\index{accumulators}  into a file called {\tt HERN.acc}
+rather than updating and outputting a new set of models.  These dumped
+files are collected together and input to a new invocation of \htool{HERest} with
+the option {\tt -p 0} set.  \htool{HERest} then reloads the accumulators from
+all of the dump files and updates the models in the normal way.
+This process is illustrated in Figure~\href{f:parher}.
+
+To give a concrete example, suppose that four networked workstations
+were available to execute the \htool{HERest} command given earlier. The training files 
+listed previously in \texttt{trainlist} would be split 
+into four equal sets and a list
+of the files in each set stored in {\tt trlist1}, 
+{\tt trlist2}, {\tt trlist3}, and {\tt trlist4}.
+On the first workstation, the command
+\begin{verbatim}
+    HERest -S trlist1 -I labs -H dir1/hmacs -M dir2 -p 1 hmmlist
+\end{verbatim}
+would be executed.  This will load in the HMM definitions in 
+{\tt dir1/hmacs}, process the files listed in {\tt trlist1} and finally
+dump its accumulators into a file called {\tt HER1.acc} in the output
+directory {\tt dir2}.  At the same time, the command
+\begin{verbatim}
+    HERest -S trlist2 -I labs -H dir1/hmacs -M dir2 -p 2 hmmlist
+\end{verbatim}
+would be executed on the second workstation, and so on.  When 
+\htool{HERest} has finished on all four
+workstations,  the following command will be executed on just one of them
+\begin{verbatim}
+    HERest -H dir1/hmacs -M dir2 -p 0 hmmlist dir2/*.acc
+\end{verbatim}
+where the list of training files has been replaced by the dumped accumulator
+files.  This will cause the accumulated
+statistics to be reloaded and merged so that the model parameters can
+be reestimated and the new model set output to \texttt{dir2}
+The time to perform this last phase of the operation is very small, hence
+the whole process will be around four times quicker than for the
+straightforward sequential case. 
+
+\mysect{Single-Pass Retraining}{singlepass}
+
+In addition to re-estimating the parameters of a HMM set, \htool{HERest}
+also provides a mechanism for mapping a set of models trained using
+one parameterisation into another set based on a different parameterisation.
+This facility allows the front-end of a HMM-based recogniser to be 
+modified without having to rebuild the models from scratch.
+
+This facility is known as single-pass retraining\index{single-pass retraining}.
+Given one set of well-trained models, a new set matching a
+different training data parameterisation can be generated in a single
+re-estimation pass. This is done by computing the forward and backward
+probabilities using the original models together with the original
+training data, but then switching to the new training data to compute
+the parameter estimates for the new set of models.
+
+Single-pass retraining is enabled in \htool{HERest} by setting the
+\texttt{-r} switch.  This causes the input training files to be read
+in pairs.  The first of each pair is used to compute the
+forward/backward probabilities and the second is used to estimate the
+parameters for the new models.  Very often, of course, data input to
+\HTK\ is modified by the \htool{HParm} module in accordance with
+parameters set in a configuration file.  In single-pass retraining mode,
+configuration parameters can be prefixed by the pseudo-module names
+\texttt{HPARM1} and \texttt{HPARM2}.  Then when reading in the first
+file of each pair, only the \texttt{HPARM1} parameters are used and
+when reading the second file of each pair, only the \texttt{HPARM2}
+parameters are used.\index{configuration parameters!switching}
+
+As an example, suppose that a set of models has been trained on data
+with \texttt{MFCC\_E\_D} parameterisation and a new set of models using
+Cepstral Mean Normalisation (\texttt{\_Z}) is required. These two data
+parameterisations are specified in a configuration file
+(\texttt{config}) as two separate instances of the configuration
+variable \texttt{TARGETKIND} i.e.
+\begin{verbatim}
+    # Single pass retraining
+    HPARM1: TARGETKIND = MFCC_E_D
+    HPARM2: TARGETKIND = MFCC_E_D_Z
+\end{verbatim}
+\htool{HERest} would then be invoked with the \texttt{-r} option set to enable 
+single-pass retraining. For example,
+\begin{verbatim}
+    HERest -r -C config -S trainList -I labs -H dir1/hmacs -M dir2 hmmList
+\end{verbatim}
+The script file  \texttt{trainlist} contains a list of data file
+pairs. For each pair, the first file should match the parameterisation of 
+the original model set and the second file should match that of the
+required new set.
+This will cause the model parameter estimates to be performed using the 
+new set of training data and a new set of models matching this data will  
+be output to \texttt{dir2}. This process of single-pass retraining is
+a significantly faster route to a new set of models than training a fresh 
+set from scratch.
+
+\mysect{Two-model Re-Estimation}{twomodel}
+
+Another method for initialisation of model parameters implemented in
+\htool{HERest} is two-model re-estimation. HMM sets often use the same
+basic units such as triphones but differ in the way the underlying HMM
+parameters are tied. In these cases two-model re-estimation can be
+used to obtain the state-level alignment using one model set which is
+used to update the parameters of a second model set. This is helpful
+when the model set to be updated is less well trained.
+
+A typical use of two-model re-estimation\index{two-model
+  re-estimation} is the initialisation of state clustered triphone
+models. In the standard case triphone models are obtained by cloning
+of monophone models and subsequent clustering of triphone states.
+However, the unclustered triphone models are considerably less
+powerful than state clustered triphone HMMs using mixtures of
+Gaussians. The consequence is poor state level alignment and thus poor
+parameter estimates, prior to clustering.  This can be ameliorated by
+the use of well-trained \textit{alignment models} for computing the
+forward-backward probabilities. In the maximisation stage of the
+Baum-Welch algorithm the state level posteriors are used to
+re-restimate the parameters of the \textit{update model set}. Note that
+the corresponding models in the two sets must have the same number of
+states.
+
+As an example, suppose that we would like to update a set of cloned
+single Gaussian monophone models in {\tt dir1/hmacs} using the well
+trained state-clustered triphones in {\tt dir2/hmacs} as alignment
+models. Associated with each model set are the model lists {\tt
+  hmmlist1} and {\tt hmmlist2} respectively. In order to use the
+second model set for alignment a configuration file {\tt
+  config.2model} containing
+\begin{verbatim}
+   # alignment model set for two-model re-estimation
+   ALIGNMODELMMF = dir2/hmacs
+   ALIGNHMMLIST  = hmmlist2
+\end{verbatim}
+is necessary. \htool{HERest} only needs to be invoked using that
+configuration file.
+\begin{verbatim}
+   HERest -C config -C config.2model -S trainlist -I labs -H dir1/hmacs -M dir3 hmmlist1
+\end{verbatim}
+The models in directory {\tt dir1} are updated using the alignment
+models stored in directory {\tt dir2} and the result is written to
+directory {\tt dir3}. Note that {\tt trainlist} is a standard \HTK\ 
+script and that the above command uses the capability of HERest to
+accept multiple configuration files on the command line. If each HMM
+is stored in a separate file, the configuration variables {\tt
+  ALIGNMODELDIR} and {\tt ALIGNMODELEXT} can be used.
+
+Only the state level alignment is obtained using the alignment models.
+In the exceptional case that the update model set contains mixtures of
+Gaussians, component level posterior probabilities are obtained from
+the update models themselves.
+
+\mysect{Parameter Re-Estimation Formulae}{bwformulae}
+
+\index{model training!re-estimation formulae}
+For reference purposes, this section lists the various formulae 
+employed within the \HTK\ parameter estimation tools. 
+All are standard, however, the use of non-emitting
+states and multiple data streams leads to various special cases which are
+usually not covered fully in the literature.
+
+The following notation is used in this section
+\begin{tabbing}
+++ \= ++++++++ \= \kill
+\> $N$ \> number of states \\
+\> $S$ \> number of streams \\
+\> $M_s$ \> number of mixture components in stream $s$\\
+\> $T$ \> number of observations \\
+\> $Q$ \> number of models in an embedded training sequence \\
+\> $N_q$ \> number of states in the $q$'th model in a training sequence \\
+\> $\bm{O}$      \> a sequence of observations \\
+\> $\bm{o}_t$    \> the observation at time $t$, $1 \leq t \leq T $ \\
+\> $\bm{o}_{st}$ \> the observation vector for stream $s$ at time $t$ \\
+\> $a_{ij}$       \> the probability of a transition from state $i$ to $j$ \\
+\> $c_{jsm}$    \> weight of mixture component $m$ in state $j$ stream $s$\\
+\> $\bm{\mu}_{jsm}$  \> vector of means for the mixture component $m$ of state $j$
+                        stream $s$\\ 
+\> $\bm{\Sigma}_{jsm}$  \> covariance matrix for the mixture component $m$ 
+                         of state $j$  stream $s$ \\
+\> $\lambda$ \> the set of all parameters defining a HMM
+\end{tabbing}
+
+\subsection{Viterbi Training (\htool{HInit})}
+
+\index{model training!Viterbi formulae}
+In this style of model training, a set of training observations
+$\bm{O}^r, \;\; 1 \leq r \leq R$ is used to estimate the 
+parameters of a single HMM by iteratively computing Viterbi alignments.
+When used to initialise a new HMM, the Viterbi segmentation is
+replaced by a uniform segmentation (i.e.\ each training
+observation is divided into $N$ equal segments) 
+for the first iteration.
+
+Apart from the first iteration on a new model, 
+each training sequence $\bm{O}$ is segmented using a state alignment procedure
+which results from maximising
+\[
+    \phi_N(T) = \max_i \phi_i(T) a_{iN}
+\]
+for $1<i<N$ where
+\[
+  \phi_j(t) = \left[ \max_i \phi_i(t-1) a_{ij} \right] b_j(\bm{o}_t)
+\]
+with initial conditions given by 
+\[
+    \phi_1(1) = 1
+\]
+\[
+    \phi_j(1) = a_{1j} b_j(\bm{o}_1)
+\]
+for $1<j<N$. 
+In this and all subsequent cases, the output  probability $b_j(\cdot)$ is as defined in
+equations~\ref{e:cdpdf} and \ref{e:gnorm} in section~\ref{s:HMMparm}.
+
+If $A_{ij}$ represents the total number of transitions from state $i$ to state $j$
+in performing the above maximisations, then the transition probabilities can
+be estimated from the relative frequencies
+\[
+  \hat{a}_{ij} = \frac{A_{ij}}{\sum_{k=2}^{N}A_{ik}}
+\]
+
+The sequence of states which maximises $\phi_N(T)$ implies an alignment of
+training data observations with states.  Within each state, a further alignment
+of observations to mixture components is made.  The tool \htool{HInit} provides
+two mechanisms for this:  for each state and each stream
+\begin{enumerate}
+\item use clustering to allocate each observation $\bm{o}_{st}$ to one of $M_s$ clusters, or
+\item associate each observation $\bm{o}_{st}$ with the mixture component with the
+       highest probability
+\end{enumerate}
+In either case, the net result is that every observation is associated with a single
+unique mixture component.  This association can be
+represented by the indicator function $\psi^r_{jsm}(t)$ which is 1
+if $\bm{o}^r_{st}$ is associated with mixture component $m$ of stream $s$ of 
+state $j$ and is zero otherwise.
+
+The means and variances are then estimated via simple averages
+\newcommand{\vitsum}[2]{
+                  \sum_{r=1}^R  \sum_{t=1}^{T_r} #1 \psi^r_{js#2}(t)
+}
+
+\[
+   \hat{\bm{\mu}}_{jsm} = \frac{
+                \vitsum{}{m}\bm{o}^r_{st}}{\vitsum{}{m}}
+\]
+
+\[
+   \hat{\bm{\Sigma}}_{jsm} = \frac{
+        \vitsum{}{m}(\bm{o}^r_{st} - \hat{\bm{\mu}}_{jsm})
+                                        (\bm{o}^r_{st} - \hat{\bm{\mu}}_{jsm})^\transpose
+                }{\vitsum{}{m}}
+\]
+
+Finally, the mixture  weights are based on the number of
+observations allocated to each component
+\[
+   \bm{c}_{jsm} = \frac{\vitsum{}{m}}{
+        \vitsum{\sum_{l=1}^{M_s}}{l} }
+\]
+
+\subsection{Forward/Backward Probabilities}
+
+\index{model training!forward/backward formulae}
+Baum-Welch training is similar to the Viterbi training described
+in the previous section except that the \textit{hard} boundary implied
+by the $\psi$ function is replaced by a \textit{soft} boundary
+function $L$ which represents the probability of an observation being
+associated any given Gaussian mixture component.  
+This \textit{occupation} probability is computed from the \textit{forward}
+and \textit{backward} probabilities.
+
+For the isolated-unit style of training, the forward 
+probability $\alpha_j(t)$ for $1<j<N$ and
+$1<t \leq T$ is calculated by the forward recursion
+\[
+    \alpha_j(t) = \left[ \sum_{i=2}^{N-1} \alpha_i(t-1) a_{ij} \right]
+                     b_j(\bm{o}_t)
+\]
+with initial conditions given by 
+\[
+    \alpha_1(1) = 1
+\]
+\[
+    \alpha_j(1) = a_{1j} b_j(\bm{o}_1)
+\]
+for $1<j<N$ and final condition given by
+\[
+    \alpha_N(T) = \sum_{i=2}^{N-1} \alpha_i(T) a_{iN}
+\]
+
+The backward probability $\beta_i(t)$ for $1<i<N$ and $T>t \geq 1$ is 
+calculated by the backward recursion
+\[
+   \beta_i(t) = \sum_{j=2}^{N-1} a_{ij} b_j(\bm{o}_{t+1}) \beta_j(t+1)
+\]
+with initial conditions given by
+\[
+   \beta_i(T) = a_{iN}
+\]
+for $1<i<N$ and final condition given by
+\[
+   \beta_1(1) = \sum_{j=2}^{N-1} a_{1j} b_j(\bm{o}_1) \beta_j(1)
+\]
+
+In the case of embedded training where the HMM spanning the observations
+is a composite constructed by concatenating $Q$ subword models, it is
+assumed that at time $t$, the $\alpha$ and $\beta$
+values corresponding to the entry state and exit states of a HMM
+represent the forward and backward probabilities at time $t-\Delta t$
+and $t+\Delta t$, respectively, where $\Delta t$ is small.  The equations
+for calculating $\alpha$ and $\beta$ are then as follows.
+
+For the forward probability, the initial conditions are established at
+time $t=1$ as follows
+\[
+   \alpha^{(q)}_{1}(1) = 
+        \left\{ \begin{array}{cl}
+                              1 & \mbox{if $q=1$} \\
+                   \alpha^{(q-1)}_1(1)  a^{(q-1)}_{1N_{q-1}} & \mbox{otherwise}
+                \end{array}
+        \right.
+\]
+\[
+   \alpha^{(q)}_{j}(1) = a^{(q)}_{1j} b^{(q)}_j(\bm{o}_1)
+\]
+\[
+   \alpha^{(q)}_{N_q}(1) = 
+        \sum_{i=2}^{N_q-1} \alpha^{(q)}_{i}(1) a^{(q)}_{iN_q}
+\]
+where the superscript in parentheses refers to the index of the model in 
+the sequence of concatenated models.  All unspecified values of $\alpha$
+are zero.  For time $t > 1$, 
+\[
+   \alpha^{(q)}_{1}(t) = 
+        \left\{ \begin{array}{cl}
+                              0 & \mbox{if $q=1$} \\
+                   \alpha^{(q-1)}_{N_{q-1}}(t-1) + 
+                   \alpha^{(q-1)}_1(t)  a^{(q-1)}_{1N_{q-1}}& \mbox{otherwise}
+                \end{array}
+        \right.
+\]
+\[
+    \alpha^{(q)}_j(t) = 
+          \left[ 
+               \alpha^{(q)}_1(t) a^{(q)}_{1j} + 
+                \sum_{i=2}^{N_q-1} \alpha^{(q)}_{i}(t-1) a^{(q)}_{ij}
+          \right]
+          b^{(q)}_j(\bm{o}_t)
+\]
+\[
+   \alpha^{(q)}_{N_q}(t) = 
+        \sum_{i=2}^{N_q-1} \alpha^{(q)}_{i}(t) a^{(q)}_{iN_q}
+\]
+For the backward probability, the initial conditions are set at time
+$t=T$ as follows
+\[
+   \beta^{(q)}_{N_q}(T) = 
+        \left\{ \begin{array}{cl}
+                              1 & \mbox{if $q=Q$} \\
+                   \beta^{(q+1)}_{N_{q+1}}(T) a^{(q+1)}_{1N_{q+1}} & \mbox{otherwise}
+                \end{array}
+        \right.
+\]
+\[
+   \beta^{(q)}_i(T) = a^{(q)}_{iN_q} \beta^{(q)}_{N_q}(T)
+\]
+\[
+   \beta^{(q)}_1(T) = \sum^{N_q - 1}_{j=2} 
+                  a^{(q)}_{1j} b^{(q)}_j(\bm{o}_T) \beta^{(q)}_j(T)
+\]
+where once again, all unspecified $\beta$ values are zero.  For
+time $t<T$,
+\[
+   \beta^{(q)}_{N_q}(t) = 
+        \left\{ \begin{array}{cl}
+                              0 & \mbox{if $q=Q$} \\
+                   \beta^{(q+1)}_1(t+1)+ \beta^{(q+1)}_{N_{q+1}} (t) 
+                               a^{(q+1)}_{1N_{q+1}} & \mbox{otherwise}
+                \end{array}
+        \right.
+\]
+\[
+    \beta^{(q)}_i(t) = 
+                a^{(q)}_{iN_q} \beta^{(q)}_{N_q}(t) +
+               \sum_{j=2}^{N_q-1} a^{(q)}_{ij} 
+                      b^{(q)}_j(\bm{o}_{t+1}) \beta^{(q)}_{j}(t+1) 
+\]
+\[
+   \beta^{(q)}_{1}(t) = 
+        \sum_{j=2}^{N_q-1} a^{(q)}_{1j} b^{(q)}_j(\bm{o}_t) 
+                          \beta^{(q)}_{j}(t) 
+\]
+
+
+
+
+The total probability $P = \mbox{prob}(\bm{O} | \lambda)$ can be computed
+from either the forward or backward probabilities
+\[
+P = \alpha_N(T) = \beta_1(1)
+\]
+
+\subsection{Single Model Reestimation(\htool{HRest})}
+
+\index{model training!isolated unit formulae}
+In this style of model training, a set of training observations
+$\bm{O}^r, \;\; 1 \leq r \leq R$ is used to estimate the 
+parameters of a single HMM. The
+basic formula for the reestimation of the transition probabilities is
+\newcommand{\albe}[1]{
+                  \sum_{r=1}^R \frac{1}{P_r}
+                  \sum_{t=1}^{T_r}
+                  \alpha^r_#1(t)\beta^r_#1(t)
+}
+\[
+   \hat{a}_{ij} = \frac{
+                  \sum_{r=1}^R \frac{1}{P_r}
+                  \sum_{t=1}^{T_r-1}
+                  \alpha^r_i(t)a_{ij}b_j(\bm{o}^r_{t+1})\beta^r_j(t+1)
+                    }{\albe{i}}
+\]
+where $1<i<N$ and $1<j<N$ and $P_r$ is the total probability
+$P = \mbox{prob}(\bm{O}^r | \lambda)$ of the $r$'th observation.  
+The transitions from the non-emitting entry state are reestimated by
+\[
+   \hat{a}_{1j} = \frac{1}{R} 
+                  \sum_{r=1}^R \frac{1}{P_r}
+                  \alpha^r_j(1) \beta^r_j(1)
+\]
+where $1<j<N$ and the transitions from the emitting states to the final
+non-emitting exit state are reestimated by
+\[   
+   \hat{a}_{iN} = \frac{
+                  \sum_{r=1}^R \frac{1}{P_r}
+                  \alpha^r_i(T)\beta^r_i(T)
+                    }{
+                  \sum_{r=1}^R \frac{1}{P_r}
+                  \sum_{t=1}^{T_r}
+                  \alpha^r_i(t)\beta^r_i(t)
+                    }
+\]
+where $1<i<N$.
+
+For a HMM with $M_s$ mixture components in stream $s$, the means, covariances
+and mixture weights for that stream are reestimated as follows.
+Firstly, the probability of occupying the $m$'th mixture component in stream
+$s$ at time $t$ for the $r$'th observation is
+\[
+  L^r_{jsm}(t) = \frac{1}{P_r} U^r_j(t) c_{jsm} b_{jsm}(\bm{o}^r_{st})
+                  \beta^r_j(t) b^*_{js}(\bm{o}^r_t)
+\]
+where
+\hequation{
+  U^r_j(t) = \left\{ \begin{array}{cl}
+                              a_{1j}             & \mbox{if $t=1$} \\
+                   \sum^{N-1}_{i=2} \alpha^r_i(t-1) 
+                       a_{ij}         & \mbox{otherwise}
+                \end{array}
+        \right.
+}{urjt}
+and
+\[
+     b^*_{js}(\bm{o}^r_t) = \prod_{k \neq s} b_{jk}(\bm{o}^r_{kt})
+\]
+For single Gaussian streams, the probability of mixture component occupancy is
+equal to the probability of state occupancy and hence it is more efficient
+in this case to use
+\[
+        L^r_{jsm}(t) =  L^r_{j}(t) = \frac{1}{P_r} \alpha_j(t) \beta_j(t)
+\]
+
+Given the above definitions, the re-estimation formulae may 
+now be expressed in terms of $L^r_{jsm}(t)$ as 
+follows.
+
+\newcommand{\liksum}[1]{
+                  \sum_{r=1}^R  \sum_{t=1}^{T_r} L^r_{#1}(t)
+}
+
+\[
+   \hat{\bm{\mu}}_{jsm} = \frac{
+                \liksum{jsm}\bm{o}^r_{st}}{\liksum{jsm}}
+\]
+
+\hequation{
+   \hat{\bm{\Sigma}}_{jsm} = \frac{
+        \liksum{jsm}(\bm{o}^r_{st} - \hat{\bm{\mu}}_{jsm})
+                                        (\bm{o}^r_{st} - \hat{\bm{\mu}}_{jsm})^\transpose
+                }{\liksum{jsm}}
+}{sigjsm}
+
+\[
+   \bm{c}_{jsm} = \frac{\liksum{jsm}}{\liksum{j}}
+\]
+
+\subsection{Embedded Model Reestimation (\htool{HERest})}
+
+\index{model training!embedded subword formulae}
+The re-estimation formulae for the embedded model case have
+to be modified to take account of the fact that the
+entry states can be occupied at any time as a result
+of transitions out of the previous model.  The basic
+formulae for the re-estimation of the transition
+probabilities is
+\newcommand{\albeq}[1]{
+                  \sum_{r=1}^R \frac{1}{P_r}
+                  \sum_{t=1}^{T_r}
+                  \alpha^{(q)r}_#1(t)\beta^{(q)r}_#1(t)
+}
+\[
+   \hat{a}^{(q)}_{ij} = \frac{
+                  \sum_{r=1}^R \frac{1}{P_r}
+                  \sum_{t=1}^{T_r-1}
+      \alpha^{(q)r}_i(t) a^{(q)}_{ij}b^{(q)}_j(\bm{o}^r_{t+1})
+         \beta^{(q)r}_j(t+1)
+                    }{\albeq{i}}
+\]
+The transitions from the non-emitting entry states into the HMM are re-estimated by
+\[
+   \hat{a}^{(q)}_{1j} = \frac{
+                  \sum_{r=1}^R \frac{1}{P_r}
+                  \sum_{t=1}^{T_r-1}
+      \alpha^{(q)r}_1(t) a^{(q)}_{1j}b^{(q)}_j(\bm{o}^r_{t})
+         \beta^{(q)r}_j(t)
+                    }{\albeq{1} + \alpha^{(q)r}_{1}(t)a^{(q)}_{1N_q}\beta^{(q+1)r}_1(t)}
+\]
+and the transitions out of the HMM into the non-emitting exit states are re-estimated by
+\[
+   \hat{a}^{(q)}_{iN_q} = \frac{
+                  \sum_{r=1}^R \frac{1}{P_r}
+                  \sum_{t=1}^{T_r-1}
+      \alpha^{(q)r}_i(t) a^{(q)}_{iN_q} \beta^{(q)r}_{N_q}(t)
+                    }{\albeq{i}}
+\]
+Finally, the direct transitions from non-emitting entry to 
+non-emitting exit states are
+re-estimated by
+\[
+   \hat{a}^{(q)}_{1N_q} = \frac{
+                  \sum_{r=1}^R \frac{1}{P_r}
+                  \sum_{t=1}^{T_r-1}
+      \alpha^{(q)r}_1(t) a^{(q)}_{1N_q}
+         \beta^{(q+1)r}_1(t)
+                    }{\albeq{i} + \alpha^{(q)r}_{1}(t)a^{(q)}_{1N_q}\beta^{(q+1)r}_1(t)}
+\]
+
+
+
+The re-estimation formulae for the output distributions are the
+same as for the single model case except 
+for the obvious additional subscript for $q$.  However, the
+probability calculations must now allow for transitions from the
+entry states by changing $U^r_j(t)$ in equation~\ref{e:urjt} to
+\[
+  U^{(q)r}_j(t) = \left\{ \begin{array}{cl}
+                              \alpha^{(q)r}_1(t) a^{(q)}_{1j}   & \mbox{if $t=1$} \\
+                   \alpha^{(q)r}_1(t) a^{(q)}_{1j} + 
+                   \sum^{N_q-1}_{i=2} \alpha^{(q)r}_i(t-1) 
+                       a^{(q)}_{ij}         & \mbox{otherwise}
+                \end{array}
+        \right.
+\]
+
+\subsection{Semi-Tied Transform Estimation (\htool{HERest})}
+In addition to estimating the standard parameters above \htool{HERest}
+can be used to estimated semi-tied transforms and HLDA projections.
+This section describes semi-tied transforms,  the updates for HLDA
+are very similar. 
+
+Semi-tied covariance matrices have the form
+\begin{eqnarray}
+{\bm{\mu}}_{m_r} = \bm{\mu}_{m_r}, \:\:\:\: 
+{\bm{\Sigma}}_{m_r} = {\bm H}_r{\bm{\Sigma}}^{\tt diag}_{m_r}{\bm H}_r^\transpose
+\end{eqnarray}
+For efficiency reasons the transforms are stored and likelihoods
+calculated using
+\hequation{ 
+       {\cal N}(\bm{o};\bm{\mu}_{m_r},\bm{H}_r\bm{\Sigma}_{m_r}^{\tt diag}\bm{H}_r^\transpose) = 
+       \frac{1}{|\bm{H}_r|}{\cal N}(\bm{H}_r^{-1}\bm{o};\bm{H}_r^{-1}\bm{\mu}_{m_r},\bm{\Sigma}^{\tt diag}_{m_r}) = 
+       {|\bm{A}_r|}{\cal N}(\bm{A}_r\bm{o};\bm{A}_r\bm{\mu}_{m_r},\bm{\Sigma}^{\tt diag}_{m_r})
+} {covlike2}
+where $\bm{A}_r=\bm{H}_r^{-1}$. The transformed mean, $\bm{A}_{r}\bm{\mu}_{m_r}$, is stored
+in the model files rather than the original mean for efficiency.
+
+The estimation of semi-tied transforms is a doubly iterative process. 
+Given a current set of covariance matrix estimates the semi-tied 
+transforms are estimated in a similar fashion to the full variance
+{\tt MLLRCOV} transforms.
+\begin{eqnarray}
+{\bf a}_{ri} ={\bf c}_{ri}{\bf G}^{(i)-1}_r
+\sqrt{\left(\frac{\beta_r}{{\bf
+c}_{ri}{\bf G}_r^{(i)-1}{\bf c}^\transpose_{ri}}\right)}
+\end{eqnarray}
+where ${\bf a}_{ri}$ is $i^{th}$ row of ${\bm
+A}_r$, the $1\times n$ row vector ${\bf c}_{ri}$ is the vector of
+cofactors of ${\bm A}_r$, $c_{rij}={\mbox{cof}}({\bm A}_{rij})$,
+and  ${\bf G}^{(i)}_r$ is defined as
+\begin{eqnarray}
+{\bf G}^{(i)}_r=\sum_{m_r=1}^{M_r}
+\frac{1}{\sigma_{m_ri}^{{\tt diag}2}}
+\sum_{t=1}^TL_{m_r}(t)(\bm{o}(t)-{\bm{\mu}}_{m_r})
+(\bm{o}(t)-{\bm{\mu}}_{m_r})^\transpose
+\label{eq:gi_st}
+\end{eqnarray}
+This iteratively estimates one row of the transform at a time.  The number of 
+iterations is controlled by the \htool{HAdapt} configuration 
+variable {\tt MAXXFORMITER}.
+
+Having estimated the transform the diagonal covariance matrix is updated
+as
+\begin{eqnarray}
+\bm{\Sigma}^{\tt diag}_{m_r} = {\mbox{diag}}\left(\frac{
+{\bm A}_r\sum_{t=1}^TL_{m_r}(t)(\bm{o}(t)-{\bm{\mu}}_{m_r})
+(\bm{o}(t)-{\bm{\mu}}_{m_r})^\transpose{\bm A}_r^\transpose}
+{\sum_{t=1}^TL_{m_r}(t)}
+\right)
+\end{eqnarray}
+This is the second look as given a new estimate of the diagonal
+variance a new transform can be estimated. The number of iterations
+of transform and covariance matrix update is controlled by the 
+\htool{HAdapt} configuration variable {\tt MAXSEMITIEDITER}
+
+\mysect{Discriminative Training}{discriminative}
+
+The previous sections have described how maximum likelihood (ML)-based
+estimates of the HMM model parameters can be initialised and estimated. This
+section briefly describes how discriminative training is implemented in
+HTK. It is not meant as a definitive guide to discriminative training, it 
+aims to give sufficient information so that the configuration and
+command-line options associated with the discriminative training tool
+\htool{HMMIRest} can be understood.
+
+HTK supports discriminative training using the \htool{HMMIRest} tool.  The use
+of both the \textit{Maximum Mutual Information} (MMI) and \textit{Minimum
+Phone Error} (MPE) training criteria are supported. In both cases the aim is
+to estimate the HMM parameters in such a way as to (approximately) reduce the
+error rate on the training data. Hence the criteria take into account not
+only the actual word-level transcription of the training data but also
+``confusable'' hypotheses which give rise to similar language model / acoustic
+model log likelihoods. The form of MMI criterion to be maximised may be
+expressed as \footnote{This form of criterion assumes that the language model
+parameters are fixed. As such it should really be called maximum conditional likelihood estimation.}
+\begin{eqnarray}
+{\cal F}_{\tt mmi}(\lambda) &=& \frac{1}{R}\sum_{r=1}^R\log\left(
+P({\cal H}^r_{\tt ref}|\bm{O}^r,\lambda)
+\right) \nonumber \\
+&=& \frac{1}{R}\sum_{r=1}^R\log\left(
+\frac{P(\bm{O}^r|{\cal H}^r_{\tt ref},\lambda)P({\cal H}^r_{\tt ref})}
+{\sum_{\cal H}P(\bm{O}^r|{\cal H},\lambda)P({\cal H})}
+\right)
+\end{eqnarray}
+Thus the average log-posterior of the reference, ${\cal H}^r_{\tt ref}$, is
+maximised. Here the summation for ${\cal H}$ is over all possible word
+sequences. In practice this is restricted to the set of confusable hypotheses,
+which will be defined by a lattice.
+
+The MPE training criterion is an example of minimum Bayes' risk
+training\footnote{The minimum word error rate (MWE) criterion is also
+implemented. However MPE has been found to perform slightly better on
+current large vocabulary speech recognition systems.}. The general 
+expression to be minimised can be expressed as
+\begin{eqnarray}
+{\cal F}_{\tt mpe}(\lambda) = \sum_{r=1}^R\sum_{\cal H}P({\cal H}|\bm{O}^r,\lambda)
+{\cal L}({\cal H},{\cal H}^r_{\tt ref})
+\end{eqnarray}
+where ${\cal L}({\cal H},{\cal H}^r_{\tt ref})$ is the ``loss'' between the 
+hypothesis ${\cal H}$ and the reference, ${\cal H}^r_{\tt ref}$. In general, there are
+various forms of loss function that may be used. However, in MPE training, the loss
+function is measured in terms of the the  Levenshtein edit distance between
+the phone sequences of the reference and the hypothesis. In HTK,
+rather than minimising this expression, the normalised average phone accuracy 
+is maximised. This may be expressed as
+\begin{eqnarray}
+{\hat{\lambda}} = \arg\max_{\lambda}\left\{
+1 - \frac{1}{\sum_{r=1}^RQ^r}{\cal F}_{\tt mpe}(\lambda)
+\right\}
+\end{eqnarray}
+where $Q^r$ is the number of phones in the transcription for training sequence $r$.
+
+In the \htool{HMMIRest} implementation the language model scores, including
+the grammar scale factor are combined into the acoustic models to yield a
+numerator acoustic model, ${\cal M}^{\tt num}_r$, and a denominator acoustic
+model, ${\cal M}^{\tt den}_r$ for utterance $r$. In this case the MMI criterion can be expressed as 
+\begin{eqnarray}
+{\cal F}_{\tt mmi}(\lambda) = \sum_{r=1}^R\log\left(
+\frac{P(\bm{O}^r|{\cal M}^{\tt num}_r)}
+{P(\bm{O}^r|{\cal M}^{\tt den}_r)}
+\right)
+\end{eqnarray}
+and the MPE criterion is expressed as
+\begin{eqnarray}
+{\cal F}_{\tt mpe}(\lambda) = \sum_{r=1}^R\sum_{\cal H}
+\left(\frac{P(\bm{O}^r|{\cal M}_{\cal H})}
+{P(\bm{O}^r|{\cal M}^{\tt den}_r)}\right)
+{\cal L}({\cal H},{\cal H}^r_{\tt ref})
+\end{eqnarray}
+where ${\cal M}_{\cal H}$ is the acoustic model for hypothesis
+${\cal H}$. 
+
+In practice approximate forms of the MMI and normalised average phone accuracy
+criteria are optimised. 
+
+\newcommand{\liksumdisc}[1]{
+                  \sum_{r=1}^R  \sum_{t=1}^{T_r} (L^{{\tt num}r}_{#1}(t) - L^{{\tt den}r}_{#1}(t))
+}
+\subsection{Discriminative Parameter Re-Estimation Formulae}
+For both MMI and MPE training the estimation of the model parameters are based
+on variants of the Extended Baum-Welch (EBW) algorithm. In HTK the following
+form is used to estimate the means and covariance matrices\footnote{Discriminative training with multiple streams can also be
+run. However to simplify the notation it is assumed that only a single stream
+is being used.}
+\begin{eqnarray}
+\hat{\bm{\mu}}_{jm} = \frac{\liksumdisc{jm}\bm{o}^r_t + D_{jm}{\bm{\mu}}_{jm}
++ \tau^{\tt I}{\bm\mu}^{\tt p}_{jm}}
+{\liksumdisc{jm} + D_{jm} + \tau^{\tt I}}
+\end{eqnarray}
+and
+\begin{eqnarray}
+\hat{\bm{\Sigma}}_{jm} = \frac{\liksumdisc{jm}\bm{o}^r_t\bm{o}^{r\transpose}_t
++ D_{jm}{\bf G}_{jm}^{\tt s}
++ \tau^{\tt I}{\bf G}_{jm}^{\tt p}}
+{\liksumdisc{jm} + D_{jm} + \tau^{\tt I}}
+- \hat{\bm{\mu}}_{jm}\hat{\bm{\mu}}^\transpose_{jm}
+\end{eqnarray}
+where
+\begin{eqnarray}
+{\bf G}_{jm}^{\tt s} = {\bm\Sigma}_{jm} + {\bm\mu}_{jm}{\bm\mu}_{jm}^\transpose\\
+{\bf G}_{jm}^{\tt p} = {\bm\Sigma}^{\tt p}_{jm} + {\bm\mu}^{\tt
+p}_{jm}{\bm\mu}^{{\tt p}\transpose}_{jm}
+\end{eqnarray}
+The difference between the MMI and MPE criteria lie in how the numerator,
+$L^{{\tt num}r}_{jm}(t)$, and denominator, $L^{{\tt den}r}_{jm}(t)$,
+``occupancy probabilities'' are computed. For MMI, these are the posterior 
+probabilities of Gaussian component occupation for either the numerator or denominator lattice. However for MPE, in order to keep the same form of re-estimation
+formulae as MMI, an MPE-based analogue of the ``occupation
+probability'' is computed which is related to an approximate error
+measure for each phone marked for the denominator: the
+positive values are treated as numerator statistics and negative
+values as denominator statistics.
+
+In these update formulae there are a
+number of parameters to be set.
+\begin{itemize}
+\item Smoothing constant, $D_{jm}$: this is a state-component specific
+parameter that determines the contribution of the counts from the current
+model parameter estimates. In \htool{HMMIRest} this is set at
+\begin{eqnarray}
+D_{jm} = \max\left\{
+E\sum_{r=1}^R\sum_{t=1}^{T_r}
+L^{{\tt den}r}_{jm}(t),2D_{jm}^{\tt min}
+\right\}
+\end{eqnarray}
+where $D_{jm}^{\tt min}$ is the minimum value of $D_{jm}$ to ensure that 
+${\hat{\bm\Sigma}}_{jm}$ is positive semi-definite. $E$ is specified using the
+configuration variable \texttt{E}. 
+
+\item I-smoothing constant, $\tau^{\tt I}$: global smoothing term to improve
+generalisation by using the state-component priors, ${\bm\mu}^{\tt p}_{jm}$
+and ${\bm\Sigma}^{\tt p}_{jm}$. This is set using the configuration option
+\texttt{ISMOOTHTAU}. 
+
+\item Prior parameters, ${\bm\mu}^{\tt p}_{jm}$ and ${\bm\Sigma}^{\tt
+p}_{jm}$: the prior parameters that the counts from the training data  are smoothed with. These may be
+obtained from a number of sources. Supported options are;
+\begin{enumerate}
+\item dynamic ML-estimates (default): the  ML estimates of the mean and
+covariance matrices, given the current model parameters, are used.
+
+\item dynamic MMI-estimates: for MPE training the MMI estimates of the mean and
+covariance matrices, given the current model parameters, can be used. To set this
+option the following configuration entries must be added:
+\begin{verbatim}
+   MMIPRIOR = TRUE
+   MMITAUI  = 50
+\end{verbatim}
+The MMI estimates for the prior can themselves make use of I-smoothing onto a
+dynamic ML prior. The smoothing constant for this is specified using
+\texttt{MMITAUI}.
+
+\item static estimates: fixed prior parameters can be specified and used for
+all iterations. A single MMF file can be specified on the command line using
+the \texttt{-Hprior} option and the following configuration file entries added
+\begin{verbatim}
+   PRIORTAU = 25
+   STATICPRIOR = TRUE
+\end{verbatim}
+where \texttt{PRIORTAU} specifies the prior constant, $\tau^{\tt I}$,  to be
+used, rather than  the standard I-smoothing value.
+
+\end{enumerate}
+\end{itemize}
+The best configuration option and parameter settings will be task and
+criterion specific and so will need to be determined empirically. The values
+shown in the tutorial section of this book can be treated as a reasonable
+starting point. Note the grammar scale factors used in the tutorial are low
+compared to those often used in a typical large vocabulary speech recognition
+systems where values in the range 12-15 are used.
+
+The estimation of the weights and the transition matrices have a similar
+form. Only the component prior updates will be described here. $c^{(0)}_{jm}$ is
+initialised to the current model parameter $c_{jm}$. The values are then
+updated 100 times using the following iterative update rule:
+\begin{eqnarray}
+{c}^{(i+1)}_{jm} = \frac{\sum_{r=1}^R
+\sum_{t=1}^{T_r}L_{jm}^{{\tt num}r}(t) + k_{jm}c^{(i)}_{jm} + \tau^{\tt W}c^{\tt
+p}_{jm}}
+{\sum_{n}\left(\sum_{r=1}^R
+\sum_{t=1}^{T_r}L_{jn}^{{\tt num}r}(t) + k_{jn}c^{(i)}_{jn} + \tau^{\tt W}c^{\tt
+p}_{jn}\right)}
+\end{eqnarray}
+where 
+\begin{eqnarray}
+k_{jm} = \max_n\left\{\frac{\sum_{r=1}^R\sum_{t=1}^{T_r}L_{jn}^{{\tt den}r}(t)}
+{c_{jn}}
+\right\}
+- \frac{\sum_{r=1}^R\sum_{t=1}^{T_r}L_{jm}^{{\tt den}r}(t)}
+{c_{jm}}
+\end{eqnarray}
+In a similar fashion to the estimation of the means and covariance matrices
+there are a range of forms that can be used to specify the prior for the
+component or the transition matrix entry. The same configuration options used
+for the mean and covariance matrix will determine the exact form of the prior.
+
+For the component prior the I-smoothing weight, $\tau^{\tt W}$, is specified
+using the configuration variable \texttt{ISMOOTHTAUW}. This is normally set to
+1. The equivalent smoothing term for the transition matrices is set using
+\texttt{ISMOOTHTAUT} and again a value of 1 is often used.
+
+\subsection{Lattice-Based Discriminative Training}
+
+For both the MMI and MPE training criteria a set of possible hypotheses for
+each utterance must be considered.  To get these confusable hypotheses the
+training data must first be recognised. Rather than perform an explicit
+recognition on each iteration of \htool{HMMIRest}, HTK uses \textit{Lattice
+Based Discriminative Training}, in which word lattices are first created with
+e.g. \htool{HDecode}, and then these lattices are used for all iterations of
+discriminative training.
+
+To make the operation of \htool{HMMIRest} more efficient, the times of 
+the HMM/phone boundaries are also marked in the lattices. This creates
+so-called phone-marked lattices and it is this form of lattice that is used by
+\htool{HMMIRest}. For each utterance used for discriminative training, two
+lattices need to be created. The first is a phone-marked lattice that
+represents the correct word sequence (also known as a ``numerator'' lattice).
+The second is a phone-marked lattice for competing hypotheses: the
+``denominator'' lattice. These names derive from the MMI objective function,
+but the same phone-marked lattices are also required for MPE.  The numerator
+lattice is found by generating phone-level alignments in lattice form from the
+correct word level transcription, while the denominator lattice uses a
+phone-marked form of the lattice representing confusable hypotheses. In both
+cases, these are created using \htool{HDecode.mod} which is a version
+\htool{HDecode} that can output lattices with model-level alignments (model
+names and segmentations) included in the lattice structure, or \htool{HVite}.
+
+For examples of lattice generation and phone-marking see the tutorial section.
+
+\subsection{Improved Generalisation}
+In order to improve the generalisation capability of discriminative training,
+several techniques can be used: lattice generation using \textit{weak language
+models}; and \textit{acoustic log likelihood scaling}. These are performed in
+addition to the \textit{smoothing} described in a previous section.
+
+\begin{itemize}
+\item {\bf weak language models}: in order to increase the number of reasonable
+errors made during the denominator lattice generation stage a simpler language
+mode, for example a unigram or heavily pruned bigram, is often used. When the
+training data lattices are generated with these weak language models, the
+lattices tend to be larger, and there is an increased focus on
+improved acoustic discrimination. It has been found that this aids
+generalisation.
+
+\item {\bf acoustic de-weighting}: when the language model probabilities and HMM
+log-likelihoods are normally combined in recognition a \textit{grammar scale
+factor} is used that multiplies the language model log probability. The
+EBW algorithm needs to find the posterior probability of competing states in a
+word-lattice. This involves adding contributions from different paths through
+the lattice. Thus rather than multiplying the language model log probabilities, the
+acoustic model log likelihoods are reduced in dynamic range, by means of
+scaling (down) the acoustic log likelihoods generated by the HMMs. Thus the
+following form of posterior is used
+\begin{eqnarray}
+P({\cal H}^r_{\tt ref}|\bm{O}^r,\lambda) \approx
+\frac{P(\bm{O}^r|{\cal H}^r_{\tt ref},\lambda)^\kappa P({\cal H}^r_{\tt ref})}
+{\sum_{\cal H}P(\bm{O}^r|{\cal H},\lambda)^\kappa P({\cal H})}
+\end{eqnarray}
+The acoustic scale factor, $\kappa$, used is normally the reciprocal of the standard grammar
+scale factor used in recognition. It is set using the configuration option
+\texttt{LATPROBSCALE}. 
+\end{itemize}
+
+In the implementation of \htool{HMMIRest} the language model scores, including
+the grammar scale factor are combined into the acoustic models to form a
+numerator acoustic model, ${\cal M}^{\tt num}_r$, and a denominator acoustic
+model, ${\cal M}^{\tt den}_r$. Thus from the implementation perspective, and the
+form given in the reference section, the MMI criterion is expressed as (which
+are equivalent to the expressions given above when $\kappa$ is the reciprocal
+of the grammar scale factor)
+\begin{eqnarray}
+{\cal F}_{\tt mmi}(\lambda) = \sum_{r=1}^R\log\left(
+\frac{P^\kappa(\bm{O}^r|{\cal M}^{\tt num}_r)}
+{P^\kappa(\bm{O}^r|{\cal M}^{\tt den}_r)}
+\right)
+\end{eqnarray}
+and the MPE criterion is expressed as
+\begin{eqnarray}
+{\cal F}_{\tt mpe}(\lambda) = \sum_{r=1}^R\sum_{\cal H}
+\left(\frac{P^\kappa(\bm{O}^r|{\cal M}_{\cal H})}
+{P^\kappa(\bm{O}^r|{\cal M}^{\tt den}_r)}\right)
+{\cal L}({\cal H},{\cal H}^r_{\tt ref})
+\end{eqnarray}
+where ${\cal M}_{\cal H}$ is the acoustic model for hypothesis
+${\cal H}$. 
+
+\mysect{Discriminative Training using \htool{HMMIRest}}{hmmiresttrain}
+
+\centrefig{hmmirest_par}{100}{\htool{HMMIRest} Parallel Operation}
+
+In the same fashion as \htool{HERest}, \htool{HMMIRest} can be run in a
+parallel mode. Again, the training data is divided amongst the available
+machines and then \htool{HMMIREst} is run on each machine such that each
+invocation of \htool{HMMIRest} uses the same initial set of models but has its
+own private set of data.  By setting the option {\tt -p N} where {\tt N} is an
+integer, \htool{HMMIRest} will dump the contents of all its
+accumulators\index{accumulators} into a set of files labelled {\tt HDRN.acc.1}
+to {\tt HDRN.acc.n}.  The number of files $n$ depends on the discriminative
+training criterion and I-smoothing prior being used. For all set-ups the
+denominator and numerator accumulates are kept separate. The standard
+training options will have the following number of accumulates:
+\begin{itemize}
+\item {\bf 4}: MPE/MWE training with a dynamic MMI prior; \item {\bf 3}:
+MPE/MWE training with a dynamic ML prior, MPE/MWE with static
+priors\footnote{The third accumulate is not now used, but is stored for
+backward compatibility.}; \item {\bf 2}: MMI training.
+\end{itemize}
+As each of the accumulators will be approximately the size of the model-set,
+and in this parallel model a large number of accumulators can be generated, it
+is useful to ensure that there is sufficient disk-space for all the
+accumulators generated.  These dumped files are then collected
+together and input to a new invocation of \htool{HMMIRest} with the option {\tt
+-p 0} set.  \htool{HMMIRest} then reloads the accumulators from all of the dump
+files and updates the models in the normal way.  This process is illustrated
+in Figure~\href{f:hmmirest_par}.
+
+To give a concrete example in the same fashion as described for
+\htool{HERest}, suppose that four networked workstations were available to
+execute the \htool{HMMIRest} command performing MMI training. Again the
+training files listed previously in \texttt{trainlist} would be split into
+four equal sets and a list of the files in each set stored in {\tt trlist1},
+{\tt trlist2}, {\tt trlist3}, and {\tt trlist4}. Phone-marked numerator and
+denominator lattices are assumed to be available in \texttt{plat.num} and
+\texttt{plat.den} respectively.  On the first workstation,
+the command
+\begin{verbatim}
+    HMMIRest -S trlist1 -C mmi.cfg -q plat.num -r plat.den\
+             -H dir1/hmacs -M dir2 -p 1 hmmlist
+\end{verbatim}
+would be executed.  This will load in the HMM definitions in 
+{\tt dir1/hmacs}, process the files listed in {\tt trlist1} and finally
+dump its accumulators into  files called {\tt HDR1.acc.1} and {\tt HDR1.acc.2} in the output
+directory {\tt dir2}.  At the same time, the command
+\begin{verbatim}
+    HMMIRest -S trlist2  -C mmi.cfg -q plat.num -r plat.den\
+             -H dir1/hmacs -M dir2 -p 2 hmmlist
+\end{verbatim}
+would be executed on the second workstation, and so on.  When 
+\htool{HMMIRest} has finished on all four
+workstations,  the following command will be executed on just one of them
+\begin{verbatim}
+    HMMIRest -C mmi.cfg -H dir1/hmacs -M dir2 -p 0 hmmlist \
+        dir2/HDR1.acc.1 dir2/HDR1.acc.2 dir2/HDR2.acc.1 dir2/HDR2.acc.2 \
+        dir2/HDR3.acc.1 dir2/HDR3.acc.2 dir2/HDR4.acc.1 dir2/HDR4.acc.2 
+\end{verbatim}
+where the list of training files has been replaced by the dumped accumulator
+files.  This will cause the accumulated
+statistics to be reloaded and merged so that the model parameters can
+be reestimated and the new model set output to \texttt{dir2}
+
+When discriminatively training large systems on large amounts of training
+data, and to a lesser extent for maximum likelihood training, the merging of
+possibly hundreds of accumulators associated with large model sets can be slow
+and significantly load the network. To avoid this problem, it
+is possible to merge  subsets of the accumlators using the
+\texttt{UPDATEMODE = DUMP} configuration option. As an example using the above
+configuration, assume that the file \texttt{dump.cfg} contains
+\begin{verbatim}
+UPDATEMODE = DUMP
+\end{verbatim}
+The following two commands would be used to merge the statistics into two sets
+of accumulators in directories \texttt{acc1} and \texttt{acc2}.
+\begin{verbatim}
+    HMMIRest -C mmi.cfg -C dump.cfg -H dir1/hmacs -M acc1 -p 0 hmmlist \
+        dir2/HDR1.acc.1 dir2/HDR1.acc.2 dir2/HDR2.acc.1 dir2/HDR2.acc.2
+
+    HMMIRest -C mmi.cfg -C dump.cfg -H dir1/hmacs -M acc2 -p 0 hmmlist \
+        dir2/HDR3.acc.1 dir2/HDR3.acc.2 dir2/HDR4.acc.1 dir2/HDR4.acc.2 
+\end{verbatim}
+These two sets of merged statistics  can then be used to update the acoustic
+model using
+\begin{verbatim}
+    HMMIRest -C mmi.cfg -H dir1/hmacs -M dir2 -p 0 hmmlist \
+        acc1/HDR0.acc.1 acc1/HDR0.acc.2 acc2/HDR0.acc.1 acc2/HDR0.acc.2
+\end{verbatim}
+For very large systems this hierarchical merging of stats can be done
+repeatedly. Note this form of accumulate merger is also supported for
+\htool{HERest}.
+
+
+%%% Local Variables: 
+%%% mode: plain-tex
+%%% TeX-master: "htkbook"
+%%% End: 

@@ -1,0 +1,197 @@
+2006-12-13  Anna Langley <jal58@cam.ac.uk>
+
+	* updated Makefile for Latex2HTML and added latex2html-init
+
+2004-07-13  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* errors.tex: Add error codes for LLF processing.
+
+2004-04-19  B. Jia  <bj214@bj214pc>
+
+	* HTKRef/HMMIRest.tex: document HMMIRest options -qp and -rp
+
+	* HTKRef/HCompV.tex: document HCompV -p option
+
+	* config.tex:  document HParm CMEANPATHMASK and VARSCALEPATHMASK
+
+2004-04-16  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* config.tex: document HEREST:UPDATEMODE.
+
+2004-03-21   M. J. F. Gales  <mjfg@eng.cam.ac.uk>
+
+	* Initial documentation for new adaptation code. 
+
+2004-03-08  Anna Langley <jal58@eng.cam.ac.uk>
+	
+	* Makefile: Corrected options for latex2html to 
+	fix problems with navigation links.
+
+2004-02-07  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HTKRef/HDMan.tex: Document -j switch.
+        Reported by "Ying Lin" <yinglin@humnet.ucla.edu>
+	
+2003-12-17  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* errors.tex: Added new error code 3233 (Empty Transcription)
+
+2003-03-12   Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HTKRef/HERest.tex: 
+	* HTKRef/HMMIRest.tex: document VARFLOORPERCENTILE.
+
+2003-03-07  David Mrva  <dm312@eng.cam.ac.uk>
+
+	* hlmtutorial.tex:
+	* HTKRef/LGCopy.tex: Correct minor inconsistencies.
+
+2003-02-14  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HTKRef/HLRescore.tex: New file.
+
+	* HTKRef/HHEd.tex: New command PS.
+
+2002-12-19  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* train.tex: Mention strctural constraints for 2-model
+	re-estimation model sets.
+
+	* speechio.tex: Document _T qualifier.
+
+	* models.tex: Document input linear transforms.
+
+	* htkoview.tex (New in 3.2): Enumerate new features.
+
+	* HTKRef/HLRescore.tex: New section.
+
+2002-12-18  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* errors.tex: Added error code docs for HLRescore and HLat.
+
+2002-11-15  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* htkbook.tex: Add Dan Povey to author list.
+
+2002-07-15  Thomas Hain  <th223@eng.cam.ac.uk>
+ 
+        * train.tex: Added section on two-model re-estimation
+        * HTKRef/HHEd.tex Added descriptions of commands FA, FV and MD.
+        * errors.tex: Added HHEd error code for CovKind mismatch.
+        * config.tex: Added config variables for HModel, HHEd and HEREst.
+
+2002-07-16  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* htkslf.tex: Update description and include new example lattice.
+
+2002-07-05  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* htkoview.tex: Document use of multiple config files.
+
+2002-06-30  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HTKRef/HHEd.tex: Document FC command.
+
+2002-04-24  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* refine.tex: Correct RC command example.
+
+2002-02-19  Håkan Melin <melin@speech.kth.se>
+
+	* speechio.tex: Correct sign in LP cepstrum calculation.
+
+2002-01-16  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* Makefile (html): Create dir for html version. 
+
+2002-01-16  Gareth Moore  <glm20@eng.cam.ac.uk>
+
+	* HTKRef/HResults.tex: Add FAQ entry for confusion matrix.
+	
+	* netdict.tex: Clarify dictionary format definition.
+
+	* config.tex: Add documentation for all filters in HShell.
+
+	* openviron.tex: Clarify.
+
+	* HTKRef/HResults.tex: Document confusion matrix output.
+	
+2001-12-13  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* htkoview.tex: New features in 3.1.
+
+	* openviron.tex: Document extended filename syntax.
+
+	* speechio.tex: Document VTLN, cluster-based CMN/CVN and PLP.
+
+	* config.tex: 
+	* errors.tex: New error codes and config variables for the above.
+
+	* HTKXFigs/vtlnpiecewise.fig:
+	* HTKFigs/vtlnpiecewise.eps: New files.
+
+2001-09-26  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* exampsys.tex: Add comment about applying TI to sil/sp.
+	Save big MMFs as binary.
+
+2001-08-28  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* exampsys.tex: Lots of improvements and corrections.
+	From: Will Bradley <wjb21@cam.ac.uk> and
+	      Alexios Daniel <atd25@cam.ac.uk>
+
+2001-07-03  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* config.tex: Use a multi-page supertabular environment instead of
+	many small one-page tabulars.
+
+2001-04-17  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* errors.tex : Correct error messages and add new error codes.
+	New range 3400-3499 for HSGen.
+	
+
+2001-04-11  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HTKRef/HVite.tex: Document pruning increase/limt parameters.
+
+2001-03-18  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* errors.tex (HParm): mean & var normalisation.
+
+2000-12-18  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* exampsys.tex (Step 13 - Generating the Transforms): add RN
+	command to regtree.hed
+
+2000-11-30  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* config.tex: Add HVITE:SAVEBINARY.
+	Make LaTeX source more readable.
+
+2000-11-15  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* exampsys.tex (Step 10): Fix HDMan invocation.
+
+2000-09-06  Rich Wareham  <rjw57@cam.ac.uk>
+
+	* HTK.tex: Removed warnings when generating HTML        
+
+2000-09-05  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+   
+	* *.tex: Add AucTex master file magic.
+
+	* HTKRef/*.tex: Add labels for subsections to avoid LaTeX warnings.
+
+	* exampsys.tex: Remove reference V2.2.
+
+	* htkbook.tex: Hack to allow generation of PDF and PS.
+
+	* HTK.tex: Use relative path for figures.
+	Use epsfig instead of epsf.tex.
+	
+2000-09-04  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* created ChangeLog. 
+

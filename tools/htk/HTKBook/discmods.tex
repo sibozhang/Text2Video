@@ -1,0 +1,443 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young 15/11/95
+%
+
+\mychap{Discrete and Tied-Mixture Models}{discmods}
+
+\sidepic{Tool.disc}{80}{ 
+Most of the discussion so far has focused on using \HTK\
+to model sequences of continuous-valued vectors.  In contrast, this chapter
+is mainly concerned with using \HTK\ to model sequences of discrete
+symbols.  
+Discrete symbols arise naturally in modelling many types of
+data, for example, letters and words, bitmap images, and DNA sequences.
+Continuous signals can also be converted to discrete symbol sequences
+by using a quantiser and in particular, speech vectors can be
+\textit{vector quantised} as described in section~\ref{s:vquant}.
+In all cases, \HTK\ expects a set of $N$ discrete symbols to be represented by
+the contiguous sequence of integer numbers from 1 to $N$.
+}\index{discrete HMMs}
+
+In \HTK\ discrete probabilities are regarded as being closely analogous
+to the mixture weights of a continuous density system.  As a consequence,
+the representation and processing of discrete HMMs shares a great deal
+with continuous density models.  It follows from this that most of the
+principles and practice developed already are equally applicable to
+discrete systems.  As a consequence, this chapter can be quite brief.
+
+The first topic covered concerns building HMMs for discrete
+symbol sequences.  The use of discrete HMMs with speech is then
+presented.  The tool \htool{HQuant} is described and the method
+of converting continuous speech vectors to discrete symbols is
+reviewed.  This is 
+followed by a brief discussion of tied-mixture systems which can be 
+regarded as a compromise between continuous and discrete density systems.
+Finally, the use of the \HTK\ tool \htool{HSmooth} for
+parameter smoothing by deleted interpolation is presented.
+
+\mysect{Modelling Discrete Sequences}{discseq}
+
+Building HMMs for discrete symbol sequences is essentially the same
+as described previously for continuous density systems. 
+Firstly, a prototype HMM definition must be specified in order
+to fix the model topology.  For example, the following
+is a 3 state ergodic HMM in which the emitting states
+are fully connected.
+\begin{verbatim}
+    ~o <DISCRETE> <StreamInfo> 1 1 
+    ~h "dproto"
+    <BeginHMM>
+       <NumStates> 5 
+       <State> 2 <NumMixes> 10
+          <DProb> 5461*10
+       <State> 3 <NumMixes> 10
+          <DProb> 5461*10
+       <State> 4 <NumMixes> 10
+          <DProb> 5461*10
+       <TransP> 5
+           0.0 1.0 0.0 0.0 0.0
+           0.0 0.3 0.3 0.3 0.1
+           0.0 0.3 0.3 0.3 0.1
+           0.0 0.3 0.3 0.3 0.1
+           0.0 0.0 0.0 0.0 0.0
+    <EndHMM>
+\end{verbatim}
+As described in chapter~\ref{c:HMMDefs}, the notation for discrete
+HMMs borrows heavily on that used for continuous density models
+by equating mixture components with symbol indices.  Thus,
+this definition assumes that each training data sequence contains
+a single stream of symbols indexed from 1 to 10.  In this example,
+all symbols in each state have been set to be equally likely\footnote{
+Remember that discrete probabilities are scaled such that
+32767 is equivalent to a probability of 0.000001 and 0 is 
+equivalent to a probability of 1.0
+}.  If prior information is available then this can of course be used
+to set these initial values.
+
+The training data needed to build a discrete HMM can take one of two forms. It
+can either be discrete (\texttt{SOURCEKIND=DISCRETE}) in which case it consists
+of a sequence of 2-byte integer symbol indices.  Alternatively, it can consist
+of continuous parameter vectors with an associated VQ codebook.  This latter
+case is dealt with in the next section.  Here it will be assumed that the data
+is symbolic and that it is therefore stored in discrete form.\index{discrete
+data} Given a set of training files listed in the script file
+\texttt{train.scp}, an initial HMM could be estimated using
+\begin{verbatim}
+    HInit -T 1 -w 1.0 -o dhmm -S train.scp -M hmm0 dproto
+\end{verbatim}
+This use of \htool{HInit} is identical to that which would be
+used for building whole word HMMs where no associated label file is
+assumed and the whole of each training sequence is used to estimate
+the HMM parameters.  Its effect is to read in the prototype
+stored in the file \texttt{dproto} and then use the training examples
+to estimate initial values for the output distributions
+and transition probabilities.  This is done by firstly uniformly 
+segmenting the data and for each segment counting the number of occurrences
+of each symbol.  These counts are then normalised to provide output distributions
+for each state.  \htool{HInit} then uses the Viterbi algorithm to resegment
+the data and recompute the parameters.  This is repeated until convergence
+is achieved or an upper limit on the iteration count is reached.
+The transition probabilities at each step are estimated simply by
+counting the number of times that each transition is made in the Viterbi alignments
+and normalising.  The final model is renamed \texttt{dhmm} and stored in
+the directory \texttt{hmm0}.
+
+When building discrete HMMs, it is important to floor the discrete
+probabilities so that no symbol has a zero probability.  This is 
+achieved using the \texttt{-w} option which specifies a floor value
+as a multiple of a global constant called \texttt{MINMIX} whose
+value is $10^{-5}$. 
+
+The initialised HMM created by \htool{HInit} 
+can then be further refined if desired by using \htool{HRest}
+to perform Baum-Welch re-estimation.  It would be invoked in a similar
+way to the above except that there is now no need to rename the model.
+For example,
+\begin{verbatim}
+    HRest -T 1 -w 1.0 -S train.scp -M hmm1 hmm0/dhmm
+\end{verbatim}
+would read in the model stored in \texttt{hmm0/dhmm} and write out a new
+model of the same name to the directory \texttt{hmm1}.
+
+\mysect{Using Discrete Models with Speech}{speechvq}
+
+As noted in section~\ref{s:vquant}, discrete HMMs can be used to model
+speech by using a vector quantiser to map continuous density vectors into
+discrete symbols.  A vector quantiser depends on a so-called \textit{codebook} 
+which defines a set of partitions of the vector space.  Each partition
+is represented by the mean value of the speech vectors belonging
+to that partition and optionally  a variance representing the spread.
+Each incoming speech vector is then
+matched with each partition and assigned the index corresponding
+to the partition which is closest using a Mahalanobis distance metric.
+
+In \HTK\ such a codebook can be built using the tool \htool{HQuant}.  This tool
+takes as input a set of continuous speech vectors, clusters them and uses
+the centroid and optionally the variance of each cluster to define
+the partitions.  \htool{HQuant} can build both linear and tree structured
+codebooks.  To build a linear codebook, all training vectors are initially
+placed in one cluster and the mean calculated.  The mean is then perturbed
+to give two means and the training vectors are partitioned according to
+which mean is nearest to them.  The means are then recalculated and the
+data is repartitioned.  At each cycle, the total distortion (i.e. total
+distance between the cluster members and the mean) is recorded and repartitioning
+continues until there is no significant reduction in distortion.  The whole
+process then repeats by perturbing the mean of the cluster with the highest
+distortion.  This continues until the required number of clusters have been
+found.
+
+Since all training vectors are reallocated at every cycle, this is an
+expensive algorithm to compute.  The maximum number of iterations within
+any single cluster increment can be limited using the configuration
+variable \texttt{MAXCLUSTITER}\index{maxclustiter@\texttt{MAXCLUSTITER}} 
+and although this can speed-up the computation
+significantly, the overall training process is still computationally expensive.
+Once built, vector quantisation is performed by scanning all codebook
+entries and finding the nearest entry.  Thus, if a large codebook is used,
+the run-time VQ look-up operation can also be expensive.
+
+As an alternative to building a linear codebook, a tree-structured codebook
+can be used.  The algorithm for this is essentially the same as above
+except that every cluster is split at each stage so that the first cluster
+is split into two, they are split into four and so on.  At each stage, the
+means are recorded so that when using the codebook for vector quantising
+a fast binary search can be used to find the appropriate leaf cluster.
+Tree-structured codebooks are much faster to build since there is no
+repeated reallocation of vectors and much faster in use since only $O(\log_2 N)$
+distance need to be computed where $N$ is the size of the codebook.
+Unfortunately, however, tree-structured codebooks will normally incur higher 
+VQ distortion for a given codebook size.
+
+When delta and acceleration coefficients are used, it is usually best
+to split the data into multiple streams (see section~\ref{s:streams}.
+In this case, a separate codebook is built for each stream.
+
+As an example, the following invocation of \htool{HQuant} would
+generate a linear codebook in the file \texttt{linvq} using
+the data stored in the files listed in \texttt{vq.scp}.  
+\begin{verbatim}
+   HQuant -C config -s 4 -n 3 64 -n 4 16 -S vq.scp linvq
+\end{verbatim}
+Here the configuration file \texttt{config} specifies the \texttt{TARGETKIND}
+as being \texttt{MFCC\_E\_D\_A} i.e.\ static coefficients plus deltas plus
+accelerations plus energy.  The \texttt{-s} options requests that this
+parameterisation be split into
+4 separate streams.  By default, each individual codebook has 256 entries, however,
+the \texttt{-n} option can be used to specify alternative sizes.
+
+If a tree-structured codebook was wanted rather than a linear codebook,
+the \texttt{-t} option would be set.
+Also the default is to use Euclidean distances both for building the
+codebook and for subsequent coding.  Setting the \texttt{-d} option
+causes a diagonal covariance Mahalanobis metric to be used and 
+the \texttt{-f} option causes a full covariance Mahalanobis metric
+to be used.
+
+\index{hcopy@\htool{HCopy}}
+\sidefig{vqtohmm}{55}{VQ Processing}{-4}{
+Once the codebook is built, normal speech vector files can be 
+converted to discrete files using \htool{HCopy}.  
+This was explained 
+previously in section~\ref{s:vquant}.  The basic mechanism is to
+add the qualifier \texttt{\_V} to the 
+\texttt{TARGETKIND}.\index{qualifiers!aaav@\texttt{\_V}}  This causes
+\htool{HParm} to append a codebook index to each constructed observation
+vector.  If the configuration variable \texttt{SAVEASVQ} is set true, then
+the output routines in \htool{HParm} will discard the original vectors
+and just save the VQ indices in a \texttt{DISCRETE} file. 
+Alternatively, \HTK\ will regard any speech vector with \texttt{\_V} set
+as being compatible with discrete HMMs.  Thus, it is not necessary
+to explicitly create a database of discrete training files if
+a set of continuous speech vector parameter files already exists.
+Fig.~\href{f:vqtohmm} illustrates this process.
+}\index{saveasvq@\texttt{SAVEASVQ}}
+\index{targetkind@\texttt{TARGETKIND}}
+
+Once the training data has been configured for discrete HMMs, the 
+rest of the training process is similar to that previously described.
+The normal sequence is to build a set of monophone models and then
+clone them to make triphones.  As in continuous density systems, 
+state tying can be used to improve the
+robustness of the parameter estimates.  However, in the case of discrete HMMs,
+alternative methods based on interpolation are possible.  These are discussed
+in section~\ref{s:psmooth}.
+
+\mysect{Tied Mixture Systems}{tiedmix}
+
+\index{tied-mixtures}
+Discrete systems have the advantage of low run-time computation.  However,
+vector quantisation reduces accuracy and this can lead to poor performance.
+As a intermediate between discrete and continuous, a fully tied-mixture
+system can be used.
+Tied-mixtures are conceptually just another example of the general parameter tying
+mechanism built-in to \HTK.  However, to use them effectively in
+speech recognition systems a number of storage and computational 
+optimisations must be made.  Hence, they are given special treatment in \HTK.
+
+When specific mixtures are tied as in 
+\begin{verbatim}
+     TI "mix" {*.state[2].mix[1]} 
+\end{verbatim}
+then a Gaussian mixture component is shared across all of the owners
+of the tie.  In this example, all models will share the same Gaussian
+for the first mixture component of state 2.  However, if the mixture
+component index is missing, then all of the mixture components participating in
+the tie are {\it joined} rather than tied. More specifically, the commands
+\begin{verbatim}
+     JO 128 2.0
+     TI "mix" {*.state[2-4].mix} 
+\end{verbatim}
+has the following effect.  All of the mixture components in states 2 to 4 of
+all models are collected into a pool.  If the number of components
+in the pool exceeds 128, as set by the preceding join command 
+\texttt{JO}\index{jo@\texttt{JO} command}, then
+components with the smallest weights are removed until the pool size is exactly
+128.  Similarly, if the size of the initial pool is less than 128, then mixture
+components are split using the same algorithm as for the Mix-Up \texttt{MU}
+command.\index{mixture tying}   All states then share all of the 
+mixture components in this pool.  The new mixture weights are chosen to be proportional
+to the log probability of the corresponding new mixture component mean with
+respect to the original distribution for that state.  The log is used here
+to give a wider spread of mixture weights.  All mixture weights are floored
+to the value of the second argument of the \texttt{JO} command times 
+\texttt{MINMIX}\index{minmix@\texttt{MINMIX}}.
+
+The net effect of the above two commands is to create a set of \texttt{tied-mixture}
+HMMs\footnote{Also called {\it semi-continuous} HMMs in the the literature.}
+where the same set of mixture components is shared across all states of
+all models.  However, the type of the HMM set so created will still be
+\texttt{SHARED} and the internal representation will be the same as for
+any other set of parameter tyings.   To obtain the optimised representation 
+of the tied-mixture weights
+described in section~\ref{s:tmix}, the following \htool{HHEd}
+\texttt{HK}\index{hk@\texttt{HK} command} command must be issued
+\begin{verbatim}
+     HK TIEDHS
+\end{verbatim}
+This will convert the internal representation to the special tied-mixture
+form in which all of the tied mixtures are stored in a global table and
+referenced implicitly instead
+of being referenced explicitly using pointers.
+
+Tied-mixture HMMs work best if the information relating to different sources
+such as delta coefficients and energy are separated into distinct data streams.
+This can be done by setting up multiple data stream HMMs from the outset.  
+However, it is simpler to use the 
+\texttt{SS}\index{ss@\texttt{SS} command}
+command in \htool{HHEd} to split the data streams of the currently loaded HMM set.
+Thus, for example, the command
+\begin{verbatim}
+     SS 4 
+\end{verbatim}
+would convert the currently loaded HMMs to use four separate data streams
+rather than one.  When used in the construction of tied-mixture HMMs
+this is analogous to the use of multiple codebooks in discrete density 
+HMMs.
+
+The procedure for building a set of tied-mixture HMMs may be summarised
+as follows\index{tied-mixtures!build procedure}
+\begin{enumerate}
+\item Choose a {\it codebook} size for each data stream and then 
+   decide how many Gaussian components will be needed from an initial set of
+    monophones to approximately fill this codebook.
+    For example, suppose that there are 48 three state monophones.  If
+    codebook sizes of 128 are chosen for streams 1 and 2, and
+    a codebook size of 64 is chosen for stream 3 then single Gaussian
+    monophones would provide enough mixtures in total to fill the codebooks.
+\item Train the initial set of monophones.
+\item Use \htool{HHEd} to first split the HMMs into the required number of
+    data streams, tie
+    each individual stream and then convert the tied-mixture HMM set to 
+    have the kind \texttt{TIEDHS}.  
+    A typical script to do this for four streams would be
+\begin{verbatim}
+    SS 4
+    JO 256 2.0
+    TI st1 {*.state[2-4].stream[1].mix}
+    JO 128 2.0
+    TI st2 {*.state[2-4].stream[2].mix}
+    JO 128 2.0
+    TI st3 {*.state[2-4].stream[3].mix}
+    JO 64 2.0
+    TI st4 {*.state[2-4].stream[4].mix}
+    HK TIEDHS
+\end{verbatim}
+\item Re-estimate the models using \htool{HERest} in the normal way.
+\end{enumerate}
+Once the set of retrained tied-mixture models has been produced, context
+dependent models can be constructed using similar methods to those
+outlined previously.
+
+When evaluating probabilities in tied-mixture systems, it is often
+sufficient to sum just the most likely mixture components since for any
+particular input vector, its probability with respect to many of the Gaussian
+components will be very low.\index{pruning!in tied mixtures}
+\HTK\ tools recognise \texttt{TIEDHS}
+HMM sets as being special in the sense that additional optimisations
+are possible. When full tied-mixtures are used, then an additional layer of pruning
+is applied.  At each time frame, the log probability of the current observation
+is computed for each mixture component.  Then only those components which lie within
+a threshold of the most likely component are retained.  This 
+pruning is controlled by the \texttt{-c} option in 
+\htool{HRest}, \htool{HERest} and \htool{HVite}.
+
+\mysect{Parameter Smoothing}{psmooth}
+
+When large sets of context-dependent triphones are built using
+discrete models or
+tied-mixture models, under-training\index{under-training} can be a 
+severe problem since each 
+state has a large number of mixture weight parameters to estimate.
+The \HTK\ tool \htool{HSmooth} allows these discrete probabilities or
+mixture component weights
+to be smoothed with the monophone weights using a technique called 
+deleted interpolation\index{deleted interpolation}.  
+
+\htool{HSmooth} is used in combination with \htool{HERest}
+working in parallel mode.  The training data is split
+into blocks and each block is used separately to re-estimate the
+HMMs.  However, since \htool{HERest} is in parallel mode, it outputs a dump
+file of accumulators instead of updating the models.  \htool{HSmooth} is then
+used in place of the second pass of \htool{HERest}.  It reads in the 
+accumulator information from each of the blocks, performs deleted
+interpolation smoothing on the accumulator values and then outputs
+the re-estimated HMMs in the normal way.
+
+\htool{HSmooth}\index{hsmooth@\htool{HSmooth}} implements a 
+conventional deleted interpolation scheme.
+However, optimisation of the smoothing weights uses a fast 
+binary chop\index{binary chop} scheme 
+rather than the more usual Baum-Welch approach.
+The algorithm for finding the optimal interpolation weights for a given
+state and stream is as follows where the description is given in terms
+of tied-mixture weights but the same applies to discrete probabilities.  
+
+Assume that \htool{HERest}
+has been set-up to output $N$ separate blocks of accumulators.
+Let $w_i^{(n)}$ be the $i$'th
+mixture weight based on the accumulator blocks $1$ to $N$ but excluding
+block $n$, and let $\bar{w}_i^{(n)}$ be the corresponding context
+independent weight.  Let $x_i^{(n)}$ be the $i$'th mixture weight 
+count for the deleted block $n$.  The derivative of the log
+likelihood of the deleted block, given the probability distribution with
+weights $c_i = \lambda w_i + (1 - \lambda) \bar{w}_i$ is given by
+\begin{equation}
+  D(\lambda) = \sum_{n=1}^N \sum_{i=1}^M x_i^{(n)}
+   \left[ \frac{w_i^{(n)} - \bar{w}_i^{(n)}}{
+            \lambda w_i^{(n)} + (1 - \lambda ) \bar{w}_i^{(n)}} 
+   \right]
+\end{equation}
+Since the log likelihood is a convex function of $\lambda$, this derivative
+allows the optimal value of $\lambda$ to be found by a simple
+binary chop algorithm, viz.
+\begin{verbatim}
+     function FindLambdaOpt:
+        if (D(0) <= 0) return 0;
+        if (D(1) >= 0) return = 1;
+        l=0; r=1;
+        for (k=1; k<=maxStep; k++){
+           m = (l+r)/2;
+           if (D(m) == 0) return m;
+           if (D(m) > 0) l=m; else r=m;
+        }
+        return m;
+\end{verbatim}
+
+\htool{HSmooth} is invoked in a similar way to \htool{HERest}.
+For example, suppose that the directory \texttt{hmm2} contains a set of
+accumulator files output by the first pass of \htool{HERest} running in parallel
+mode using as source the HMM definitions listed in \texttt{hlist} and 
+stored in \texttt{hmm1/HMMDefs}.  Then the command
+\begin{verbatim}
+    HSmooth -c 4 -w 2.0 -H hmm1/HMMDefs -M hmm2 hlist hmm2/*.acc
+\end{verbatim}
+would generate a new smoothed HMM set in \texttt{hmm2}.  Here the \texttt{-w}
+option is used to set the minimum mixture component weight in any state to
+twice the value of \texttt{MINMIX}\index{minmix@\texttt{MINMIX}}.  
+The \texttt{-c} option sets the maximum
+number of iterations of the binary chop procedure to be 4.
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "htkbook"
+%%% End: 

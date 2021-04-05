@@ -1,0 +1,153 @@
+# ----------------------------------------------------------- 
+#                                                             
+#                          ___                                
+#                       |_| | |_/   SPEECH                    
+#                       | | | | \   RECOGNITION               
+#                       =========   SOFTWARE                  
+#                                                             
+#                                                             
+# ----------------------------------------------------------- 
+#         Copyright: Cambridge University
+#          1995-2006 Engineering Department
+#                    http://htk.eng.cam.ac.uk
+#                    http://mi.eng.cam.ac.uk
+#                 
+#   Use of this software is governed by a License Agreement   
+#    ** See the file License for the Conditions of Use  **    
+#    **     This banner notice must not be removed      **    
+#                                                             
+# ----------------------------------------------------------- 
+# File: @configure_input@
+# ----------------------------------------------------------- 
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+CC = @CC@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = $(CPPFLAGS) @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+INSTALL = @INSTALL@
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = .
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+MAKEINFO = @MAKEINFO@
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+
+HTKLIB  = HTKLib
+HLMLIB  = HLMLib
+HTKTOOLS = HTKTools
+HLMTOOLS = HLMTools
+LVREC = HTKLVRec
+HTKBOOK = HTKBook
+SUBDIRS = $(HTKLIB) $(HLMLIB) $(HTKTOOLS) $(HLMTOOLS) $(LVREC) $(BOOK) 
+ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_CLEAN_FILES = 
+DIST_COMMON =  README ChangeLog Makefile.am \
+Makefile.in aclocal.m4 configure configure.ac install-sh missing \
+mkinstalldirs
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = gtar
+GZIP_ENV = --best
+
+.SUFFIXES:
+
+# build rules
+all: @make_all@
+$(HTKLIB)/HTKLib.a:
+	(cd $(HTKLIB) && $(MAKE) HTKLib.a) \
+	  || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac;
+htklib: $(HTKLIB)/HTKLib.a
+$(HTKLIB)/HTKLiblv.a:
+	(cd $(HTKLIB) && $(MAKE) HTKLiblv.a) \
+	  || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac;
+htkliblv: $(HTKLIB)/HTKLiblv.a
+$(HLMLIB)/HLMLib.a:
+	(cd $(HLMLIB) && $(MAKE) all) \
+	  || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac;
+hlmlib: $(HLMLIB)/HLMLib.a
+htktools: $(HTKLIB)/HTKLib.a
+	(cd $(HTKTOOLS) && $(MAKE) all) \
+	  || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac;
+hlmtools: $(HLMLIB)/HLMLib.a
+	(cd $(HLMTOOLS) && $(MAKE) all) \
+	  || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac;
+hdecode: $(HTKLIB)/HTKLiblv.a
+	(cd $(LVREC) && $(MAKE) all) \
+	  || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac;
+book: 
+	(cd $(HTKBOOK) && $(MAKE) all) \
+	  || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac;
+
+# installation
+install-htktools: htktools
+	(cd $(HTKTOOLS) && $(MAKE) install) \
+	|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac;
+install-hlmtools: hlmtools
+	(cd $(HLMTOOLS) && $(MAKE) install) \
+	|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac;
+install-hdecode:
+	(cd $(LVREC) && $(MAKE) install) \
+	|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac;
+install-book: book
+	(cd $(HTKBOOK) && $(MAKE) install) \
+	|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac;
+
+clean:
+	/bin/rm -f *~
+	@for dir in $(SUBDIRS); do \
+	  (cd $$dir && $(MAKE) clean) \
+	  || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+distclean: clean
+	/bin/rm -f Makefile config.h config.status config.cache config.log
+	@for dir in $(SUBDIRS); do \
+	  (cd $$dir && $(MAKE) distclean) \
+	  || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+
+install: @make_install@
+docs: book
+
+.PHONY: all doc install clean distclean htklib-decode \
+	htktools hlmtools hdecode docs book \
+	install-htktools install-hlmtools install-hdecode install-book
+

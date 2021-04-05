@@ -1,0 +1,292 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/* developed at:                                               */
+%/*                                                             */
+%/*      Speech Vision and Robotics group                       */
+%/*      Cambridge University Engineering Department            */
+%/*      http://svr-www.eng.cam.ac.uk/                          */
+%/*                                                             */
+%/*      Entropic Cambridge Research Laboratory                 */
+%/*      (now part of Microsoft)                                */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                 */
+%/*                                                             */
+%/*          2001-2002 Cambridge University                     */
+%/*                    Engineering Department                   */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young and Julian Odell  24/11/97
+%
+
+
+\newpage
+\mysect{HResults}{HResults}
+
+\mysubsect{Function}{HResults-Function}
+
+\index{hresults@\htool{HResults}|(}
+\htool{HResults} is the \HTK\ performance analysis tool.
+It reads in a set of label files (typically output
+from a recognition tool such as \htool{HVite}) and compares them
+with the corresponding reference transcription files.  
+For the analysis of speech recognition output, the comparison
+is based on a Dynamic Programming-based string alignment procedure.
+For the analysis of word-spotting output, the comparison
+uses the standard US NIST FOM metric.
+
+When used to calculate the sentence accuracy using DP the basic 
+output is recognition statistics for the whole file set in the format
+\begin{verbatim}
+   --------------------------- Overall Results -------------------
+   SENT:  %Correct=13.00 [H=13, S=87, N=100]
+   WORD:  %Corr=53.36, Acc=44.90 [H=460,D=49,S=353,I=73,N=862]
+   ===============================================================
+\end{verbatim}
+The first line gives the sentence-level accuracy based on the 
+total number of label files which are identical to the transcription
+files.  The second line is the word accuracy based on the DP matches
+between the label files and the transcriptions \footnote{
+The choice of ``Sentence'' and ``Word'' here is the usual
+case but is otherwise arbitrary.
+\htool{HResults} just compares label sequences.  The sequences
+could be paragraphs, sentences, phrases or words, and the labels
+could be phrases, words, syllables or phones, etc.  Options exist
+to change the output designations `SENT' and `WORD' to whatever
+is appropriate.}.
+In this second line,
+$H$ is the number of correct labels, $D$ is the number of deletions,
+$S$ is the number of substitutions, $I$ is the number of insertions and
+$N$ is the total number of labels in the defining transcription files.
+The percentage number of labels correctly recognised is given by
+\begin{equation}
+   \mbox{\%Correct} = \frac{H}{N} \times 100\%
+\end{equation}
+and the accuracy is computed by
+\begin{equation}
+   \mbox{Accuracy} = \frac{H-I}{N} \times 100\%
+\end{equation}
+
+In addition to the standard \HTK\ output format, 
+\htool{HResults} provides an alternative similar to that used
+in the US NIST scoring package, i.e.\
+\begin{verbatim}
+    |=============================================================|
+    |           # Snt |  Corr    Sub    Del    Ins    Err  S. Err |
+    |-------------------------------------------------------------|
+    | Sum/Avg |   87  |  53.36  40.95   5.68   8.47  55.10  87.00 |
+    `-------------------------------------------------------------'
+
+\end{verbatim}
+
+
+When \htool{HResults} is used to generate a confusion matrix, the
+values are as follows:
+\begin{description}
+\item[\%c] The percentage correct in the row; that is, how many times a phone
+     instance was correctly labelled.
+\item[\%e] The percentage of incorrectly labeled phones in the row as
+     a percentage of the total number of labels in the set.
+\end{description}
+An example from the HTKDemo routines:
+\begin{verbatim}
+====================== HTK Results Analysis =======================
+  Date: Thu Jan 10 19:00:03 2002
+  Ref : labels/bcplabs/mon
+  Rec : test/te1.rec
+      : test/te2.rec
+      : test/te3.rec
+------------------------ Overall Results --------------------------
+SENT: %Correct=0.00 [H=0, S=3, N=3]
+WORD: %Corr=63.91, Acc=59.40 [H=85, D=35, S=13, I=6, N=133]
+------------------------ Confusion Matrix -------------------------
+       S   C   V   N   L  Del [ %c / %e]
+   S   6   1   0   1   0    0 [75.0/1.5]
+   C   2  35   3   1   0   18 [85.4/4.5]
+   V   0   1  28   0   1   12 [93.3/1.5]
+   N   0   1   0   7   0    1 [87.5/0.8]
+   L   0   1   1   0   9    4 [81.8/1.5]
+Ins    2   2   0   2   0
+===================================================================
+\end{verbatim}
+Reading across the rows, \%c indicates the number of correct instances
+divided by the total number of instances in the row.  \%e is the
+number of incorrect instances in the row divided by the total number
+of instances (N).
+
+Optional extra outputs available from \htool{HResults} are
+\begin{itemize}
+ \item   recognition statistics on a per file basis
+ \item   recognition statistics on a per speaker basis
+ \item   recognition statistics from best of N alternatives
+ \item   time-aligned transcriptions
+ \item   confusion matrices
+\end{itemize}
+For comparison purposes, it is also possible to assign two
+labels to the same equivalence class (see {\tt -e option}).  
+Also, the {\em null} label {\tt ???} is defined so that making any
+label equivalent to the null label means that it will be
+ignored in the matching process.  Note that the order of equivalence
+labels is important, to ensure that label {\tt X} is ignored, the
+command line option \verb+-e ??? X+ would be used.
+Label files containing triphone labels of the form {\tt A-B+C} can be 
+optionally stripped down to just the class name {\tt B} via the {\tt -s} 
+switch.
+
+The word spotting mode of scoring can be used to calculate hits,
+false alarms and the associated figure of merit for each of a
+set of keywords.
+Optionally it can also calculate ROC information over a range of
+false alarm rates.  A typical output is as follows
+\begin{verbatim}
+------------------------ Figures of Merit -------------------------
+      KeyWord:    #Hits     #FAs  #Actual      FOM
+            A:        8        1       14    30.54
+            B:        4        2       14    15.27
+      Overall:       12        3       28    22.91
+-------------------------------------------------------------------
+\end{verbatim}
+which shows the number of hits and false alarms (FA) for two keywords
+\texttt{A} and \texttt{B}.  A label in the test file with start time $t_s$
+and end time $t_e$ constitutes a hit if there is a corresponding label
+in the reference file such that $t_s < t_m < t_e$ where $t_m$ is the
+mid-point of the reference label.
+
+Note that for keyword scoring, the test
+transcriptions must include a score with each labelled word spot
+and all transcriptions must include boundary time information.
+
+The FOM gives the \% of hits
+averaged over the range 1 to 10 FA's per hour.  This is calculated
+by first ordering all spots for a particular keyword according to
+the match score.  Then for each FA rate $f$, the number of hits are counted
+starting from the top of the ordered list and stopping when 
+$f$ have been encountered.  This corresponds to \textit{a posteriori}
+setting of the keyword detection threshold and effectively gives an
+upper bound on keyword spotting performance.
+
+\mysubsect{Use}{HResults-Use}
+
+\htool{HResults} is invoked by typing the command line
+\begin{verbatim}
+   HResults [options] hmmList recFiles ...
+\end{verbatim}
+This causes \htool{HResults} to be applied to each {\tt recFile} in turn.  The
+{\tt hmmList} should contain a list of all model names for which result
+information is required.  Note, however, that since the context dependent parts
+of a label can be stripped, this list is not necessarily the same as the one
+used to perform the actual recognition.  For each {\tt recFile}, a
+transcription file with the same name but the extension {\tt .lab} (or some
+user specified extension - see the {\tt -X} option) is read in and matched with
+it. The {\tt recfiles} may be master label files (MLFs), but note that even if  such an MLF is loaded using the {\tt -I} option, the list of files to be checked still needs to be passed, either as individual command line arguments or via a script with the {\tt -S} option. For this reason, it is simpler to pass the {\tt recFile} MLF as one of the command line filename arguments. For loading reference label file MLF's, the {\tt -I} option must be used. The reference labels and the recognition labels must have different file extensions.
+The available options are
+\begin{optlist}
+  \ttitem{-a s} change the label \texttt{SENT} in the output to 
+      \texttt{s}.
+
+  \ttitem{-b s} change the label \texttt{WORD} in the output to 
+      \texttt{s}.
+
+  \ttitem{-c} when comparing labels convert to upper case.  Note that
+      case is still significant for equivalences (see \texttt{-e} below).
+
+  \ttitem{-d N} search the first \texttt{N} alternatives for each test label
+      file to find the most accurate match with the reference labels.
+      Output results will be based on the most accurate match to allow 
+      NBest error rates to be found.
+
+  \ttitem{-e s t}  the label {\tt t} is made equivalent to the
+      label {\tt s}.  More precisely, {\tt t} is assigned to an equivalence
+      class of which {\tt s} is the identifying member.
+
+  \ttitem{-f} Normally, \htool{HResults} accumulates statistics for all
+      input files and just outputs a summary on completion.
+      This option forces match statistics to be output for each
+      input test file.
+      
+  \ttitem{-g fmt} This sets the test label format to {\tt fmt}. 
+      If this is not set, the {\tt recFiles} should be in the
+      same format as the reference files.
+
+  \ttitem{-h} Output the results in the same format as US NIST scoring 
+      software.
+
+  \ttitem{-k s} Collect and output results on a speaker by speaker basis
+      (as well as globally).  \texttt{s} defines a pattern which is used 
+      to extract the speaker identifier from the test label file name.
+      In addition to the pattern matching metacharacters 
+      \texttt{*} and \texttt{?}
+      (which match zero or more characters and a single character 
+      respectively), the character \texttt{\%} matches any character whilst
+      including it as part of the speaker identifier.
+
+  \ttitem{-m N} Terminate after collecting statistics from the first
+      \texttt{N} files.  
+
+  \ttitem{-n} Set US NIST scoring software compatibility.
+      
+  \ttitem{-p} This option causes a phoneme confusion matrix to
+      be output.
+
+  \ttitem{-s} This option causes all phoneme labels with the form
+      {\tt A-B+C} to be converted to {\tt B}.  It is useful for
+      analysing the results of phone recognisers using context dependent
+      models.
+
+  \ttitem{-t} This option causes a time-aligned transcription of
+      each test file to be output provided that it differs from
+      the reference transcription file.
+
+  \ttitem{-u f} Changes the time unit for calculating false alarm
+      rates (for word spotting scoring) to \texttt{f} hours (default is 1.0).
+
+  \ttitem{-w} Perform word spotting analysis rather than string
+      accuracy calculation.  
+
+  \ttitem{-z s} This redefines the null class name to {\tt s}. 
+  The default null class name is {\tt ???}, which may be difficult 
+  to manage in shell script programming.
+
+\stdoptG
+\stdoptI
+\stdoptL
+\stdoptX
+
+\end{optlist}
+\stdopts{HResults}
+
+\mysubsect{Tracing}{HResults-Tracing}
+
+\htool{HResults} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting.
+   \ttitem{00002} show error rate for each test alternative.
+   \ttitem{00004} show speaker identifier matches.
+   \ttitem{00010} warn about non-keywords found during word spotting.
+   \ttitem{00020} show detailed word spotting scores.
+   \ttitem{00040} show memory usage.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hresults@\htool{HResults}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

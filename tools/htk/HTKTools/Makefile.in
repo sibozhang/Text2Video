@@ -1,0 +1,82 @@
+# ----------------------------------------------------------- 
+#                                                             
+#                          ___                                
+#                       |_| | |_/   SPEECH                    
+#                       | | | | \   RECOGNITION               
+#                       =========   SOFTWARE                  
+#                                                             
+#                                                             
+# ----------------------------------------------------------- 
+#         Copyright: Cambridge University
+#          1995-2005 Engineering Department
+#                    http://htk.eng.cam.ac.uk
+#                    http://mi.eng.cam.ac.uk
+#                 
+#   Use of this software is governed by a License Agreement   
+#    ** See the file License for the Conditions of Use  **    
+#    **     This banner notice must not be removed      **    
+#                                                             
+# ----------------------------------------------------------- 
+# File: @configure_input@
+# ----------------------------------------------------------- 
+
+SHELL =	/bin/sh
+inc = ../HTKLib
+HTKLIB = $(inc)/HTKLib.a 
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+CC      = 	@CC@
+CFLAGS  = 	@CFLAGS@ -I$(inc) -DPHNALG
+LDFLAGS = 	@LDFLAGS@ -lm
+INSTALL = 	@INSTALL@
+PROGS   = 	@HSLAB@ HBuild HCompV HCopy HDMan \
+		HERest HHEd HInit HLEd 	HList \
+		HLRescore HLStats HMMIRest HParse \
+		HQuant HRest HResults HSGen HSmooth \
+		HVite 
+all: $(PROGS)
+
+%: %.c $(HTKLIB) 
+	if [ ! -d $(bindir) -a X_@TRADHTK@ = X_yes ] ; then mkdir -p $(bindir) ; fi
+	if [ x$@ = xHSLab ] ; then \
+		$(CC) -o $@ $(CFLAGS) $^ $(LDFLAGS) -lX11 ; \
+		else \
+		$(CC) -o $@ $(CFLAGS) $^ $(LDFLAGS) ; fi
+	if [ X_@TRADHTK@ = X_yes ] ; then $(INSTALL) -m 755 $@ $(bindir)  ; fi
+
+strip: $(PROGS)
+	-strip $(PROGS)
+
+clean:
+	-rm -f *.o 
+
+cleanup:
+	-rm -f *.o $(PROGS) *.exe
+
+distclean:
+	-rm -f *.o $(PROGS) *.exe Makefile
+
+install: mkinstalldir $(PROGS)
+	for program in $(PROGS) ; do $(INSTALL) -m 755 $${program} $(bindir) ; done
+
+mkinstalldir:
+	if [ ! -d $(bindir) ] ; then mkdir $(bindir) ; fi
+
+
+.PHONY: all strip clean cleanup distclean install mkinstalldir

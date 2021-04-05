@@ -1,0 +1,1959 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/* developed at:                                               */
+%/*                                                             */
+%/*      Speech Vision and Robotics group                       */
+%/*      Cambridge University Engineering Department            */
+%/*      http://svr-www.eng.cam.ac.uk/                          */
+%/*                                                             */
+%/*      Entropic Cambridge Research Laboratory                 */
+%/*      (now part of Microsoft)                                */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                 */
+%/*                                                             */
+%/*              2001  Cambridge University                     */
+%/*                    Engineering Department                   */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young 1/12/97
+%
+
+\mychap{Speech Input/Output}{speechio}
+
+Many tools need to input parameterised speech data and \HTK\ provides 
+a number of different methods for doing this:
+\begin{itemize}
+\item input from a previously encoded speech parameter file
+\item input from a waveform file which is encoded as part of the 
+       input processing
+\item input from an audio device which is encoded as part of the 
+       input processing.
+\end{itemize}
+For input from a waveform file, a large number of different file formats
+are supported, including all of the commonly used CD-ROM formats.
+Input/output for parameter files is limited to the standard \HTK\ file format
+and the new Entropic Esignal format.
+
+
+\sidepic{Tool.spio}{60}{}
+All \HTK\ speech input\index{speech input} is controlled by configuration
+parameters which give details of what processing operations to apply to each
+input speech file or audio source.  This chapter describes speech input/output
+in \HTK.  The general mechanisms are explained and the various configuration
+parameters are defined.  The facilities for signal pre-processing, linear
+prediction-based processing, Fourier-based processing and vector quantisation
+are presented and the supported file formats are given.  Also described are the
+facilities for augmenting the basic speech parameters with energy measures,
+delta coefficients and acceleration (delta-delta) coefficients and for
+splitting each parameter vector into multiple data streams to form
+\textit{observations}.  The chapter concludes with a brief description of the
+tools \htool{HList} and \htool{HCopy} which are provided for viewing,
+manipulating and encoding speech files.
+
+\mysect{General Mechanism}{genio}
+
+The facilities for speech input and output in \HTK\ are provided
+by five distinct modules: \htool{HAudio}, \htool{HWave},
+\htool{HParm}, \htool{HVQ} and \htool{HSigP}.  The interconnections
+between these modules are shown in Fig.~\href{f:Spmods}.  
+\index{speech input!general mechanism}
+
+\sidefig{Spmods}{62}{Speech Input Subsystem}{2}{
+Waveforms
+are read from files using \htool{HWave}, or are input direct from
+an audio device using \htool{HAudio}.  In a few rare cases, such as
+in the display tool \htool{HSLab}, only the speech waveform is needed.
+However, in most cases the waveform is wanted in parameterised form and
+the required encoding is performed by \htool{HParm}
+using the signal processing operations defined in 
+\htool{HSigP}.  The parameter vectors are output by \htool{HParm}
+in the form of observations which are the basic units of data processed
+by the \HTK\ recognition and training tools.  An observation contains all
+components of a raw parameter vector but it may be possibly split into
+a number of independent parts.  Each such part is regarded by a \HTK\ tool
+as a statistically independent data stream.  Also, an observation
+may include VQ indices attached to each data stream.  Alternatively,
+VQ indices can be read directly from a parameter file in which case the
+observation will contain only VQ indices.
+}
+
+Usually a \HTK\ tool will require a number of speech data files to be
+specified on the command line.  In the majority of cases, these
+files will be required in parameterised form.  Thus, the following example
+invokes the \HTK\ embedded training tool \htool{HERest}
+to re-estimate a set of models using the speech data
+files \texttt{s1}, \texttt{s2}, \texttt{s3}, \ldots .  These are
+input via the library module \htool{HParm} and they
+must be in exactly the form needed by the models.
+\begin{verbatim}
+    HERest ...  s1 s2 s3 s4 ...
+\end{verbatim}
+
+However, if the external form of the speech data files is not in the
+required form, it will often be possible to convert them automatically during
+the input process.
+To do this, configuration parameter values are specified whose function 
+is to define exactly
+how the conversion should be done.  
+The key idea is that there is a 
+\textit{source parameter kind} and \textit{target parameter kind}.
+The source refers to the natural form of the data in
+the external medium and the target refers to the form of the
+data that is required internally by the \HTK\ tool.
+The principle function of the speech
+input subsystem is to convert the source parameter kind into the 
+required target parameter kind. \index{speech input!automatic conversion}
+
+Parameter kinds consist of a base form to which one or more
+qualifiers may be attached where each qualifier consists of
+a single letter preceded by an underscore character.\index{qualifiers}
+Some examples of parameter kinds are
+\begin{varlist}
+   \fwitem{2cm}{WAVEFORM} simple waveform
+   \fwitem{2cm}{LPC} linear prediction coefficients
+   \fwitem{2cm}{LPC\_D\_E} LPC with energy and delta coefficients
+   \fwitem{2cm}{MFCC\_C}  compressed mel-cepstral coefficients
+\end{varlist}
+\index{speech input!target kind}
+
+The required source and target parameter kinds are specified
+using the configuration parameters \texttt{SOURCEKIND}
+\index{sourcekind@\texttt{SOURCEKIND}} and 
+\texttt{TARGETKIND}\index{targetkind@\texttt{TARGETKIND}}.
+Thus, if the following configuration parameters were defined
+\begin{verbatim}
+    SOURCEKIND = WAVEFORM
+    TARGETKIND = MFCC_E
+\end{verbatim}
+then the speech input subsystem would expect each input file to contain
+a speech waveform and it would convert it to mel-frequency cepstral
+coefficients with log energy appended.
+
+The source need not be a waveform.  For example, the configuration
+parameters
+\begin{verbatim}
+    SOURCEKIND = LPC
+    TARGETKIND = LPREFC
+\end{verbatim}
+would be used to read in files containing linear prediction coefficients
+and convert them to reflection coefficients.
+
+For convenience, a special parameter kind called
+\texttt{ANON}\index{anon@\texttt{ANON}} is provided.  When the source is
+specified as \texttt{ANON} then the actual kind of the source is determined
+from the input file.  When \texttt{ANON} is used in the target kind, then it is
+assumed to be identical to the source.  For example, the effect of the
+following configuration parameters
+\begin{verbatim}
+    SOURCEKIND = ANON
+    TARGETKIND = ANON_D
+\end{verbatim}
+would simply be to add delta coefficients to whatever the source form
+happened to be.  
+The source and target parameter kinds default to \texttt{ANON}
+to indicate that by default
+no input conversions are performed.  Note, however, that where two or more
+files are listed on the command line, the meaning of
+\texttt{ANON} will not be re-interpreted from one file to the next.  Thus, it
+is a general rule, that any tool reading multiple source speech files requires
+that all the files have the same parameter kind.
+
+The conversions applied by \HTK's input subsystem can be complex and may
+not always behave exactly as expected.  There are two facilities that can 
+be used to help check and debug the set-up of the speech i/o
+configuration parameters.
+Firstly, the tool \htool{HList} simply displays speech data by listing it
+on the terminal.  However, since \htool{HList}  uses the speech 
+input subsystem like
+all \HTK\ tools, if a value for \texttt{TARGETKIND} is set, then 
+it will display the target
+form rather than the source form.  This is the simplest way to check the form of
+the speech data that will actually be delivered to a \HTK\ tool. 
+\htool{HList}  is described
+in more detail in section~\ref{s:UseHList} below.
+
+Secondly, trace output can be generated from the \htool{HParm} module
+by setting the \texttt{TRACE} configuration file parameter.  This is a
+bit-string in which individual bits cover different parts of the
+conversion processing.  The details are given in the reference section.
+
+To summarise,  speech input in \HTK\ is controlled by  configuration
+parameters. The key parameters  are \texttt{SOURCEKIND} and {\tt
+TARGETKIND} which specify the source and target parameter kinds. 
+These determine the end-points of the required input conversion.
+However,  to properly specify the detailed steps in between,  more
+configuration parameters must be defined.
+These are described in subsequent sections.
+
+\mysect{Speech Signal Processing}{sigproc}
+
+In this section, the basic mechanisms involved in transforming a
+speech waveform into a sequence of parameter vectors will be
+described.  Throughout this section, it is assumed that the
+\texttt{SOURCEKIND} is \texttt{WAVEFORM} and that data is being read from
+a HTK format file via \htool{HWave}.  Reading from different format
+files is described below in section~\ref{s:waveform}.
+Much of the
+material in this section also applies to data read direct from an audio 
+device, the
+additional features needed to deal with this latter case are
+described later in section~\ref{s:audioio}.
+\vspace{0.2cm}
+\index{speech input!blocking}
+
+The overall process is illustrated in Fig.~\href{f:Blocking}
+which shows the sampled waveform being converted into a 
+sequence of parameter blocks.  In general, \HTK\ regards
+both waveform files and parameter files as being just
+sample sequences, the only difference being that in the former
+case the samples are 2-byte integers and in the latter they
+are multi-component vectors.  The sample rate of the input
+waveform will normally be determined from the input file
+itself.  However, it can be set explicitly using the
+configuration parameter \texttt{SOURCERATE}.  The period
+between each parameter vector determines the output sample
+rate and it is set using the configuration parameter 
+\texttt{TARGETRATE}.  The segment of waveform used to determine
+each parameter vector is usually referred to as a window
+and its size is set by the
+configuration parameter \texttt{WINDOWSIZE}.  Notice that the
+window size and frame rate are independent.  Normally,
+the window size will be larger than the frame rate so that
+successive windows overlap as illustrated in 
+Fig.~\href{f:Blocking}.
+\index{sourcerate@\texttt{SOURCERATE}}
+\index{targetrate@\texttt{TARGETRATE}}
+\index{windowsize@\texttt{WINDOWSIZE}}
+
+For example, a waveform sampled
+at 16kHz 
+would be converted into 100 parameter vectors per
+second using a 25 msec window by setting the following
+configuration parameters.
+\begin{verbatim}
+    SOURCERATE = 625
+    TARGETRATE = 100000
+    WINDOWSIZE = 250000
+\end{verbatim}
+Remember that all durations are specified in 100 nsec units\footnote{
+The somewhat bizarre choice of 100nsec units originated in Version 1 of
+\HTK\ when times were represented by integers and this unit was the best
+compromise between precision and range.  Times are now represented by
+doubles and hence the constraints no longer apply.  However, the need for backwards
+compatibility means that 100nsec units have been retained.  The names
+\texttt{SOURCERATE} and \texttt{TARGETRATE} are also non-ideal, 
+\texttt{SOURCEPERIOD} and \texttt{TARGETPERIOD} would be better. 
+}.
+
+\sidefig{Blocking}{50}{Speech Encoding Process}{2}{}
+Independent of what parameter kind is required, there are some simple
+pre-processing operations that can be applied prior to performing the actual
+signal analysis.\index{speech input!pre-processing} 
+Firstly, the DC mean can be removed from the source waveform by setting the
+Boolean configuration parameter
+\texttt{ZMEANSOURCE}\index{zmeansource@\texttt{ZMEANSOURCE}} to true 
+(i.e.\ \texttt{T}). This is useful when\index{speech input!DC offset}
+the original analogue-digital conversion has added a DC offset to the
+signal. It is applied to each window individually so that it can be
+used both when reading from a file and when using direct audio
+input\footnote{ This method of applying a zero mean is different to
+HTK Version 1.5 where the mean was calculated and subtracted from the
+whole speech file in one operation. The configuration variable
+\texttt{V1COMPAT} can be set to revert to this older behaviour.}.
+
+Secondly,  it is common practice to pre-emphasise
+the signal by applying the first order difference equation
+\hequation{
+   {s^{\prime}}_n  = s_n - k\,s_{n-1}
+}{preemp}
+to the samples\index{speech input!pre-emphasis}
+$\{s_n, n=1,N \}$ in each window.  Here $k$ is the
+pre-emphasis\index{pre-emphasis} coefficient which should be in the range
+$0 \leq k < 1$.  It is specified using the configuration
+parameter \texttt{PREEMCOEF}\index{preemcoef@\texttt{PREEMCOEF}}.
+Finally,
+it is usually beneficial to taper the
+samples in each window so that discontinuities at the window
+edges are attenuated.  This is done by setting the
+Boolean configuration 
+parameter \texttt{USEHAMMING}\index{usehamming@\texttt{USEHAMMING}}
+to true.
+This applies the following transformation to the samples
+$\{s_n, n=1,N\}$ in the window
+\hequation{
+   {s^{\prime}}_n = \left\{ 0.54 - 0.46 \cos \left( \frac{2 \pi (n-1)}{N-1}
+         \right) \right\} s_n
+}{ham}
+When both pre-emphasis and Hamming windowing are enabled,
+pre-emphasis is performed 
+first.\index{speech input!Hamming window function} \index{Hamming Window}
+
+In practice, all three of the above are usually applied.
+Hence, a configuration file will typically contain the 
+following
+\begin{verbatim}
+    ZMEANSOURCE = T
+    USEHAMMING = T
+    PREEMCOEF = 0.97
+\end{verbatim}
+Certain types of artificially generated waveform data can cause numerical
+overflows with some coding schemes. In such cases adding a small amount of
+random noise to the waveform data solves the problem. The noise is added
+to the samples using
+\hequation{
+   {s^{\prime}}_n = s_n + q RND()
+}{dither}
+where $RND()$ is a uniformly distributed random value over the interval
+$[-1.0, +1.0)$ and $q$ is the scaling factor. The amount of noise added 
+to the data ($q$) is set with the configuration parameter
+\index{adddither@\texttt{ADDDITHER}}\texttt{ADDDITHER} (default value $0.0$). 
+A positive value causes the noise signal added to be the same every time
+(ensuring that the same file always gives exactly the same results). With a
+negative value the noise is random and the same file may produce slightly
+different results in different trials.
+
+One problem that can arise when processing speech waveform files obtained from
+external sources, such as databases on CD-ROM, is that the
+byte-order\index{byte-order} may be different to that used by the machine on
+which \HTK\ is running. To deal with this problem, \htool{HWave} can perform
+automatic byte-swapping in order to preserve proper byte order. \HTK\ assumes
+by default that speech waveform data is encoded as a sequence of 2-byte
+integers as is the case for most current speech databases\footnote{Many of the
+more recent speech databases use compression. In these cases, the data may be
+regarded as being logically encoded as a sequence of 2-byte integers even if
+the actual storage uses a variable length encoding scheme.}. 
+If the source format is known, then \htool{HWave} will also make an assumption
+about the byte order used to create speech files in that format. It then checks
+the byte order of the machine that it is running on and automatically performs
+byte-swapping if the order is different. For unknown formats, proper byte order
+can be ensured by setting the configuration parameter
+\texttt{BYTEORDER}\index{byteorder@\texttt{BYTEORDER}} to \texttt{VAX} if the
+speech data was created on a little-endian machine such as a VAX or an IBM PC,
+and to anything else (e.g. \texttt{NONVAX}) if the speech data was created on a
+big-endian machine such as a SUN, HP or Macintosh machine. \index{speech
+input!byte order} 
+
+The reading/writing of \HTK\ format waveform files can be further controlled
+via the configuration parameters \texttt{NATURALREADORDER} and 
+\texttt{NATURALWRITEORDER}. The effect and default settings of these parameters
+are described in section~\href{s:byteswap}.
+\index{byte swapping}
+Note that \texttt{BYTEORDER} should not be used when \texttt{NATURALREADORDER}
+is set to true.  Finally, note that \HTK\ can also byte-swap parameterised
+files in a similar way provided that only the byte-order of each 4 byte float
+requires inversion.  
+
+\mysect{Linear Prediction Analysis}{lpcanal}
+
+In linear prediction (LP) \index{linear prediction} analysis, the 
+vocal tract transfer function
+is modelled by an all-pole filter\index{all-pole filter} with transfer function\footnote{
+Note that some textbooks define the denominator of equation~\ref{e:allpole}
+as $1 - \sum_{i=1}^p a_i z^{-i}$ so that the filter coefficients are the
+negatives of those computed by \HTK.}
+\hequation{
+H(z) = \frac{1}{\sum_{i=0}^p a_i z^{-i}}
+}{allpole}
+where $p$ is the number of poles and $a_0 \equiv 1$.
+The filter coefficients $\{a_i \}$ are chosen to minimise
+the mean square filter prediction error summed over the analysis
+window.  The \HTK\ module \htool{HSigP} uses the \textit{autocorrelation
+method} to perform this optimisation as follows.
+
+Given a window of speech samples $\{s_n, n=1,N \}$,
+the first $p+1$ terms of the autocorrelation sequence are
+calculated from
+\hequation{
+r_i = \sum_{j=1}^{N-i} s_j s_{j+i}
+}{autoco}
+where $i = 0,p$.
+The filter coefficients are then computed recursively
+using a set of auxiliary coefficients $\{k_i\}$ which can be
+interpreted as the reflection coefficients of an equivalent
+acoustic tube and the prediction error $E$ which is initially
+equal to $r_0$.  Let $\{k_j^{(i-1)} \}$ and $\{a_j^{(i-1)} \}$
+be the reflection and filter coefficients for a filter of order
+$i-1$, then a filter of order $i$ can be calculated in three steps.
+Firstly, a new set of reflection coefficients\index{reflection coefficients} are calculated.
+\hequation{
+ k_j^{(i)} = k_j^{(i-1)}
+}{kupdate1}
+for $j = 1,i-1$ and
+\hequation{
+ k_i^{(i)} =  \left\{ r_i + 
+          \sum_{j=1}^{i-1} a_j^{(i-1)} r_{i-j} \right\} / E^{(i-1)}
+}{kupdate2}
+Secondly, the prediction energy is updated.
+\hequation{
+E^{(i)} = (1 -  k_i^{(i)}  k_i^{(i)} ) E^{(i-1)}
+}{Eupdate}
+Finally, new filter coefficients are computed
+\hequation{
+a_j^{(i)} = a_j^{(i-1)} - k_i^{(i)} a_{i-j}^{(i-1)}
+}{aupdate1}
+for $j = 1,i-1$ and
+\hequation{
+a_i^{(i)} = - k_i^{(i)} 
+}{aupdate2}
+This process is repeated from $i=1$ through to the required filter order
+$i=p$.
+
+To effect the above transformation, the target parameter kind must
+be set to either \texttt{LPC}\index{lpc@\texttt{LPC}} to obtain the LP filter parameters $\{a_i\}$ or
+\texttt{LPREFC}\index{lprefc@\texttt{LPREFC}} to obtain the reflection coefficients  $\{k_i \}$.  The
+required filter order must also be set using the configuration
+parameter \texttt{LPCORDER}\index{lpcorder@\texttt{LPCORDER}}.
+Thus, for example, the following configuration
+settings would produce a target parameterisation
+consisting of 12 reflection coefficients per vector.
+\begin{verbatim}
+    TARGETKIND = LPREFC
+    LPCORDER = 12
+\end{verbatim}
+
+An alternative LPC-based parameterisation is obtained by setting the
+target kind to  \texttt{LPCEPSTRA}\index{lpcepstra@\texttt{LPCEPSTRA}} to generate linear prediction cepstra.  
+The cepstrum of a signal is computed by taking a Fourier (or similar)
+transform of the log spectrum.  In the case of linear 
+prediction cepstra\index{linear prediction!cepstra}, the
+required spectrum is the linear prediction spectrum which can be obtained
+from the Fourier transform of the filter coefficients. However, it can be shown
+that the required cepstra can be more efficiently computed using 
+a simple recursion
+\hequation{
+   c_n = -a_n - \frac{1}{n} \sum_{i=1}^{n-1} (n-i) a_i c_{n-i}
+}{lpcepstra}
+The number of cepstra generated need not be the same as the number of
+filter coefficients, hence it is set by a separate configuration 
+parameter called \texttt{NUMCEPS}\index{numceps@\texttt{NUMCEPS}}.
+
+The principal advantage of cepstral coefficients is that they are 
+generally decorrelated and this allows diagonal covariances
+to be used in the HMMs.  However, one minor problem with 
+them is that the higher order cepstra are numerically quite small and 
+this results in
+a very wide range of variances when going from the low to high cepstral 
+coefficients\index{cepstral coefficients!liftering}.
+\HTK\ does not have a problem with this but for pragmatic reasons such as
+displaying model parameters, flooring variances, etc., it is convenient to re-scale
+the cepstral coefficients to have similar magnitudes.  This is done by
+setting the configuration parameter \texttt{CEPLIFTER}\index{ceplifter@\texttt{CEPLIFTER}} to some value $L$ to
+\textit{lifter} the cepstra according to the following formula
+\hequation{
+  {c^{\prime}}_n = \left( 1 + \frac{L}{2} sin \frac{\pi n}{L}
+      \right) c_n
+}{ceplifter}
+
+As an example, the following configuration parameters would
+use a 14'th order linear prediction analysis to
+generate 12 liftered LP cepstra per target vector
+\begin{verbatim}
+    TARGETKIND = LPCEPSTRA
+    LPCORDER = 14
+    NUMCEPS = 12
+    CEPLIFTER = 22
+\end{verbatim}
+These are typical of the values needed to generate a good front-end
+parameterisation for a speech recogniser based on linear prediction.
+\index{cepstral analysis!LPC based}\index{cepstral analysis!liftering coefficient}
+
+Finally, note that the conversions supported by \HTK\ are not limited to
+the case where the source is a waveform.  \HTK\ can convert any
+LP-based parameter into any other LP-based parameter.
+
+\mysect{Filterbank Analysis}{fbankanal}
+
+The human ear resolves frequencies non-linearly across the audio spectrum and
+empirical evidence suggests that designing a front-end to operate in a similar
+non-linear manner improves recognition performance.  A popular alternative to
+linear prediction based analysis is therefore filterbank analysis since this
+provides a much more straightforward route to obtaining the desired non-linear
+frequency resolution.  However, filterbank amplitudes are highly correlated and
+hence, the use of a cepstral transformation in this case is virtually mandatory
+if the data is to be used in a HMM based recogniser with diagonal covariances.
+\index{cepstral analysis!filter bank} \index{speech input!filter bank}
+
+\HTK\ provides a simple Fourier transform based filterbank designed to
+give approximately equal resolution on a mel-scale.  Fig.~\href{f:melfbank}
+illustrates the general form of this filterbank.    As can be seen,
+the filters used are triangular and they are equally spaced along the mel-scale
+which is defined by
+\hequation{
+   \mbox{Mel}(f) = 2595 \log_{10}(1 + \frac{f}{700})
+}{melscale}
+To implement this filterbank, the window of speech data is
+transformed\index{mel scale} using a Fourier transform and the magnitude is
+taken.  The magnitude coefficients are then \textit{binned} by correlating them
+with each triangular filter.  Here binning means that each FFT magnitude
+coefficient is multiplied by the corresponding filter gain and the results
+accumulated.  Thus, each bin holds a weighted sum representing the spectral
+magnitude in that filterbank channel.\index{binning} As an alternative, the
+Boolean configuration parameter
+\texttt{USEPOWER}\index{usepower@\texttt{USEPOWER}} can be set true to use the
+power rather than the magnitude of the Fourier transform in the binning
+process.  \index{cepstral analysis!power vs magnitude}
+
+\centrefig{melfbank}{110}{Mel-Scale Filter Bank}
+
+\index{speech input!bandpass filtering}
+Normally the triangular filters are spread over the whole frequency range from
+zero upto the Nyquist frequency.  However, band-limiting is often useful to
+reject unwanted frequencies or avoid allocating filters to frequency regions in
+which there is no useful signal energy.  For filterbank analysis only, lower
+and upper frequency cut-offs can be set using the configuration parameters
+\texttt{LOFREQ}\index{lofreq@\texttt{LOFREQ}} and
+\texttt{HIFREQ}\index{hifreq@\texttt{HIFREQ}}. For example,
+\begin{verbatim}
+    LOFREQ = 300
+    HIFREQ = 3400
+\end{verbatim}
+might be used for processing telephone speech.  When low and high pass cut-offs
+are set in this way, the specified number of filterbank channels are distributed
+equally on the mel-scale across the resulting pass-band such that the lower cut-off
+of the first filter is at \texttt{LOFREQ} and the upper cut-off of the last
+filter is at \texttt{HIFREQ}.
+
+If mel-scale filterbank parameters are required directly, then the target kind
+should be set to \texttt{MELSPEC}\index{melspec@\texttt{MELSPEC}}.
+Alternatively, log filterbank parameters can be generated by setting the target
+kind to \texttt{FBANK}.  
+
+
+\mysect{Vocal Tract Length Normalisation}{vtln}
+
+A simple speaker normalisation technique can be implemented by
+modifying the filterbank analysis described in the previous section.
+Vocal tract length normalisation (VTLN) aims to compensate for the
+fact that speakers have vocal tracts of different sizes. VTLN can be
+implemented by warping the frequency axis in the filterbank analysis.
+In HTK simple linear frequency warping is supported. The warping
+factor~$\alpha$ is controlled by the configuration variable
+\texttt{WARPFREQ}\index{melspec@\texttt{WARPFREQ}}. Here values of
+$\alpha < 1.0$ correspond to a compression of the frequency axis. As
+the warping would lead to some filters being placed outside the
+analysis frequency range, the simple linear warping function is
+modified at the upper and lower boundaries. The result is that the
+lower boundary frequency of the analysis
+(\texttt{LOFREQ}\index{melspec@\texttt{LOFREQ}}) and the upper
+boundary frequency (\texttt{HIFREQ}\index{melspec@\texttt{HIFREQ}})
+are always mapped to themselves. The regions in which the warping
+function deviates from the linear warping with factor~$\alpha$ are
+controlled with the two configuration variables
+(\texttt{WARPLCUTOFF}\index{melspec@\texttt{WARPLCUTOFF}}) and
+(\texttt{WARPUCUTOFF}\index{melspec@\texttt{WARPUCUTOFF}}).
+Figure~\href{f:vtlnpiecewise} shows the overall shape of the resulting
+piece-wise linear warping functions.
+
+\centrefig{vtlnpiecewise}{60}{Frequency Warping}
+
+The warping factor~$\alpha$ can for example be found using a search
+procedure that compares likelihoods at different warping factors. A
+typical procedure would involve recognising an utterance with
+$\alpha=1.0$ and then performing forced alignment of the hypothesis
+for all warping factors in the range $0.8 - 1.2$. The factor that
+gives the highest likelihood is selected as the final warping factor.
+Instead of estimating a separate warping factor for each utterance,
+large units can be used by for example estimating only one~$\alpha$
+per speaker. 
+
+Vocal tract length normalisation can be applied in testing as well as
+in training the acoustic models.
+
+\mysect{Cepstral Features}{cepstrum}
+
+Most often, however, cepstral parameters are required
+and these are indicated by setting the target kind to \texttt{MFCC} standing
+for Mel-Frequency Cepstral Coefficients (MFCCs).  These are calculated from the
+log filterbank amplitudes $\{m_j\}$ using the Discrete Cosine Transform
+\hequation{
+   c_i = \sqrt{\frac{2}{N}} \sum_{j=1}^N m_j \cos \left( \frac{\pi i}{N}(j-0.5) \right)
+}{dct}
+where $N$ is the number of filterbank channels set by the configuration
+parameter \texttt{NUMCHANS}\index{numchans@\texttt{NUMCHANS}}.  The required
+number of cepstral coefficients is set by
+\texttt{NUMCEPS}\index{numceps@\texttt{NUMCEPS}} as in the linear prediction
+case.  Liftering can also be applied to MFCCs using the
+\texttt{CEPLIFTER}\index{ceplifter@\texttt{CEPLIFTER}} configuration parameter
+(see equation~\ref{e:ceplifter}).
+
+MFCCs are the parameterisation of choice for many speech recognition applications.
+They give good discrimination and lend themselves to a number of manipulations.
+In particular, the effect of inserting a transmission channel on the input
+speech is to multiply the speech spectrum by the channel transfer function.
+In the log cepstral domain, this multiplication becomes a simple addition which
+can be removed by subtracting the cepstral mean from all input vectors.
+In practice, of course, the mean has to be estimated over a limited amount
+of speech data so the subtraction will not be perfect.  Nevertheless, this
+simple technique is very effective in practice where it
+compensates for long-term spectral effects such as those caused by different
+microphones and audio channels.  To perform this
+so-called \textit{Cepstral Mean Normalisation} (CMN) in \HTK\, it is only necessary
+to add the \texttt{\_Z}\index{qualifiers!aaaz@\texttt{\_Z}} qualifier to the 
+target parameter kind.  The mean is estimated by computing the average of
+each cepstral parameter across each input speech file.  Since this cannot be done
+with live audio, cepstral mean compensation is not supported for this case.
+\index{cepstral mean normalisation}
+
+In addition to the mean normalisation the variance of the data can be
+normalised. For improved robustness both mean and variance of the data
+should be calculated on a larger units (e.g.\ on all the data from a
+speaker instead of just on a single utterance). To use
+speaker-/cluster-based normalisation the mean and variance estimates
+are computed offline before the actual recognition and stored in
+separate files (two files per cluster). The configuration variables
+\texttt{CMEANDIR}\index{numchans@\texttt{CMEANDIR}} and
+\texttt{VARSCALEDIR}\index{numchans@\texttt{VARSCALEDIR}} point to the
+directories where these files are stored. To find the actual filename
+a second set of variables
+(\texttt{CMEANMASK}\index{numchans@\texttt{CMEANMASK}} and
+\texttt{VARSCALEMASK}\index{numchans@\texttt{VARSCALEMASK}}) has to be
+specified. These masks are regular expressions in which you can use
+the special characters \texttt{?}, \texttt{*} and \texttt{\%}. The
+appropriate mask is matched against the filename of the file to be
+recognised and the substring that was matched against the \texttt{\%}
+characters is used as the filename of the normalisation file. An
+example config setting is:
+
+\begin{verbatim}
+CMEANDIR     = /data/eval01/plp/cmn
+CMEANMASK    = %%%%%%%%%%_*
+VARSCALEDIR  = /data/eval01/plp/cvn
+VARSCALEMASK = %%%%%%%%%%_*
+VARSCALEFN   = /data/eval01/plp/globvar
+\end{verbatim}
+
+So, if the file \verb|sw1-4930-B_4930Bx-sw1_000126_000439.plp| is to be
+recognised then the normalisation estimates would be loaded from the
+following files:
+
+\begin{verbatim}
+/data/eval01/plp/cmn/sw1-4930-B
+/data/eval01/plp/cvn/sw1-4930-B
+\end{verbatim}
+
+The file specified by
+\texttt{VARSCALEFN}\index{numchans@\texttt{VARSCALEFN}} contains the
+global target variance vector, i.e. the variance of the data is first
+normalised to 1.0 based on the estimate in the appropriate file in
+\texttt{VARSCALEDIR}\index{numchans@\texttt{VARSCALEDIR}} and then
+scaled to the target variance given in
+\texttt{VARSCALEFN}\index{numchans@\texttt{VARSCALEFN}}.
+
+The format of the files is very simple and each of them just contains
+one vector. Note that in the case of the cepstral mean only the static
+coefficients will be normalised. A cmn file could for example look like:
+
+\begin{verbatim}
+<CEPSNORM> <PLP_0>
+<MEAN> 13
+-10.285290 -9.484871 -6.454639 ...
+\end{verbatim}
+
+
+The cepstral variance normalised always applies to the full
+observation vector after all qualifiers like delta and acceleration
+coefficients have been added, e.g.:
+
+\begin{verbatim}
+<CEPSNORM> <PLP_D_A_Z_0>
+<VARIANCE> 39
+33.543018 31.241779 36.076199 ...
+\end{verbatim}
+
+The global variance vector will always have the same number of
+dimensions as the cvn vector, e.g.:
+
+\begin{verbatim}
+<VARSCALE> 39
+ 2.974308e+01 4.143743e+01 3.819999e+01 ...
+\end{verbatim}
+
+These estimates can be generated using \htool{HCompV}. See the
+reference section for details.
+
+ 
+\mysect{Perceptual Linear Prediction}{plp}
+
+An alternative to the Mel-Frequency Cepstral Coefficients is the use
+of Perceptual Linear Prediction (PLP) coefficients.
+
+As implemented in HTK the PLP feature extraction is based on the
+standard mel-frequency filterbank (possibly warped). The mel
+filterbank coefficients are weighted by an equal-loudness curve and
+then compressed by taking the cubic root.\footnote{the degree of
+  compression can be controlled by setting the configuration parameter
+  \texttt{COMPRESSFACT}\index{enormalise@\texttt{COMPRESSFACT}} which
+  is the power to which the amplitudes are raised and defaults to
+  0.33)} From the resulting auditory spectrum LP coefficients are
+estimated which are then converted to cepstral coefficients in the
+normal way (see above).
+
+
+\mysect{Energy Measures}{energy}
+
+\index{speech input!energy measures} 
+To augment the spectral parameters derived from linear prediction or
+mel-filterbank analysis, an energy term can be appended by including the
+qualifier \texttt{\_E}\index{qualifiers!aaae@\texttt{\_E}} in the target kind.
+The energy is computed as the log of the signal energy, that is, for speech
+samples $\{s_n, n=1,N \}$
+\hequation{
+   E = log \sum_{n=1}^N s_n^2
+}{logenergy}
+
+This log energy measure can be normalised to the range $-E_{min}..1.0$ by
+setting the Boolean configuration parameter
+\texttt{ENORMALISE}\index{enormalise@\texttt{ENORMALISE}} to true (default
+setting).  This
+normalisation is implemented by subtracting the maximum value of $E$ in the
+utterance and adding $1.0$. 
+Note that energy normalisation is incompatible with live audio 
+input and in such circumstances the configuration variable \texttt{ENORMALISE} 
+should be explicitly set false.
+The lowest energy in the utterance can be clamped using the configuration
+parameter
+\texttt{SILFLOOR}\index{silfloor@\texttt{SILFLOOR}} which gives the ratio
+between the maximum and minimum energies in the utterance in dB. Its default
+value is 50dB. 
+Finally, the overall log energy can be arbitrarily scaled by the value of the 
+configuration parameter \texttt{ESCALE}\index{escale@\texttt{ESCALE}} whose 
+default is $0.1$. \index{silence floor}
+
+When calculating energy for LPC-derived parameterisations, the default is to
+use the zero-th delay autocorrelation coefficient ($r_0$).  However, this means
+that the energy is calculated after windowing and pre-emphasis.  If the
+configuration parameter \texttt{RAWENERGY}\index{rawenergy@\texttt{RAWENERGY}}
+is set true, however, then energy is calculated separately before any windowing
+or pre-emphasis regardless of the requested parameterisation\footnote{ In any
+event, setting the compatibility variable \texttt{V1COMPAT} to true in
+\htool{HPARM} will ensure that the calculation of energy is compatible with
+that computed by the Version 1 tool \htool{HCode}.  }.
+
+In addition to, or in place of, the log energy, the qualifier
+\texttt{\_O}\index{qualifiers!aaao@\texttt{\_O}} can be added to a target kind
+to indicate that the 0'th cepstral parameter $C_0$ is to be appended.  This
+qualifier is only valid if the target kind is \texttt{MFCC}.  Unlike earlier
+versions of \HTK\, scaling factors set by the configuration variable
+\texttt{ESCALE} are not applied to $C_0$\footnote{ Unless \texttt{V1COMPAT} is
+set to true.  }.
+
+\mysect{Delta, Acceleration and Third Differential Coefficients}{delta}
+
+\index{speech input!dynamic coefficients}
+The performance of a speech recognition system can be greatly enhanced by
+adding time derivatives to the basic static parameters.  In \HTK, these are
+indicated by attaching qualifiers to the basic parameter kind.  The qualifier
+\texttt{\_D} indicates that first order regression coefficients (referred to as
+delta coefficients) are appended, the qualifier
+\texttt{\_A}\index{qualifiers!aaaa@\texttt{\_A}} indicates that second order
+regression coefficients (referred to as acceleration coefficients) and 
+ the qualifier
+\texttt{\_T}\index{qualifiers!aaaa@\texttt{\_T}} indicates that third order
+regression coefficients (referred to as third differential coefficients) are
+appended. The \texttt{\_A} qualifier cannot be used without also using the
+\texttt{\_D}\index{qualifiers!aaad@\texttt{\_D}} qualifier. Similarly
+the \texttt{\_T} qualifier cannot be used without also using the
+\texttt{\_D} and \texttt{\_A} qualifiers.
+
+The delta coefficients\index{delta coefficients} are computed using the
+following regression formula\index{regression formula}
+\hequation{
+   d_t = \frac{ \sum_{\theta =1}^\Theta \theta(c_{t+\theta} - c_{t-\theta}) }{
+                2 \sum_{\theta = 1}^\Theta \theta^2 }
+}{deltas}
+where $d_t$ is a delta coefficient at time $t$ computed in terms of the
+corresponding static coefficients $c_{t-\Theta}$ to $c_{t+\Theta}$.  The value
+of $\Theta$ is set using the configuration parameter
+\texttt{DELTAWINDOW}\index{deltawindow@\texttt{DELTAWINDOW}}.  The same formula
+is applied to the delta coefficients to obtain acceleration coefficients except
+that in this case the window size is set by
+\texttt{ACCWINDOW}\index{accwindow@\texttt{ACCWINDOW}}. Similarly
+the third differentials use \texttt{THIRDWINDOW}. Since
+equation~\ref{e:deltas} relies on past and future speech parameter values, 
+some modification is needed at the beginning and end of the speech.  The
+default behaviour is to replicate the first or last vector as needed to fill
+the regression window.
+
+In older version 1.5 of \HTK\ and earlier, this end-effect problem was solved
+by using simple 
+first order differences at the start and end of the speech, that is
+\begin{equation}
+   d_t = c_{t+1} - c_t,\;\;\; t<\Theta
+\end{equation}
+and
+\begin{equation}
+   d_t = c_t - c_{t-1}, \;\;\; t \geq T-\Theta
+\end{equation}
+where $T$ is the length of the data file.  If required, this older behaviour
+can be restored by setting the configuration variable 
+\texttt{V1COMPAT}\index{v1compat@\texttt{V1COMPAT}}
+to true in \htool{HParm}.
+
+For some purposes, it is useful to use simple differences throughout.  This
+can be achieved by setting the configuration 
+variable \texttt{SIMPLEDIFFS}\index{simplediffs@\texttt{SIMPLEDIFFS}}
+to true in \htool{HParm}.  In this case, just the end-points of the delta window
+are used, i.e.
+\hequation{
+   d_t = \frac{ (c_{t+\Theta} - c_{t-\Theta}) }{
+                2 \Theta}
+}{simdiffs}
+\index{simple differences}
+
+When delta and acceleration coefficients are requested, they are computed for
+all static parameters including energy if present.  In some applications, the
+absolute energy is not useful but time derivatives of the energy may be.  By
+including the \texttt{\_E} qualifier together with the
+\texttt{\_N}\index{qualifiers!aaan@\texttt{\_N}} qualifier, the absolute energy
+is suppressed leaving just the delta and acceleration coefficients of the
+energy.
+
+\mysect{Storage of Parameter Files}{parmstore}
+
+Whereas \HTK\ can handle waveform data in a variety of file formats,
+all parameterised speech data is stored externally in either native
+\HTK\ format data files or Entropic Esignal format files.
+Entropic ESPS format is no longer supported directly, but input and output
+filters can be used to convert ESPS to Esignal format on input and
+Esignal to ESPS on output.
+
+\subsection{\HTK\ Format Parameter Files}
+
+\HTK\ format files consist of a contiguous sequence of \textit{samples}
+preceded by a header.  Each sample is a vector of either 2-byte integers or
+4-byte floats.  2-byte integers are used for compressed forms as described
+below and for vector quantised data as described later in
+section~\ref{s:vquant}.  \HTK\ format data files can also be used to store
+speech waveforms as described in section~\ref{s:waveform}.  \index{file
+formats!HTK}
+
+The \HTK\ file format header is 12 bytes long and contains the following data 
+\begin{tabbing}
+++ \= +++++++++ \= \kill
+\>\texttt{nSamples}\>-- number of samples in file (4-byte integer) \\
+\>\texttt{sampPeriod}\>-- sample period in 100ns units (4-byte integer) \\
+\>\texttt{sampSize}\>-- number of bytes per sample (2-byte integer) \\
+\>\texttt{parmKind}\>-- a code indicating the sample kind (2-byte integer)
+\end{tabbing}
+The parameter kind\index{parameter kind} consists of a 6 bit
+code representing the basic parameter kind plus additional bits for
+each of the possible qualifiers\index{qualifiers}.  The basic parameter kind codes are
+\begin{tabbing}
+++++\= +++ \= ++++++++ \=   \kill
+\>0 \> \texttt{WAVEFORM} \> sampled waveform \\
+\>1 \> \texttt{LPC} \> linear prediction filter coefficients \\
+\>2 \> \texttt{LPREFC} \> linear prediction reflection coefficients \\
+\>3 \> \texttt{LPCEPSTRA} \> LPC cepstral coefficients \\
+\>4 \> \texttt{LPDELCEP}  \> LPC cepstra plus delta coefficients \\
+\>5 \> \texttt{IREFC}       \> LPC reflection coef in 16 bit integer format  \\
+\>6 \> \texttt{MFCC}      \> mel-frequency cepstral coefficients \\
+\>7 \> \texttt{FBANK}     \> log mel-filter bank channel outputs \\
+\>8 \> \texttt{MELSPEC}     \> linear mel-filter bank channel outputs \\
+\>9 \> \texttt{USER}      \> user defined sample kind \\
+\>10 \> \texttt{DISCRETE} \> vector quantised data \\
+\>11 \> \texttt{PLP}     \> PLP cepstral coefficients \\
+\end{tabbing}
+and the bit-encoding for the qualifiers (in octal) is 
+\begin{tabbing}
+++++\= +++ \= ++++++++ \=   \kill
+\>\texttt{\_E} \> 000100 \> has energy \\
+\>\texttt{\_N} \> 000200 \> absolute energy suppressed \\
+\>\texttt{\_D} \> 000400 \> has delta coefficients \\
+\>\texttt{\_A} \> 001000 \> has acceleration coefficients\\
+\>\texttt{\_C} \> 002000 \> is compressed \\
+\>\texttt{\_Z} \> 004000 \> has zero mean static coef. \\
+\>\texttt{\_K} \> 010000 \> has CRC checksum \\
+\>\texttt{\_O} \> 020000 \> has 0'th cepstral coef. \\
+\>\texttt{\_V} \> 040000 \> has VQ data  \\
+\>\texttt{\_T} \> 100000 \> has third differential coef. \\
+\end{tabbing}\index{qualifiers!codes}
+The \texttt{\_A} qualifier can only be specified when \texttt{\_D}
+is also specified.
+The \texttt{\_N} qualifier is only valid when both energy and delta
+coefficients are present.  
+The sample kind \texttt{LPDELCEP} is identical to \texttt{LPCEPSTRA\_D}
+and is retained for compatibility with older versions of \HTK.
+The \texttt{\_C}\index{qualifiers!aaac@\texttt{\_C}} and 
+\texttt{\_K}\index{qualifiers!aaak@\texttt{\_K}} only exist in external files.  Compressed
+files are always decompressed on loading and any attached CRC 
+is checked and removed.  An external file can contain both an energy
+term and a 0'th order cepstral coefficient.  These may be retained
+on loading but normally one or the other is discarded\footnote{
+Some applications may require the 0'th order cepstral coefficient
+in order to recover the filterbank coefficients from the cepstral
+coefficients.}.
+
+\putfig{HTKFormat}{130}{Parameter Vector Layout in \HTK\ Format Files}
+
+All parameterised forms of \HTK\ data files consist of a sequence of vectors.
+Each vector is organised as shown by the examples in Fig~\href{f:HTKFormat}
+where various different qualified forms are listed.  As can be seen, an energy
+value if present immediately follows the base coefficients.  If delta
+coefficients are added, these follow the base coefficients and energy value.
+Note that the base form \texttt{LPC} is used in this figure only as an example,
+the same layout applies to all base sample kinds.  If the 0'th order cepstral
+coefficient is included as well as energy then it is inserted immediately
+before the energy coefficient, otherwise it replaces it.
+
+For external storage of speech parameter files, two compression methods are
+provided.  For LP coding only, the \texttt{IREFC} parameter kind exploits the
+fact that the reflection coefficients are bounded by $\pm 1$ and hence they can
+be stored as scaled integers such that $+1.0$ is stored as $32767$ and $-1.0$
+is stored as $-32767$.  For other types of parameterisation, a more general
+compression facility indicated by the
+\texttt{\_C}\index{qualifiers!aaac@\texttt{\_C}} qualifier is used.  
+\HTK\ compressed parameter files consist of a set of compressed parameter 
+vectors stored as shorts such that for parameter $x$
+\begin{eqnarray}
+x_{short} & = & A*x_{float}-B  \nonumber   
+\end{eqnarray}
+The coefficients $A$ and $B$ are defined as
+\begin{eqnarray}
+A & = & 2*I/(x_{max}-x_{min}) \nonumber\\
+B & = & (x_{max}+x_{min})*I/(x_{max}-x_{min}) \nonumber
+\end{eqnarray}
+where $x_{max}$ is the maximum value of parameter $x$ in the whole file and
+$x_{min}$ is the corresponding minimum. $I$ is the maximum range of a 2-byte
+integer i.e.\ 32767.  The values of $A$ and $B$ are stored as two floating
+point vectors prepended to the start of the file immediately after the header.
+
+When a \HTK\ tool writes out a speech file to external storage, no further
+signal conversions are performed.  Thus, for most purposes, the target
+parameter kind specifies both the required internal representation and the form
+of the written output, if any.  However, there is a distinction in the way that
+the external data is actually stored.  Firstly, it can be compressed as
+described above by setting the configuration parameter \texttt{SAVECOMPRESSED}
+to true.  If the target kind is \texttt{LPREFC} then this compression is
+implemented by converting to \texttt{IREFC} otherwise the general compression
+algorithm described above is used.  Secondly, in order to avoid data corruption
+problems, externally stored \HTK\ parameter files can have a cyclic redundancy
+checksum appended.  This is indicated by the qualifier
+\texttt{\_K}\index{qualifiers!aaak@\texttt{\_K}} and it is generated by setting
+the configuration parameter \texttt{SAVEWITHCRC} to true.  The principle tool
+which uses these output conversions is \htool{HCopy} (see
+section~\ref{s:UseHCopy}).
+
+\subsection{Esignal Format Parameter Files}
+
+\index{file formats!Esignal}
+The default for parameter files is native \HTK\ format.  However, \HTK\ tools
+also support the Entropic Esignal format for both input and output. Esignal
+replaces the Entropic ESPS file format. To ensure compatibility Entropic
+provides conversion programs from ESPS to ESIG and vice versa.
+
+To indicate that a source file is in Esignal format the configuration
+variable  \texttt{SOURCEFORMAT}\index{sourceformat@\texttt{SOURCEFORMAT}}
+should be set to \texttt{ESIG}.  Alternatively, 
+\texttt{-F ESIG}\index{standard options!aaaf@\texttt{-F}} can be specified
+as a command-line option.  
+To generate Esignal format output files, the configuration variable
+\texttt{TARGETFORMAT} should be set to \texttt{ESIG} or the command line option
+\texttt{-O ESIG} should be set.
+
+ESIG files consist of three parts: a preamble, a sequence of field 
+specifications called the field list and a sequence of records. The preamble
+and the field list together constitute the header. The preamble is purely 
+ASCII. Currently it consists of 6 information items that are all terminated
+by a new line.  The information in the preamble is the following:
+\begin{tabbing}
+++ \= +++++++++ \= \kill
+\>\texttt{line 1}\>-- identification of the file format \\
+\>\texttt{line 2}\>-- version of the file format\\
+\>\texttt{line 3}\>-- architecture (ASCII, EDR1, EDR2, machine name)\\
+\>\texttt{line 4}\>-- preamble size (48 bytes)\\
+\>\texttt{line 5}\>-- total header size\\
+\>\texttt{line 6}\>-- record size\\
+\end{tabbing}
+All ESIG files that are output by \HTK\ programs contain the following 
+global fields:
+\begin{description}
+  \item[commandLine] the command-line used to generate the file;
+  \item[recordFreq] a double value that indicates the sample frequency
+        in Herz;
+  \item[startTime] a double value that indicates a time at which the first 
+        sample is presumed to be starting;
+  \item[parmKind] a character string that indicates the full 
+        type of parameters in the file, e.g: \texttt{MFCC\_E\_D}.
+  \item[source\_1] if the input file was an ESIG file this field includes the
+        header items in the input file.
+\end{description}
+After that there are field specifiers for the records. The first specifier 
+is for the  basekind of the parameters, e.g: \texttt{MFCC}. Then for each 
+available qualifier there are additional specifiers. Possible specifiers are:
+\begin{tabbing}
+++++\=   \kill
+\>\texttt{zeroc}  \\
+\>\texttt{energy}\\
+\>\texttt{delta}\\
+\>\texttt{delta\_zeroc} \\
+\>\texttt{delta\_energy}\\
+\>\texttt{accs}\\
+\>\texttt{accs\_zeroc} \\
+\>\texttt{accs\_energy}\\
+\end{tabbing}\index{qualifiers!ESIG field specifiers}
+The data segments of the ESIG files have exactly the same format as the
+the corresponding \HTK\ files. This format was described in the previous 
+section.
+
+\HTK\ can only input parameter files that have a valid parameter kind as value
+of the header field \texttt{parmKind}. If this field does not exist or if the
+value of this field does not contain a valid parameter kind, the file is 
+rejected. After the header has been read the file is treated as an \HTK\ file.
+
+
+\mysect{Waveform File Formats}{waveform}
+
+For reading waveform data files, \HTK\ can support a variety of different
+formats and these are all briefly described in this section.  The default
+speech file format is \HTK. If a different format is to be used, it can be
+specified by setting the configuration parameter
+\texttt{SOURCEFORMAT}\index{sourceformat@\texttt{SOURCEFORMAT}}.  However,
+since file formats need to be changed often, they can also be set individually
+via the \texttt{-F}\index{standard options!aaaf@\texttt{-F}} command-line
+option.  This over-rides any setting of the \texttt{SOURCEFORMAT} configuration
+parameter.
+
+Similarly for the output of waveforms, the format can be set using either the
+configuration parameter \texttt{TARGETFORMAT} or the \texttt{-O} command-line
+option.  However, for output only native \HTK\ format (\texttt{HTK}), Esignal
+format (\texttt{ESIG}) and headerless (\texttt{NOHEAD}) waveform files are
+supported.
+
+The following sub-sections give a brief description of each of the waveform
+file formats supported by \HTK.
+
+\subsection{HTK File Format}
+
+\index{file formats!HTK}
+The \HTK\ file format for waveforms is identical to that described in
+section~\ref{s:parmstore} above.  It consists of a 12 byte header followed
+by a sequence of 2 byte integer speech samples.  For waveforms, the
+\texttt{sampSize} field will be 2 and the \texttt{parmKind} field will be 0.
+The \texttt{sampPeriod} field gives the sample period in 100ns units, hence for
+example, it will have the value 1000 for speech files sampled at 10kHz and 625
+for speech files sampled at 16kHz.
+
+\subsection{Esignal File Format}
+
+\index{file formats!Esignal}
+The Esignal file format for waveforms is similar to that described in
+section~\ref{s:parmstore} above with the following exceptions. When reading an
+ESIG waveform file the \HTK\ programs only check whether the record length
+equals 2 and whether the datatype of the only field in the data records is
+\texttt{SHORT}. The data field that is created on output of a waveform is
+called \texttt{WAVEFORM}.
+
+\subsection{TIMIT File Format}
+
+\index{file formats!TIMIT}
+The TIMIT format has the same structure as the HTK format except that the
+12-byte header contains the following
+
+\begin{tabbing}
+++ \= +++++++++ \= \kill
+\>\texttt{hdrSize}\>-- number of bytes in header ie 12 (2-byte integer) \\
+\>\texttt{version}\>-- version number (2-byte integer) \\
+\>\texttt{numChannels}\>-- number of channels (2-byte integer) \\
+\>\texttt{sampRate}\>-- sample rate (2-byte integer) \\
+\>\texttt{nSamples}\>-- number of samples in file (4-byte integer) 
+\end{tabbing}
+TIMIT format data is used only on the prototype TIMIT CD ROM.
+
+\subsection{NIST File Format}
+
+\index{file formats!NIST}
+The NIST file format is also referred to as the Sphere file format.
+A NIST header consists of ASCII text.  It begins with a label of the
+form  \texttt{NISTxx} where xx is a version code followed by the number
+of bytes in the header.  The remainder of the header consists of
+name value pairs of which \HTK\ decodes the following
+\begin{tabbing}
+++ \= +++++++++++++ \= \kill
+\>\texttt{sample\_rate}  \>-- sample rate in Hz \\
+\>\texttt{sample\_n\_bytes} \>-- number of bytes in each sample \\
+\>\texttt{sample\_count} \>-- number of samples in file \\
+\>\texttt{sample\_byte\_format} \>-- byte order \\
+\>\texttt{sample\_coding} \>-- speech coding eg pcm, $\mu$law, shortpack \\
+\>\texttt{channels\_interleaved} \>-- for 2 channel data only
+\end{tabbing}
+The current NIST Sphere data format\index{NIST Sphere data format} subsumes a
+variety of internal data organisations.  HTK currently supports interleaved
+$\mu$law used in Switchboard, Shortpack compression used in the original
+version of WSJ0 and standard 16bit linear PCM as used in Resource Management,
+TIMIT, etc.  It does not currently support the Shorten compression format as
+used in WSJ1 due to licensing restrictions.  Hence, to read WSJ1, the files
+must be converted using the NIST supplied decompression routines into standard
+16 bit linear PCM.  This is most conveniently done under UNIX by using the
+decompression program as an input filter set via the environment variable
+\texttt{HWAVEFILTER}\index{hwavefilter@\texttt{HWAVEFILTER}} (see
+section~\ref{s:iopipes}).
+    
+For interleaved $\mu$law as used in Switchboard, the default is to add the two
+channels together.  The left channel only can be obtained by setting the
+environment variable \texttt{STEREOMODE} to \texttt{LEFT} and the right channel
+only can be obtained by setting the environment variable \texttt{STEREOMODE} to
+\texttt{RIGHT}.  \index{mu law encoded files } 
+
+\subsection{SCRIBE File Format}
+
+\index{file formats!SCRIBE}
+The SCRIBE format is a subset of the standard laid down by the European Esprit
+Programme SAM Project.  SCRIBE data files are headerless and therefore consist
+of just a sequence of 16 bit sample values.  \HTK\ assumes by default that the
+sample rate is 20kHz.  The configuration parameter \texttt{SOURCERATE} should
+be set to over-ride this.  The byte ordering assumed for SCRIBE data files is
+\texttt{VAX} (little-endian).
+
+\subsection{SDES1 File Format}
+
+\index{file formats!Sound Designer(SDES1)}
+The SDES1 format refers to the ``Sound Designer I'' format defined by
+Digidesign Inc in 1985 for multimedia and general audio applications.  It is
+used for storing short monoaural sound samples.  The SDES1 header is complex
+(1336 bytes) since it allows for associated display window information to be
+stored in it as well as providing facilities for specifying repeat loops.  The
+HTK input routine for this format just picks out the following information
+\begin{tabbing}
+++ \= +++++++++ \= \kill
+\>\texttt{headerSize}  \>-- size of header ie 1336 (2 byte integer) \\
+\>(182 byte filler) \\
+\>\texttt{fileSize} \>-- number of bytes of sampled data (4 byte integer)\\
+\>(832 byte filler) \\
+\>\texttt{sampRate} \>-- sample rate in Hz (4 byte integer) \\
+\>\texttt{sampPeriod} \>-- sample period in microseconds (4 byte integer) \\ 
+\>\texttt{sampSize} \>-- number of bits per sample ie 16 (2 byte integer)
+\end{tabbing}
+
+\subsection{AIFF File Format}
+
+\index{file formats!Audio Interchange (AIFF)}
+The AIFF format was defined by Apple Computer for storing monoaural and
+multichannel sampled sounds.  An AIFF file consists of a number of {\it
+chunks}.  A {\it Common} chunk contains the fundamental parameters of the sound
+(sample rate, number of channels, etc) and a {\it Sound Data} chunk contains
+sampled audio data.  \HTK\ only partially supports AIFF since some of the
+information in it is stored as floating point numbers.  In particular, the
+sample rate is stored in this form and to avoid portability problems, 
+\HTK\ ignores the given sample rate and assumes that it is 16kHz.  If this 
+default rate is incorrect, then the true sample period should be
+specified by setting the \texttt{SOURCERATE} configuration parameter.
+Full details of the AIFF format are available from Apple Developer
+Technical Support.
+
+\subsection{SUNAU8 File Format}
+
+\index{file formats!Sun audio (SUNAU8)}
+The SUNAU8 format defines a subset of the ``.au'' and ``.snd'' audio file
+format used by Sun and NeXT.  An SUNAU8 speech data file consists of a header
+followed by 8 bit $\mu$law encoded speech samples.  The header is 28 bytes and
+contains the following fields, each of which is 4 bytes
+\begin{tabbing}
+++ \= +++++++++ \= \kill
+\>\texttt{magicNumber}  \>-- magic number 0x2e736e64 \\
+\>\texttt{dataLocation} \>-- offset to start of data \\
+\>\texttt{dataSize} \>-- number of bytes of data \\
+\>\texttt{dataFormat} \>-- data format code which is 1 for 8 bit $\mu$law \\ 
+\>\texttt{sampRate} \>-- a sample rate code which is always 8012.821 Hz \\ 
+\>\texttt{numChan} \>-- the number of channels \\ 
+\>\texttt{info} \>-- arbitrary character string min length 4 bytes
+\end{tabbing}
+No default byte ordering is assumed for this format. If the data source is
+known to be different to the machine being used, then the environment variable
+\texttt{BYTEORDER} must be set appropriately. Note that when used on Sun Sparc
+machines with 16 bit audio device the sampling rate of 8012.821Hz is not
+supported and playback will be performed at 8KHz.
+
+\subsection{OGI File Format}
+
+\index{file formats!OGI}
+The OGI format is similar to TIMIT. The header contains the following
+
+\begin{tabbing}
+++ \= +++++++++ \= \kill
+\>\texttt{hdrSize}\>-- number of bytes in header \\
+\>\texttt{version}\>-- version number (2-byte integer) \\
+\>\texttt{numChannels}\>-- number of channels (2-byte integer) \\
+\>\texttt{sampRate}\>-- sample rate (2-byte integer) \\
+\>\texttt{nSamples}\>-- number of samples in file (4-byte integer) \\
+\>\texttt{lendian}\>-- used to test for byte swapping (4-byte integer) 
+\end{tabbing}
+
+\subsection{WAV File Format}{}
+
+\index{file formats!WAV} 
+The WAV file format is a subset of Microsoft's RIFF specification for the
+storage of multimedia files. A RIFF file starts out with a file header followed
+by a sequence of data ``chunks''. A WAV file is often just a RIFF file with a
+single ``WAVE'' chunk which consists of two sub-chunks - a ``fmt'' chunk
+specifying the data format and a ``data'' chunk containing the actual sample
+data. The WAV file header contains the following
+
+\begin{tabbing}
+++ \= +++++++++ \= \kill
+\>\texttt{'RIFF'}\>-- RIFF file identification (4 bytes) \\
+\>\texttt{<length>}\>-- length field (4 bytes)\\
+\>\texttt{'WAVE'}\>-- WAVE chunk identification (4 bytes) \\
+\>\texttt{'fmt '}\>-- format sub-chunk identification  (4 bytes) \\
+\>\texttt{flength}\>-- length of format sub-chunk (4 byte integer) \\
+\>\texttt{format}\>-- format specifier (2 byte integer) \\
+\>\texttt{chans}\>-- number of channels (2 byte integer) \\
+\>\texttt{sampsRate}\>-- sample rate in Hz (4 byte integer) \\
+\>\texttt{bpsec}\>-- bytes per second (4 byte integer) \\
+\>\texttt{bpsample}\>-- bytes per sample (2 byte integer) \\
+\>\texttt{bpchan}\>-- bits per channel (2 byte integer) \\
+\>\texttt{'data'}\>-- data sub-chunk identification  (4 bytes) \\
+\>\texttt{dlength}\>-- length of data sub-chunk (4 byte integer)
+\end{tabbing}
+Support is provided for 8-bit CCITT mu-law, 8-bit CCITT a-law, 8-bit PCM 
+linear and 16-bit PCM linear - all in stereo or mono (use of \texttt{STEREOMODE} 
+parameter as per NIST).  The default byte ordering assumed for \texttt{WAV} 
+data files is \texttt{VAX} (little-endian).
+
+\subsection{ALIEN and NOHEAD File Formats}
+
+\index{file formats!ALIEN}
+\index{file formats!NOHEAD}
+\HTK\ tools can read speech waveform files with alien formats provided that
+their overall structure is that of a header followed by data.  This is done by
+setting the format to \texttt{ALIEN} and setting the environment variable
+\texttt{HEADERSIZE} to the number of bytes in the header.  \HTK\ will then
+attempt to infer the rest of the information it needs.  However, if input is
+from a pipe, then the number of samples expected must be set using the
+environment variable \texttt{NSAMPLES}\index{nsamples@\texttt{NSAMPLES}}.  The
+sample rate of the source file is defined by the configuration parameter
+\texttt{SOURCERATE} as described in section~\ref{s:sigproc}.  If the file has
+no header then the format \texttt{NOHEAD} may be specified instead of
+\texttt{ALIEN}\index{alien@\texttt{ALIEN}} in which case
+\texttt{HEADERSIZE}\index{headersize@\texttt{HEADERSIZE}} is assumed to be
+zero.
+
+\mysect{Direct Audio Input/Output}{audioio}
+
+\index{speech input!direct audio}
+Many \HTK\ tools, particularly recognition tools, can input speech waveform
+data directly from an audio device.  The basic mechanism for doing this is to
+simply specify the \texttt{SOURCEKIND} as being
+\texttt{HAUDIO}\index{haudio@\texttt{HAUDIO}} following which speech samples
+will be read directly from the host computer's audio input device.
+
+Note that for live audio input, the configuration variable 
+\texttt{ENORMALISE} should be set to false both during training and recognition. Energy normalisation cannot
+be used with live audio input, and the default setting for this variable
+is \texttt{TRUE}. When training models for live audio input, be sure to
+set \texttt{ENORMALISE} to false. If you have existing models trained with 
+\texttt{ENORMALISE} set to true, you can retrain them using {\it single-pass
+retraining} (see section~\ref{s:singlepass}).
+
+When using direct audio input\index{direct audio input}, the input sampling
+rate may be set explicitly using the configuration parameter
+\texttt{SOURCERATE}, \index{sourcerate@\texttt{SOURCERATE}} otherwise 
+\HTK\ will assume that it has been set by some external means such as an
+audio control panel.  In the latter case, it must be possible for
+\htool{HAudio} to obtain the sample rate from the audio driver
+otherwise an error message will be generated.
+
+Although the detailed control of audio hardware is typically machine dependent,
+\HTK\ provides a number of Boolean configuration variables to request specific
+input and output sources.  These are indicated by the following table
+\begin{center}\index{audio source}\index{audio output}
+\begin{tabular}{|c|l|} \hline
+Variable   & Source/Sink \\ \hline
+\texttt{LINEIN}   & line input \\ 
+\texttt{MICIN}   & microphone input \\ 
+\texttt{LINEOUT}   & line output \\
+\texttt{PHONESOUT}   & headphones output \\ 
+\texttt{SPEAKEROUT} & speaker output \\ \hline
+\end{tabular}
+\end{center}
+\index{linein@\texttt{LINEIN}}
+\index{micin@\texttt{MICIN}}
+\index{lineout@\texttt{LINEOUT}}
+\index{phonesout@\texttt{PHONESOUT}}
+\index{speakerout@\texttt{SPEAKEROUT}}
+
+The major complication in using direct audio is in starting and stopping the
+input device.  The simplest approach to this is for \HTK\ tools to take direct
+control and, for example, enable the audio input for a fixed period determined
+via a command line option.  However, the \htool{HAudio}/\htool{HParm} modules
+provides two more powerful built-in facilities for audio input control.
+
+\index{direct audio input!silence detector!speech detector} 
+The first method of audio input control involves the use of an automatic
+energy-based speech/silence detector which is enabled by setting the
+configuration parameter
+\texttt{USESILDET}\index{usesildet@\texttt{USESILDET}} to true. Note that
+the speech/silence detector can also operate on waveform input files.
+
+The automatic speech/silence detector uses a two level algorithm which first
+classifies each frame of data as either speech or silence and then applies a
+heuristic to determine the start and end of each utterance.\index{HParm!SILENERGY} \index{HParm!SPEECHTHRESH}The detector classifies each
+frame as speech or silence based solely on the log energy of the signal. When
+the energy value exceeds a threshold the frame is marked as speech otherwise as
+silence. The threshold is made up of two components both of which can be set by
+configuration variables. The first component represents the mean energy level
+of silence and can be set explicitly via the configuration
+parameter \texttt{SILENERGY}. However, it is more usual to take a measurement
+from the environment directly. Setting the configuration parameter
+\texttt{MEASURESIL} to true will cause the detector to calibrate its parameters
+from the current acoustic environment just prior to sampling. The second
+threshold component is the level above which frames are classified as speech 
+(\texttt{SPEECHTHRESH}) .
+\index{HParm!SPCSEQCOUNT} \index{HParm!SPCGLCHCOUNT} \index{HParm!SILGLCHCOUNT}
+Once each frame has been classified as speech or silence they are grouped into
+windows consisting of \texttt{SPCSEQCOUNT} consecutive frames.  When the number
+of frames marked as silence within each window falls below a glitch count the
+whole window is classed as speech.  Two separate glitch counts are used, {\tt
+SPCGLCHCOUNT} before speech onset is detected and {\tt SILGLCHCOUNT} whilst
+searching for the end of the utterance.  This allows the algorithm to take
+account of the tendancy for the end of an utterance to be somewhat quieter than
+the beginning.
+\index{HParm!SILMARGIN} \index{HParm!SILSEQCOUNT} 
+Finally, a top level heuristic is used to determine the start and end of the
+utterance. The heuristic defines the start of speech as the beginning of the
+first window classified as speech.  The actual start of the processed utterance
+is \texttt{SILMARGIN} frames before the detected start of speech to ensure that
+when the speech detector triggers slightly late the recognition accuracy is not
+affected.  Once the start of the utterance has been found the detector searches
+for \texttt{SILSEQCOUNT} windows all classified as silence and sets the end of
+speech to be the end of the last window classified as speech.  Once again the
+processed utterance is extended \texttt{SILMARGIN} frames to ensure that if the
+silence detector has triggered slightly early the whole of the speech is still
+available for further processing.
+
+\centrefig{endpointer}{120}{Endpointer Parameters}
+
+Fig~\href{f:endpointer} shows an example of the speech/silence detection
+process. The waveform data is first classified as speech or silence at frame
+and then at window level before finally the start and end of the utterance are
+marked. In the example, audio input starts at point {\tt A} and is stopped
+automatically at point {\tt H}. The start of speech, {\tt C}, occurs when a
+window of \texttt{SPCSEQCOUNT} frames are classified as speech and the start of
+the utterance occurs \texttt{SILMARGIN} frames earlier at {\tt B}. The period
+of silence from {\tt D} to {\tt E} is not marked as the end of the utterance
+because it is shorter than \texttt{SILSEQCOUNT}. However after point {\tt F}
+no more windows are classified as speech (although a few frames are) and so
+this is marked as the end of speech with the end of the utterance extended to
+{\tt G}.
+
+\index{direct audio input!signal control!keypress}
+The second built-in mechanism for controlling audio input is by arranging for 
+a signal to be sent from some other process. Sending the signal for the first
+time starts the audio device. If the speech detector is not enabled then
+sampling starts immediately and is stopped by sending the signal a second
+time. If automatic speech/silence detection is enabled, then the first signal 
+starts the detector. Sampling stops immediately when a second signal is
+received or when silence is detected. The signal number is set using the 
+configuration parameter \texttt{AUDIOSIG}\index{audiosig@\texttt{AUDIOSIG}}. 
+Keypress control operates in a similar fashion and is enabled by setting the 
+configuration parameter \texttt{AUDIOSIG} to a negative number. In this mode
+an initial keypress will be required  to start sampling/speech detection and
+a second keypress will stop sampling immediately.
+
+Audio output\index{audio output} is also supported by \HTK. There are no
+generic facilities for output and the precise behaviour will depend on the tool
+used. It should be noted, however, that the audio input facilities provided by
+\htool{HAudio} include provision for attaching a \textit{replay buffer} to an
+audio input channel.  This is typically used to store the last few seconds of
+each input to a recognition tool in a circular buffer so that the last
+utterance input can be replayed on demand.
+
+
+\mysect{Multiple Input Streams}{streams}
+
+\index{multiple streams}
+As noted in section~\ref{s:genio}, \HTK\ tools regard the input observation
+sequence as being divided into a number of independent \textit{data streams}.
+For building continuous density HMM systems, this facility is of limited
+use and by far the most common case is that of a single data stream.
+However, when building tied-mixture systems or when
+using vector quantisation, a more uniform coverage of the
+acoustic space is obtained by separating energy, deltas, etc., into
+separate streams.
+
+This separation of parameter vectors into streams takes place at 
+the point where the vectors
+are extracted from the converted input file or audio device and
+transformed into an observation.  The tools for HMM construction
+and for recognition thus view the input data as a sequence of observations
+but note that this is entirely internal to \HTK.   Externally data is
+always stored as a single sequence of parameter vectors.
+
+When multiple streams\index{multiple streams!rules for} are required,
+the division of the parameter vectors is performed automatically
+based on the parameter kind.  This works according 
+to the following rules.  
+
+\begin{description}
+\item[1 stream] single parameter vector.  This is the default case.
+\item[2 streams] if the parameter vector contains energy terms, then
+     they are extracted and placed in stream 2.  Stream 1 contains the
+     remaining static coefficients and their deltas and accelerations,
+     if any.  Otherwise, 
+     the parameter vector must have appended delta
+     coefficients and no appended acceleration coefficients.  
+     The vector is then split so that the static
+     coefficients form stream 1 and
+     the corresponding delta coefficients form stream 2.
+\item[3 streams] 
+     if the parameter vector has acceleration coefficients, then vector
+     is split with static coefficients plus any energy in stream 1,
+     delta coefficients plus any delta energy in stream 2 and
+     acceleration coefficients plus any acceleration energy in stream 3.
+     Otherwise, the parameter vector must include log energy and
+     must have appended delta coefficients.  The vector is then split
+     into three parts so that the static coefficients form stream
+     1, the delta coefficients form stream 2, and the log energy
+     and delta log energy are combined to form stream 3.  
+\item[4 streams]
+    the parameter vector must include log energy and
+    must have appended delta and acceleration coefficients.
+    The vector is split into 4 parts so that the static coefficients form stream
+    1, the delta coefficients form stream 2, the acceleration
+    coefficients form stream 3 and the log energy, delta energy
+    and acceleration energy are combined to form stream 4.
+\end{description}
+In all cases, 
+the static log energy can be 
+suppressed (via the \texttt{\_N}\index{qualifiers!aaan@\texttt{\_N}} qualifier).
+If none of the above rules apply for some required number of
+streams, then the parameter vector is simply incompatible with that
+form of observation.  For example, the parameter kind \texttt{LPC\_D\_A}
+cannot be split into 2 streams, instead 3 streams should be used.
+\index{energy suppression}
+
+\putfig{streams}{100}{Example Stream Construction}
+
+Fig.~\href{f:streams} illustrates the way that streams are constructed
+for a number of common cases.  As earlier, the choice of \texttt{LPC}
+as the static coefficients is purely for illustration and the same
+mechanism applies to all base parameter kinds.
+
+As discussed further in the next section,
+multiple data streams are often used with vector quantised data.  In this
+case, each VQ symbol per input sample is placed in a separate data stream.
+
+\mysect{Vector Quantisation}{vquant}
+
+Although \HTK\ was designed primarily for building continuous density HMM
+systems, it also supports discrete density HMMs.  Discrete HMMs are
+particularly useful for modelling data which is naturally symbolic. They can
+also be used with continuous signals such as speech by quantising each speech
+vector to give a unique VQ symbol for each input frame. The \HTK\ module
+\htool{HVQ} provides a basic facility for performing this vector
+quantisation\index{vector quantisation}. The VQ table (or codebook) can be
+constructed using the \HTK\ tool \htool{HQuant}.
+
+When used with speech, the principle justification for using discrete HMMs is
+the much reduced computation. However, the use of vector quantisation
+introduces errors and it can lead to rather fragile systems.  For this reason,
+the use of continuous density systems is generally preferred.  To facilitate
+the use of continuous density systems when there are computational constraints,
+\HTK\ also allows VQ to be used as the basis for pre-selecting a subset of
+Gaussian\index{Gaussian pre-selection} components for evaluation at each time
+frame.
+
+\sidefig{VQUse}{65}{Using Vector Quantisation}{2}{ Fig.~\href{f:VQUse}
+illustrates the different ways that VQ can be used in \HTK\ for a single data
+stream. For multiple streams, the same principles are applied to each stream
+individually. A converted speech waveform or file of parameter vectors can
+have VQ indices attached simply by specifying the name of a VQ table using the
+configuration parameter \texttt{VQTABLE}\index{vqtable@\texttt{VQTABLE}} and by
+adding the \texttt{\_V} qualifier to the target kind.  The effect of this is
+that each \textit{observation} passed to a recogniser can include both a
+conventional parameter vector and a VQ index.  \index{vector quantisation!uses
+of} \index{qualifiers!aaav@\texttt{\_V}} For continuous density HMM systems, a
+possible use of this might be to preselect Gaussians for evaluation (but note
+that \HTK\ does not currently support this facility).
+
+When used with a discrete HMM system, the
+continuous parameter vectors are ignored and only the VQ 
+indices are used.
+For training and evaluating discrete HMMs, it is convenient to
+store speech data in vector quantised form.  This is done using
+the tool \htool{HCopy} to read in and vector quantise each speech file.
+Normally, \htool{HCopy} copies the target form directly into the 
+output file.  However, if the configuration parameter \texttt{SAVEASVQ}
+is set, then it will
+store only the VQ indices and mark the kind of the newly created
+file as \texttt{DISCRETE}.  Discrete files created in this
+way can be read
+directly by \htool{HParm} and the VQ symbols passed directly to
+a tool as indicated by the lower part of Fig.~\href{f:VQUse}.
+}
+\index{saveasvq@\texttt{SAVEASVQ}} 
+\index{discrete@\texttt{DISCRETE}}
+
+\index{vector quantisation!distance metrics}
+\htool{HVQ} supports three types of distance metric and two organisations of
+VQ codebook.   Each codebook consists of a collection of nodes where each
+node has a mean vector and optionally a covariance matrix or diagonal
+variance vector.  The corresponding distance metric used for  each of these
+is simple Euclidean,  full covariance Mahalanobis or diagonal covariance
+Mahalanobis. The codebook nodes are  arranged in 
+the form of a simple linear table
+or as a  binary tree. In the linear case, the input vector is compared with
+every node in turn and the nearest determines the VQ index.  In the binary
+tree case, each non-terminal node has a left and a right daughter.  Starting
+with the top-most root node,  the input is compared with the left and right
+daughter node and the nearest is selected.  This process is repeated until a
+terminal node is reached. \index{vector quantisation!type of}
+ 
+
+\index{vector quantisation!code book external format}\index{files!VQ codebook}
+VQ Tables are stored externally in text files consisting of a header
+followed by a sequence of node entries.  The header consists of the
+following information
+\begin{tabbing}
+++ \= +++++++ \= + \= \kill
+\> \textit{magic}\>  --\> a magic number usually the original parameter kind \\
+\> \textit{type} \>  --\> 0 = linear tree, 1 = binary tree \\
+\> \textit{mode} \>  --\> 1 = diagonal covariance Mahalanobis \\
+\>\>\>  2 = full covariance Mahalanobis \\
+\>\>\>  5 = Euclidean \\
+\> \textit{numNodes} \> --\>  total number of nodes in the codebook \\
+\> \textit{numS}\>  --\> number of independent data streams \\
+\> \textit{sw1,sw2,...}\>  --\> width of each data stream \\
+\end{tabbing}
+Every node has a unique integer identifier and consists of the 
+following
+\begin{tabbing}
+++ \= +++++++ \= + \= \kill
+\> \textit{stream}\>  --\>stream number for this node \\
+\> \textit{vqidx}\>  --\>VQ index for this node (0 if non-terminal) \\
+\> \textit{nodeId}\>  --\>integer id of this node \\
+\> \textit{leftId}\>  --\>integer id of left daughter node \\
+\> \textit{rightId}\>  --\>integer id of right daughter node \\
+\> \textit{mean}\>  --\>mean vector \\
+\> \textit{cov}\>  --\>diagonal variance or full covariance \\
+\end{tabbing}
+The inclusion of the optional variance vector or covariance matrix depends
+on the mode in the header.  If present they are stored in inverse form.
+In a binary tree, the root id is always 1.  In linear codebooks, the
+left and right daughter node id's are ignored.
+
+\mysect{Viewing Speech with \htool{HList}}{UseHList}
+
+\index{speech input!monitoring}
+As mentioned in section~\ref{s:genio}, the tool \htool{HList}\index{hlist@\htool{HList}} provides
+a dual r\^{o}le in \HTK.  Firstly, it can be used for examining the contents
+of speech data files.  
+In general, \htool{HList} displays three types of information
+\begin{enumerate}
+ \item \textit{source header}: requested using the \texttt{-h} option
+ \item \textit{target header}: requested using the \texttt{-t} option
+ \item \textit{target data}: printed by default.  The begin and end samples of the
+displayed data can be specified using the \texttt{-s} and \texttt{-e} options.
+\end{enumerate}
+When the default configuration parameters are used, 
+no conversions are applied and the target
+data is identical to the contents of the file.  
+
+\index{files!listing contents}
+As an example, suppose that the file called \texttt{timit.wav} holds speech
+waveform data using the TIMIT format.  The command
+\begin{verbatim}
+    HList -h -e 49 -F TIMIT timit.wav
+\end{verbatim}
+would display the source header information and the first 50 samples of the
+file.  The output would look something like the following
+
+\begin{list}{}{\setlength{\leftmargin}{-1cm}}
+\item
+\begin{verbatim}
+         ----------------------------- Source: timit.wav ---------------------------
+           Sample Bytes:  2        Sample Kind:   WAVEFORM
+           Num Comps:     1        Sample Period: 62.5 us
+           Num Samples:   31437    File Format:   TIMIT
+         ------------------------------ Samples: 0->49 -----------------------------
+             0:     8     -4     -1      0     -2     -1     -3     -2      0      0
+            10:    -1      0     -1     -2     -1      1      0     -1     -2      1
+            20:    -2      0      0      0      2      1     -2      2      1      0
+            30:     1      0      0     -1      4      2      0     -1      4      0
+            40:     2      2      1     -1     -1      1      1      2      1      1
+         ------------------------------------ END ----------------------------------
+\end{verbatim}
+\end{list}
+The source information confirms that the file contains \texttt{WAVEFORM}
+data with 2 byte samples and 31437 samples in total.  The sample period is
+$62.5\mu s$ which corresponds to a 16kHz sample rate.  
+The displayed data is numerically small because it corresponds to leading silence.
+Any part of the file could be viewed by suitable choice of the begin and end
+sample indices. For example,
+\begin{verbatim}
+   HList -s 5000 -e 5049 -F TIMIT timit.wav
+\end{verbatim}
+would display samples 5000 through to 5049.  
+The output might look like the following
+\begin{list}{}{\setlength{\leftmargin}{-1cm}}
+\item
+\begin{verbatim}
+         ---------------------------- Samples: 5000->5049 --------------------------
+          5000:    85   -116   -159   -252     23     99     69     92     79   -166
+          5010:  -100   -123   -111     48    -19     15    111     41   -126   -304
+          5020:  -189     91    162    255     80   -134   -174    -55     57    155
+          5030:    90     -1     33    154     68   -149    -70     91    165    240
+          5040:   297     50     13     72    187    189    193    244    198    128
+         ------------------------------------ END ----------------------------------
+\end{verbatim}
+\end{list}
+
+The second use of \htool{HList} is to check that input conversions
+are being performed properly.  Suppose that the above TIMIT format file is
+part of a database to be used for training a recogniser and that mel-frequency
+cepstra are to be used along with energy and the first differential coefficients.
+Suitable configuration parameters needed to achieve this might be as follows
+\begin{verbatim}
+    # Wave -> MFCC config file
+    SOURCEFORMAT = TIMIT    # same as -F TIMIT
+    TARGETKIND   = MFCC_E_D # MFCC + Energy + Deltas
+    TARGETRATE   = 100000   # 10ms frame rate
+    WINDOWSIZE   = 200000   # 20ms window
+    NUMCHANS     = 24       # num filterbank chans
+    NUMCEPS      = 8        # compute c1 to c8
+\end{verbatim}
+\htool{HList} can be used to check this.  For example, typing
+\begin{verbatim}
+    HList -C config -o -h -t -s 100 -e 104 -i 9  timit.wav
+\end{verbatim}
+will cause the waveform file to be converted, then the source header, 
+the target header and parameter vectors 100 through to 104 to be listed.
+A typical output would be as follows
+\begin{verbatim}
+   ------------------------------ Source: timit.wav ---------------------------
+     Sample Bytes:  2        Sample Kind:   WAVEFORM
+     Num Comps:     1        Sample Period: 62.5 us
+     Num Samples:   31437    File Format:   TIMIT
+   ------------------------------------ Target --------------------------------
+     Sample Bytes:  72       Sample Kind:   MFCC_E_D
+     Num Comps:     18       Sample Period: 10000.0 us
+     Num Samples:   195      File Format:   HTK
+   -------------------------- Observation Structure ---------------------------
+   x:    MFCC-1  MFCC-2  MFCC-3  MFCC-4  MFCC-5  MFCC-6  MFCC-7  MFCC-8       E
+          Del-1   Del-2   Del-3   Del-4   Del-5   Del-6   Del-7   Del-8    DelE
+   ------------------------------ Samples: 100->104 ---------------------------
+   100:   3.573 -19.729  -1.256  -6.646  -8.293 -15.601 -23.404  10.988   0.834
+          3.161  -1.913   0.573  -0.069  -4.935   2.309  -5.336   2.460   0.080
+   101:   3.372 -16.278  -4.683  -3.600 -11.030  -8.481 -21.210  10.472   0.777
+          0.608  -1.850  -0.903  -0.665  -2.603  -0.194  -2.331   2.180   0.069
+   102:   2.823 -15.624  -5.367  -4.450 -12.045 -15.939 -22.082  14.794   0.830
+         -0.051   0.633  -0.881  -0.067  -1.281  -0.410   1.312   1.021   0.005
+   103:   3.752 -17.135  -5.656  -6.114 -12.336 -15.115 -17.091  11.640   0.825
+         -0.002  -0.204   0.015  -0.525  -1.237  -1.039   1.515   1.007   0.015
+   104:   3.127 -16.135  -5.176  -5.727 -14.044 -14.333 -18.905  15.506   0.833
+         -0.034  -0.247   0.103  -0.223  -1.575   0.513   1.507   0.754   0.006
+   ------------------------------------- END ----------------------------------
+\end{verbatim}
+
+The target header information shows that the converted data consists
+of 195 parameter vectors, each vector having 18 components and being 72 bytes in
+size.  The structure of each parameter vector is displayed as a simple sequence
+of floating-point numbers.   The layout information described in 
+section~\ref{s:parmstore} can be used to interpret the data.  
+However, including the \texttt{-o} option, as in the example, causes \htool{HList}
+to output a schematic of the observation structure.  Thus, it can be seen that
+the first row of each sample contains the static coefficients and the second 
+contains the delta
+coefficients.  The energy is in the final column.
+The command line option \texttt{-i 9} controls the number of values displayed
+per line and can be used to aid in the visual interpretation of the data.
+Notice finally that the command line option \texttt{-F TIMIT} was not required
+in this case because the source format was specified in the configuration file.
+
+It should be stressed that when \htool{HList} displays parameterised data,
+it does so in exactly the form that \textit{observations} are passed to
+a \HTK\ tool.  So, for example, if the above data was input to a system
+built using 3 data streams, then this can be simulated by using the
+command line option \texttt{-n} to set the number of streams.  For example, typing
+\begin{verbatim}
+    HList -C config -n 3 -o -s 100 -e 101 -i 9  timit.wav
+\end{verbatim}
+would result in the following output
+\begin{verbatim}
+      ------------------------ Observation Structure -----------------------
+      nTotal=18 nStatic=8 nDel=16  eSep=T
+      x.1:    MFCC-1  MFCC-2  MFCC-3  MFCC-4  MFCC-5  MFCC-6  MFCC-7  MFCC-8
+      x.2:     Del-1   Del-2   Del-3   Del-4   Del-5   Del-6   Del-7   Del-8
+      x.3:         E    DelE
+      -------------------------- Samples: 100->101 -------------------------
+      100.1:   3.573 -19.729  -1.256  -6.646  -8.293 -15.601 -23.404  10.988
+      100.2:   3.161  -1.913   0.573  -0.069  -4.935   2.309  -5.336   2.460
+      100.3:   0.834   0.080
+      101.1:   3.372 -16.278  -4.683  -3.600 -11.030  -8.481 -21.210  10.472
+      101.2:   0.608  -1.850  -0.903  -0.665  -2.603  -0.194  -2.331   2.180
+      101.3:   0.777   0.069
+      --------------------------------- END --------------------------------
+\end{verbatim}
+Notice that the data is identical to the previous case, but it has been
+re-organised into separate streams.\index{observations!displaying structure of}
+
+\mysect{Copying and Coding using \htool{HCopy}}{UseHCopy}
+
+\index{files!copying}
+\htool{HCopy}\index{hcopy@\htool{HCopy}} is a general-purpose tool 
+for copying and manipulating speech files.
+The general form of invocation is
+\begin{verbatim}
+    HCopy src tgt
+\end{verbatim}
+which will make a new copy called \texttt{tgt} of the file called \texttt{src}.
+\htool{HCopy} can also concatenate several sources together as in 
+\begin{verbatim}
+    HCopy src1 + src2 + src3 tgt    
+\end{verbatim}
+which concatenates the contents of \texttt{src1}, \texttt{src2} and \texttt{src3},
+storing the results in the file \texttt{tgt}.  As well as putting speech files
+together, \htool{HCopy} can also take them apart.  For example,
+\begin{verbatim}
+    HCopy -s 100 -e -100 src tgt
+\end{verbatim}
+will extract samples 100 through to N-100 of the file \texttt{src} to the file
+\texttt{tgt} where N is the total number of samples in the source file.
+The range of samples to be copied can also be specified with reference to
+a label file, and modifications made to the speech file can be tracked in a 
+copy of the label file.  All of the various options provided by \htool{HCopy} 
+are given in the reference section and in total they provide a powerful
+facility for manipulating speech data files.
+
+However, the use of \htool{HCopy} extends beyond that of copying, chopping
+and concatenating files.  \htool{HCopy} reads in all files using the speech 
+input/output subsystem described in the preceding sections.  Hence, by specifying
+an appropriate configuration file, \htool{HCopy} is also a speech coding tool.
+For example, if the configuration file \texttt{config} was set-up to convert
+waveform data to MFCC coefficients, the command
+\begin{verbatim}
+    HCopy -C config -s 100 -e -100 src.wav tgt.mfc
+\end{verbatim}
+would parameterise the file waveform file \texttt{src.wav}, excluding the
+first and last 100 samples, and store the result in \texttt{tgt.mfc}.
+
+\htool{HCopy} will process its arguments in pairs, and as with all \HTK\ tools,
+argument lists can be written in a script file specified via the \texttt{-S}
+option.  When coding a large database, the separate invocation of \htool{HCopy} 
+for each file needing to be processed would incur a very large overhead.  Hence,
+it is better to create a file, \texttt{flist} say, containing a list of
+all source and target files, as in for example,
+\begin{verbatim}
+    src1.wav tgt1.mfc
+    src2.wav tgt2.mfc
+    src3.wav tgt3.mfc
+    src4.wav tgt4.mfc
+    etc
+\end{verbatim}
+and then invoke \htool{HCopy} by
+\begin{verbatim}
+    HCopy -C config -s 100 -e -100 -S flist
+\end{verbatim}
+which would encode each file listed in \texttt{flist} in a single invocation.
+
+Normally \htool{HCopy} makes a direct copy of the target speech data in the
+output file.  However, if the configuration 
+parameter \texttt{SAVECOMPRESSED}\index{savecompressed@\texttt{SAVECOMPRESSED}}
+is set true then the output is saved in compressed 
+form and if the 
+configuration parameter \texttt{SAVEWITHCRC}\index{savewithcrc@\texttt{SAVEWITHCRC}}
+is set true then a checksum is appended to the output 
+(see section~\ref{s:parmstore}).  If the configuration 
+parameter \texttt{SAVEASVQ} is set true then only
+VQ indices are saved and the kind of the target file is changed to
+\texttt{DISCRETE}.  For this to work, the target kind must have the
+qualifier \texttt{\_V}
+\index{qualifiers!aaav@\texttt{\_V}}
+attached (see section~\ref{s:vquant}). 
+\index{compression}\index{check sums}
+\index{files!compressing}\index{files!adding checksums}
+
+\centrefig{coercions}{100}{Valid Parameter Kind Conversions}
+
+\mysect{Version 1.5 Compatibility}{v1spcompat}
+
+The redesign of the \HTK\ front-end in version 2 has introduced
+a number of differences in parameter encoding.  The main
+changes are
+\begin{enumerate}
+   \item  Source waveform zero mean processing is now performed on a frame-by-frame
+   basis.
+   \item Delta coefficients use a modified form of regression rather than
+   simple differences at the start and end of the utterance.
+   \item Energy scaling is no longer applied to the zero'th MFCC coefficient.
+\end{enumerate}
+If a parameter encoding is required which is as close as possible
+to the version 1.5 encoding, then the compatibility configuration
+variable \texttt{V1COMPAT} should be set to true.
+
+Note also in this context that the default values for the various
+configuration values have been chosen to be consistent with the
+defaults or recommended practice for version 1.5.
+
+\mysect{Summary}{spiosum}
+
+\index{speech input!summary of variables}
+This section summarises the various file formats, parameter kinds, qualifiers
+and configuration parameters used by \HTK.  Table~\href{t:fileform} lists the
+audio speech file formats which can be read by the \htool{HWave} module.
+Table~\href{t:parmkinds} lists the basic parameter kinds supported by the
+\htool{HParm} module and Fig.~\href{f:coercions} shows the various automatic
+conversions that can be performed by appropriate choice of source and target
+parameter kinds.  Table~\href{t:qualifiers} lists the available qualifiers for
+parameter kinds.  The first 6 of these are used to describe the target kind.
+The source kind may already have some of these, \htool{HParm} adds the rest as
+needed.  Note that \htool{HParm} can also delete qualifiers when converting
+from source to target.  The final two qualifiers in Table~\href{t:qualifiers}
+are only used in external files to indicate compression and an attached
+checksum.  \htool{HParm} adds these qualifiers to the target form during output
+and only in response to setting the configuration parameters
+\texttt{SAVECOMPRESSED} and \texttt{SAVEWITHCRC}.  Adding the
+\texttt{\_C}\index{qualifiers!aaac@\texttt{\_C}} or
+\texttt{\_K}\index{qualifiers!aaak@\texttt{\_K}} qualifiers to the target kind
+simply causes an error. Finally, Tables \href{t:spiocparms1} and
+\href{t:spiocparms2} lists all of the configuration parameters along with their
+meaning and default values.
+
+\begin{center}
+\begin{tabular}{|p{2.6cm}|p{8.7cm}|} \hline
+Name &  Description  \\ \hline
+\texttt{\HTK} &  The standard \HTK\ file format\\
+\texttt{TIMIT} &  As used in the original prototype TIMIT CD-ROM\\
+\texttt{NIST} &  The standard SPHERE format used by the US NIST\\
+\texttt{SCRIBE} &  Subset of the European SAM standard used in the SCRIBE CD-ROM\\
+\texttt{SDES1} &  The Sound Designer 1 format defined by Digidesign Inc. \\
+\texttt{AIFF} &  Audio interchange file format\\
+\texttt{SUNAU8} &  Subset of 8bit ".au" and ".snd" formats used by Sun and NeXT\\
+\texttt{OGI} &  Format used by Oregan Graduate Institute similar to TIMIT\\
+\texttt{WAV} & Microsoft WAVE files used on PCs\\
+\texttt{ESIG} &  Entropic Esignal file format\\ \hline
+\texttt{AUDIO} & Pseudo format to indicate direct audio input \\
+\texttt{ALIEN} & Pseudo format to indicate unsupported file,  the 
+       alien header size must be set via the environment variable \texttt{HDSIZE} \\
+\texttt{NOHEAD} & As for the ALIEN format but header size is zero \\ \hline
+\end{tabular}
+\tabcap{fileform}{Supported File Formats}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|p{2.6cm}|p{8.7cm}|} \hline
+Kind &  Meaning  \\ \hline
+\texttt{WAVEFORM} & scalar samples (usually raw speech data)  \\
+\texttt{LPC} & linear prediction coefficients  \\
+\texttt{LPREFC} & linear prediction reflection coefficients  \\
+\texttt{LPCEPSTRA}   & LP derived cepstral coefficients  \\
+\texttt{LPDELCEP} & LP cepstra + delta coef (obsolete)  \\
+\texttt{IREFC} & LPREFC stored as 16bit (short) integers  \\
+\texttt{MFCC}  & mel-frequency cepstral coefficients  \\
+\texttt{FBANK} & log filter-bank parameters  \\
+\texttt{MELSPEC} & linear filter-bank parameters  \\
+\texttt{USER} & user defined parameters  \\
+\texttt{DISCRETE} &  vector quantised codebook symbols  \\
+\texttt{PLP} &  perceptual linear prediction coefficients  \\
+\texttt{ANON} & matches actual parameter kind \\ \hline
+\end{tabular}
+\tabcap{parmkinds}{Supported Parameter Kinds}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|p{2.6cm}|p{8.7cm}|} \hline
+Qualifier &  Meaning  \\ \hline
+\texttt{\_A} &  Acceleration coefficients appended \\
+\texttt{\_C} &  External form is compressed\\
+\texttt{\_D} &  Delta coefficients appended \\
+\texttt{\_E} &  Log energy appended\\
+\texttt{\_K} &  External form has checksum appended\\
+\texttt{\_N} &  Absolute log energy suppressed \\
+\texttt{\_T} &  Third differential coefficients appended \\
+\texttt{\_V} &  VQ index appended\\
+\texttt{\_Z} &  Cepstral mean subtracted\\
+\texttt{\_0} &  Cepstral C0 coefficient appended\\ \hline
+\end{tabular}
+\tabcap{qualifiers}{Parameter Kind Qualifiers}
+\end{center}\index{qualifiers!summary}
+
+\begin{center}
+\begin{tabular}{|p{1.2cm}|p{3.0cm}|p{1.3cm}|p{6.5cm}|} \hline
+Module & Name & Default & Description  \\ \hline
+\htool{HAudio} & \texttt{LINEIN} & \texttt{T} & Select line input for audio\\ 
+\htool{HAudio} & \texttt{MICIN} & \texttt{F} & Select microphone input for audio\\ 
+\htool{HAudio} & \texttt{LINEOUT} & \texttt{T} & Select line output for audio\\ 
+\htool{HAudio} & \texttt{SPEAKEROUT} & \texttt{F} & Select speaker output for audio\\ 
+\htool{HAudio} & \texttt{PHONESOUT} & \texttt{T} & Select headphones output for audio\\ 
+
+ & \texttt{SOURCEKIND} & \texttt{ANON} & Parameter kind of source \\
+ & \texttt{SOURCEFORMAT} & \texttt{HTK} & File format of source \\
+ & \texttt{SOURCERATE} & \texttt{0.0} & Sample period of source in 100ns units \\
+\htool{HWave} & \texttt{NSAMPLES} &  & Num samples in alien file input via a pipe\\ 
+\htool{HWave} & \texttt{HEADERSIZE}  &   & Size of header in an alien file\\ 
+\htool{HWave} & \texttt{STEREOMODE} &   & Select channel: \texttt{RIGHT} or \texttt{LEFT} \\
+\htool{HWave} & \texttt{BYTEORDER} &   & Define byte order \texttt{VAX} or other\\
+ & \texttt{NATURALREADORDER}  & \texttt{F} & Enable natural read order for HTK files \\
+ & \texttt{NATURALWRITEORDER} & \texttt{F} & Enable natural write order for HTK files \\
+ & \texttt{TARGETKIND} & \texttt{ANON} & Parameter kind of target \\
+ & \texttt{TARGETFORMAT} & \texttt{HTK} & File format of target \\
+ & \texttt{TARGETRATE} & \texttt{0.0} & Sample period of target in 100ns units \\
+\htool{HParm} & \texttt{SAVECOMPRESSED} & \texttt{F} & Save the output file in compressed form \\
+\htool{HParm} & \texttt{SAVEWITHCRC} & \texttt{T} & Attach a checksum to output parameter file \\ 
+\htool{HParm} & \texttt{ADDDITHER} & \texttt{0.0} & Level of noise added to input signal \\
+\htool{HParm} & \texttt{ZMEANSOURCE} & \texttt{F} & Zero mean source waveform before analysis \\
+\htool{HParm} & \texttt{WINDOWSIZE} & \texttt{256000.0} & Analysis window size in 100ns units \\
+\htool{HParm} & \texttt{USEHAMMING} & \texttt{T} & Use a Hamming window \\
+\htool{HParm} & \texttt{PREEMCOEF} & \texttt{0.97} & Set pre-emphasis coefficient \\
+\htool{HParm} & \texttt{LPCORDER} &  \texttt{12} &  Order of LPC analysis \\
+\htool{HParm} & \texttt{NUMCHANS} & \texttt{20} & Number of filterbank channels \\
+\htool{HParm} & \texttt{LOFREQ} & \texttt{-1.0} & Low frequency cut-off in fbank analysis \\
+\htool{HParm} & \texttt{HIFREQ} & \texttt{-1.0} & High frequency cut-off in fbank analysis \\
+\htool{HParm} & \texttt{USEPOWER} & \texttt{F} & Use power not magnitude in fbank analysis \\
+\htool{HParm} & \texttt{NUMCEPS} &   \texttt{12} & Number of cepstral parameters \\ 
+\htool{HParm} & \texttt{CEPLIFTER} &   \texttt{22} & Cepstral liftering coefficient \\ 
+\htool{HParm} & \texttt{ENORMALISE} & \texttt{T} & Normalise log energy \\ 
+\htool{HParm} & \texttt{ESCALE} & \texttt{0.1} & Scale log energy \\ 
+\htool{HParm} & \texttt{SILFLOOR} & \texttt{50.0} & Energy silence floor (dB) \\
+\htool{HParm} & \texttt{DELTAWINDOW} & \texttt{2} & Delta window size \\ 
+\htool{HParm} & \texttt{ACCWINDOW} & \texttt{2} & Acceleration window size \\ 
+\htool{HParm} & \texttt{VQTABLE} & \texttt{NULL} & Name of VQ table \\ 
+\htool{HParm} & \texttt{SAVEASVQ} & \texttt{F} & Save only the VQ indices \\
+\htool{HParm} & \texttt{AUDIOSIG} & \texttt{0} & Audio signal number for remote control \\ \hline
+\end{tabular}
+\tabcap{spiocparms1}{Configuration Parameters}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|p{1.1cm}|p{2.6cm}|p{1.4cm}|p{6.5cm}|} \hline
+Module & Name & Default & Description  \\ \hline
+\htool{HParm} & \texttt{USESILDET}  & \texttt{F} & Enable speech/silence detector \\
+\htool{HParm} & \texttt{MEASURESIL} & \texttt{T} & Measure background noise level prior to sampling \\
+\htool{HParm} & \texttt{OUTSILWARN} & \texttt{T} & Print a warning message to {\tt stdout} before 
+ measuring audio levels \\
+\htool{HParm} & \texttt{SPEECHTHRESH} & \texttt{9.0} & Threshold for speech above silence level (dB) \\
+\htool{HParm} & \texttt{SILENERGY}    & \texttt{0.0} & Average background noise level (dB) \\
+\htool{HParm} & \texttt{SPCSEQCOUNT}  & \texttt{10}  & Window over which speech/silence decision reached \\
+\htool{HParm} & \texttt{SPCGLCHCOUNT} & \texttt{0}   & Maximum number of frames marked as silence in window which is
+classified as speech whilst expecting start of speech \\
+\htool{HParm} & \texttt{SILSEQCOUNT}  & \texttt{100} & Number of frames classified as silence needed to mark end of
+utterance \\
+\htool{HParm} & \texttt{SILGLCHCOUNT} & \texttt{2} & Maximum number of frames marked as silence in window which is
+classified as speech whilst expecting silence \\
+\htool{HParm} & \texttt{SILMARGIN} & \texttt{40} & Number of extra frames included before and after start and end of
+speech marks from the speech/silence detector \\
+\htool{HParm} & \texttt{V1COMPAT} & \texttt{F} & Set Version 1.5 compatibility mode \\ 
+ & \texttt{TRACE} & \texttt{0} & Trace setting\\ \hline
+\end{tabular}
+\tabcap{spiocparms2}{Configuration Parameters (cont)}
+\end{center}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "htkbook"
+%%% End: 

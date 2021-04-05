@@ -1,0 +1,8 @@
+2003-02-14  Dan Povey <dp10006@eng.cam.ac.uk>
+
+	* HTKRef/HMMIRest.tex: Updates for MMI/MPE-MAP.
+
+2002-11-15  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* htkbook.tex: 
+	* HTKRef/HMMIRest.tex: New section.

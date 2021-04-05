@@ -1,0 +1,198 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young and Julian Odell    24/11/97
+%
+
+\newpage
+\mysect{HLStats}{HLStats}
+
+\mysubsect{Function}{HLStats-Function}
+
+\index{hlstats@\htool{HLStats}|(}
+This program will read in a HMM list and 
+a set of \HTK\ format transcriptions (label files).  It will then 
+compute various statistics which are intended to assist in 
+analysing acoustic training data and generating simple language
+models for recognition.  The specific functions provided by \htool{HLStats}
+are:
+\begin{enumerate}
+\item number of occurrences of each distinct 
+      logical HMM and/or each distinct physical HMM.  The list printed
+      can be limited to the N most infrequent models.
+\item minimum, maximum and average durations of each logical HMM
+      in the transcriptions.
+\item a matrix of bigram probabilities
+\item an ARPA/MIT-LL format text file of back-off bigram probabilities
+\item a list of labels which cover the given set of transcriptions.
+\end{enumerate}
+
+\mysubsect{Bigram Generation}{HLStats-Bigram Generation}
+
+When using the bigram generating options, each transcription is 
+assumed to have a unique entry and exit label which by default are
+\texttt{!ENTER} and \texttt{!EXIT}.  If these labels are not present
+they are inserted.  In addition, any label occurring in a transcription
+which is not listed in the HMM list is mapped to a unique label called
+\texttt{!NULL}.
+
+\htool{HLStats} processes all input transcriptions and
+maps all labels to a set of unique integers in the range 1 to $L$, where
+$L$ is the number of distinct labels.  
+For each adjacent pair of labels $i$
+and $j$, it counts the total number of occurrences $N(i,j)$.
+Let the total
+number of occurrences of label $i$ be $N(i) = \sum_{j=1}^L N(i,j)$.
+
+For matrix bigrams, the bigram probability $p(i,j)$ is given by
+\[
+   p(i,j) = \left\{
+      \begin{array}{ll}
+           \alpha N(i,j)/N(i) & \mbox{if $N(i) > 0$} \\
+           1/L & \mbox{if $N(i) = 0$} \\
+           f   & \mbox{otherwise}
+       \end{array}
+   \right. 
+\]
+where $f$ is a floor probability set by the \texttt{-f} option
+and $\alpha$ is chosen to ensure that $\sum_{j=1}^L p(i,j) = 1$.
+
+For back-off bigrams, the unigram probabilities $p(i)$ are given
+by
+\[
+   p(i) = \left\{
+      \begin{array}{ll}
+           N(i)/N & \mbox{if $N(i) > u$} \\
+                   u/N   & \mbox{otherwise}
+       \end{array}
+   \right. 
+\]
+where $u$ is unigram floor count set by the \texttt{-u} option
+and $N = \sum_{i=1}^L \max [N(i)$,u].
+
+The backed-off bigram probabilities are given by
+\[
+   p(i,j) = \left\{
+      \begin{array}{ll}
+           (N(i,j) - D )/N(i) & \mbox{if $N(i,j) > t$} \\
+                  b(i) p(j)  & \mbox{otherwise}
+       \end{array}
+   \right. 
+\]
+where $D$ is a discount and $t$ is a bigram count threshold set
+by the \texttt{-t} option.  The discount $D$ is fixed at $0.5$ 
+but can be changed via the configuration variable \texttt{DISCOUNT}.
+The back-off weight $b(i)$ is calculated to ensure 
+that $\sum_{j=1}^L p(i,j) = 1$, i.e.
+\[
+  b(i) = \frac{1 - \sum_{j \in B} p(i,j)}{1 - \sum_{j \in B} p(j)}
+\]
+where $B$ is the set of all words for which $p(i,j)$ has a bigram.
+
+The formats of matrix and ARPA/MIT-LL format bigram files are described
+in Chapter~\ref{c:netdict}.
+
+\mysubsect{Use}{HLStats-Use}
+
+\htool{HLStats} is invoked by the command line
+\begin{verbatim}
+   HLStats [options] hmmList labFiles ....
+\end{verbatim}
+The {\tt hmmList} should contain a list of all the labels (ie model names)
+used in the following label files for which statistics are required.  Any
+labels not appearing in the list are ignored and assumed to be 
+out-of-vocabulary.  The list of labels is specified in the same way as for a
+HMM list (see \htool{HModel}) and the logical$\Rightarrow$ 
+physical mapping is preserved
+to allow statistics to be collected about physical names as well as logical 
+ones.  The {\tt labFiles} may be master label files.
+The available options are
+
+\begin{optlist}
+
+  \ttitem{-b fn} Compute bigram statistics and store result in the
+        file {\tt fn}.
+  
+  \ttitem{-c N} Count the number of occurrences of each logical model
+    listed in the {\tt hmmList} and on completion list all models
+    for which there are {\tt N} or less occurrences.
+
+  \ttitem{-d} Compute minimum, maximum and average duration statistics for each
+        label.
+
+  \ttitem{-f f} Set the matrix
+      bigram floor probability to {\tt f} 
+     (default value 0.0).  This option should be used in 
+     conjunction with the {\tt -b} option.
+
+  \ttitem{-h N} Set the bigram hashtable size to medium(N=1) or
+        large (N=2).   This option should be used in 
+        conjunction with the {\tt -b} option. The default is small(N=0).
+
+  \ttitem{-l fn}  Output a list of covering labels to file {\tt fn}.
+        Only labels occurring in the {\tt labList} are counted (others
+        are assumed to be out-of-vocabulary).  
+        However, this list may contain labels that do not occur in any of
+        the label files.  The list of labels written to {\tt fn} will however
+        contain only those labels which occur at least once.
+
+  \ttitem{-o}  Produce backed-off bigrams rather than matrix ones.  These
+        are output in the standard ARPA/MIT-LL textual format.
+
+  \ttitem{-p N} Count the number of occurrences of each physical model
+        listed in the {\tt hmmList} and on completion list all models
+        for which there are {\tt N} or less occurrences.
+
+  \ttitem{-s st en} Set the sentence start and end labels to {\tt st} 
+        and {\tt en}.  (Default {\tt !ENTER} and {\tt !EXIT}).
+
+  \ttitem{-t n} Set the threshold count for including a bigram
+         in a backed-off bigram language model.  This option should be used in 
+        conjunction with the {\tt -b} and {\tt -o} options.
+  
+  \ttitem{-u f} Set the unigram floor probability to {\tt f} when
+         constructing a back-off bigram language model. 
+         This option should be used in 
+        conjunction with the {\tt -b} and {\tt -o} options.
+\stdoptG
+\stdoptI
+\end{optlist}
+\stdopts{HLStats}
+
+\mysubsect{Tracing}{HLStats-Tracing}
+
+\htool{HLStats} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting.
+   \ttitem{00002} trace memory usage.
+   \ttitem{00004} show basic statistics whilst calculating bigrams.
+                  This includes the global training data entropy
+                  and the entropy for each distinct label. 
+   \ttitem{00010} show file names as they are processed.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hlstats@\htool{HLStats}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

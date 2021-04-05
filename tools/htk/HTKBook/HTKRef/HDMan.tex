@@ -1,0 +1,208 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young  24/11/97
+%
+
+\newpage
+\mysect{HDMan}{HDMan}
+
+\mysubsect{Function}{HDMan-Function}
+
+\index{hdman@\htool{HDMan}|(}
+The \HTK\ tool \htool{HDMan} is used to prepare a pronunciation dictionary 
+from one or more sources.  It
+reads in a list of \textit{editing} commands from a
+script file and then outputs an edited and merged copy of 
+one or more dictionaries.
+
+Each source pronunciation dictionary consists of comment lines and definition
+lines.  Comment lines start with the \texttt{\#} character (or optionally any
+one of a set of specified comment chars) and are ignored by \htool{HDMan}.
+Each definition line starts with a word and is followed by a sequence of
+symbols (phones) that define the pronunciation.  The words and the phones are
+delimited by spaces or tabs, and the end of line delimits each definition.
+
+Dictionaries used by \htool{HDMan} are read using the standard \HTK\ string
+conventions (see section~\ref{s:htkstrings}), however, the command \texttt{IR}
+can be used in a \htool{HDMan} source edit script to switch to using this raw
+format. Note that in the default mode, words and phones should not begin with unmatched quotes (they should be escaped with the backslash). All dictionary entries must already be alphabetically sorted before using \htool{HDMan}.
+
+Each edit command in the script file must be on a separate line.  Lines in the
+script file starting with a \texttt{\#} are comment lines and are ignored.  The
+commands supported are listed below.  They can be displayed by \htool{HDMan}
+using the \texttt{-Q} option.
+
+When no edit files are specified, \htool{HDMan} simply merges all of
+the input dictionaries and outputs them in sorted order.  All input
+dictionaries must be sorted.  Each input dictionary \texttt{xxx} may be
+processed by its own private set of edit commands stored in \texttt{xxx.ded}.
+Subsequent to the processing of the input dictionaries by their own
+unique edit scripts, the merged dictionary can be processed by
+commands in \texttt{global.ded} (or some other specified 
+global edit file name).
+
+Dictionaries are processed on a word by word basis in the order that
+they appear on the command line.  Thus, all of 
+the pronunciations for a given word are loaded into a buffer, then
+all edit commands are applied to these pronunciations.  The result
+is then output and the next word loaded.
+
+Where two or more dictionaries give pronunciations for the same word,
+the default behaviour is that only the first set of pronunciations
+encountered are retained and all others are ignored.  An option exists
+to override this so that all pronunciations are concatenated.
+
+Dictionary entries can be filtered by a word list such that all entries not in
+the list are ignored. Note that the word identifiers in the word list should
+match exactly (e.g. same case) their corresponding entries in the dictionary.
+
+The edit commands provided by \htool{HDMan} are as follows
+
+
+
+\begin{varlist}
+   \fwitem{2cm}{AS A B ...}  Append silence models A, B, etc to 
+      each pronunciation.
+   \fwitem{2cm}{CR X A Y B  } Replace phone \texttt{Y} in the context of \texttt{A\_B} 
+             by \texttt{X}.  Contexts may include an asterix \texttt{*} to denote any 
+             phone or a defined context set 
+            defined using the \texttt{DC} command.
+   \fwitem{2cm}{DC X A B ...} Define the set \texttt{A}, \texttt{B}, \ldots as 
+             the context \texttt{X}.
+   \fwitem{2cm}{DD X A B ...} Delete the definition for word \texttt{X} starting 
+                              with phones \texttt{A}, \texttt{B}, \ldots.
+   \fwitem{2cm}{DP A B C ...} Delete any occurrences of phones \texttt{A} or 
+               \texttt{B} or \texttt{C} \ldots.
+   \fwitem{2cm}{DS src}         Delete each pronunciation from source \texttt{src} 
+           unless it is the only one for the current word.
+   \fwitem{2cm}{DW X Y Z ...} Delete words (\& definitions) \texttt{X},
+           \texttt{Y}, \texttt{Z}, \ldots.
+   \fwitem{2cm}{FW X Y Z ...} Define  \texttt{X},
+           \texttt{Y}, \texttt{Z}, \ldots\ as function words and 
+            change each phone 
+           in the definition to a function word specific phone. For example,
+           in word \texttt{W} phone \texttt{A} would become \texttt{W.A}.
+   \fwitem{2cm}{IR}  Set the input mode to raw.
+          In raw mode, words are regarded as arbitrary sequences of printing
+          chars.  In the default mode, words are strings as defined 
+          in section~\ref{s:htkstrings}.
+   \fwitem{2cm}{LC [X]} Convert all phones to be left-context dependent. If \texttt{X} is given
+          then the 1st phone \texttt{a} in each word is changed to \texttt{X-a} 
+          otherwise it is unchanged.
+   \fwitem{2cm}{LP} Convert all phones to lowercase.
+   \fwitem{2cm}{LW} Convert all words to lowercase.
+   \fwitem{2cm}{MP X A B ...} Merge any sequence of phones \texttt{A} \texttt{B} 
+          \ldots\ and rename as  \texttt{X}.
+   \fwitem{2cm}{RC [X]} Convert all phones to be right-context dependent. If 
+          \texttt{X} is given  then the last phone \texttt{z} in each word is
+          changed to \texttt{z+X} otherwise it is unchanged.
+   \fwitem{2cm}{RP X A B ...} Replace all occurrences of phones \texttt{A} 
+       or \texttt{B} \ldots by \texttt{X}.
+   \fwitem{2cm}{RS system}  Remove stress marking.  Currently the only 
+         stress marking system 
+       supported is that used in the dictionaries produced by 
+       Carnegie Melon University (system = cmu).
+   \fwitem{2cm}{RW X A B ...} Replace all occurrences of word \texttt{A} 
+       or \texttt{B} \ldots by \texttt{X}.
+   \fwitem{2cm}{SP X A B ...} Split phone \texttt{X} into the sequence 
+      \texttt{A} \texttt{B} \texttt{C} \ldots.
+   \fwitem{2cm}{TC [X [Y]]  } Convert phones to triphones. If 
+        \texttt{X} is given then the first phone \texttt{a} is converted to 
+        \texttt{X-a+b} otherwise it is unchanged. If \texttt{Y} is given
+          then the last phone \texttt{z} is converted to \texttt{y-z+Y}
+           otherwise if \texttt{X} is given
+            then it is changed to  \texttt{y-z+X} otherwise it is unchanged.
+   \fwitem{2cm}{UP} Convert all phones to uppercase.
+   \fwitem{2cm}{UW} Convert all words to uppercase.
+
+\end{varlist}
+
+\mysubsect{Use}{HDMan-Use}
+
+\htool{HDMan} is invoked by typing the command line
+\begin{verbatim}
+   HDMan [options] newDict srcDict1 srcDict2 ... 
+\end{verbatim}
+This causes \htool{HDMan} read in the source dictionaries \texttt{srcDict1},
+\texttt{srcDict2}, etc.\ and generate a new dictionary \texttt{newDict}.
+The available options are
+
+\begin{optlist}
+
+  \ttitem{-a s} Each character in the string \texttt{s} denotes the
+      start of a comment line.  By default there is just one
+      comment character defined which is \texttt{\#}.
+  \ttitem{-b s}  Define \texttt{s} to be a word boundary symbol.
+  \ttitem{-e dir} Look for edit scripts in the directory \texttt{dir}.
+  \ttitem{-g f}  File \texttt{f} holds the global edit script.  By
+     default, \htool{HDMan} expects the global edit script to be
+     called \texttt{global.ded}.
+  \ttitem{-h i j} Skip the first \texttt{i} lines of the \texttt{j}'th
+     listed source dictionary.
+  \ttitem{-i} Include word output symbols in the output dictionary.
+  \ttitem{-j} Include pronunciation probabilities in the output dictionary.
+  \ttitem{-l s} Write a log file to \texttt{s}.  The log file will include
+     dictionary statistics and a list of the number of occurrences
+     of each phone.
+  \ttitem{-m} Merge pronunciations from all source dictionaries.  By default,
+    \htool{HDMan} generates a single pronunciation for each word.  If several
+    input dictionaries have pronunciations for a word, then the first encountered
+    is used.  Setting this option causes all distinct pronunciations to be
+    output for each word.
+  \ttitem{-n f} Output a list of all distinct phones encountered 
+     to file \texttt{f}.
+  \ttitem{-o} Disable dictionary output.
+  \ttitem{-p f}  Load the phone list stored in file \texttt{f}.  This
+     enables a check to be made that all output phones are in the supplied
+     list. You need to create a log file (\texttt{-l}) to view the results of 
+     this check.
+  \ttitem{-t}  Tag output words with the name of the source dictionary which
+    provided the pronunciation.
+  \ttitem{-w f}  Load the word list stored in file \texttt{f}.  Only 
+    pronunciations for the words in this list will be extracted from
+    the source dictionaries. 
+\stdoptQ
+\end{optlist}
+\stdopts{HDMan}
+
+\mysubsect{Tracing}{HDMan-Tracing}
+
+\htool{HDMan} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting 
+   \ttitem{00002} word buffer operations 
+   \ttitem{00004} show valid inputs 
+   \ttitem{00010} word level editing 
+   \ttitem{00020} word level editing in detail 
+   \ttitem{00040} print edit scripts 
+   \ttitem{00100} new phone recording 
+   \ttitem{00200} pron deletions 
+   \ttitem{00400} word deletions                    
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hdman@\htool{HDMan}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

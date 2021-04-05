@@ -1,0 +1,100 @@
+%
+% HLMBook - Steve Young    13/01/97
+%
+% Updated - Gareth Moore   15/01/02
+%
+
+\newpage
+\mysect{LBuild}{LBuild}
+
+\mysubsect{Function}{LBuild-Function}
+
+\index{lbuild@\htool{LBuild}|(}
+\index{n-gram language model}
+
+This program will read one or more input gram files and
+generate/update a back-off $n$-gram language model as described in
+section~\ref{s:mkngoview}. The \texttt{-n} option specifies the order of
+the final model. Thus, to generate a trigram language model, the user
+may simply invoke the tool with \texttt{-n 3} which will cause it to
+compute the FoF table and then generate the unigram, bigram and
+trigram stages of the model. Note that intermediate model/FoF files
+will not be generated.
+
+As for all tools which process gram files, the input gram files must
+each be sorted but they need not be sequenced. The counts in each
+input file can be modified by applying a multiplier factor. Any $n$-gram
+containing an id which is not in the word map is ignored, thus, the
+supplied word map will typically contain just those word and class ids
+required for the language model under construction (see
+\htool{LSubset}).
+
+\htool{LBuild} supports Turing-Good and absolute discounting 
+as described in section~\ref{s:HLMdiscounts}.
+
+\mysubsect{Use}{LBuild-Use}
+
+\htool{LBuild} is invoked by typing the command line
+\begin{verbatim}
+   LBuild [options] wordmap outfile [mult] gramfile .. [mult] gramfile ..
+\end{verbatim}
+
+The given word map file is loaded and then the set of named gram files
+are merged to form a single sorted stream of $n$-grams. Any $n$-grams
+containing ids not in the word map are ignored.  The list of input
+gram files can be interspersed with multipliers. These are
+floating-point format numbers which must begin with a plus or minus
+character (e.g. \texttt{+1.0}, \texttt{-0.5}, etc.). The effect of a
+multiplier \texttt{x} is to scale the $n$-gram counts in the following
+gram files by the factor \texttt{x}. A multiplier stays in effect
+until it is redefined. The output to \texttt{outfile} is a back-off
+$n$-gram language model file in the specified file format.
+
+See the \htool{LPCalc} options in section~\ref{s:coninlib} for
+details on changing the discounting type from the default of
+Turing-Good, as well as other configuration file options.
+
+The allowable options to \htool{LBuild} are as follows
+
+\begin{optlist}
+  \ttitem{-c n c} Set cutoff for \texttt{n}-gram to \texttt{c}.
+
+  \ttitem{-d n c} Set weighted discount pruning for \texttt{n}-gram
+                   to \texttt{c} for Seymore-Rosenfeld pruning.
+
+  \ttitem{-f t} Set output model format to \texttt{t} (TEXT, BIN, ULTRA).
+
+  \ttitem{-k n} Set discounting range for Good-Turing discounting to
+                $[1..n]$.
+
+  \ttitem{-l f} Build model by updating existing LM in \texttt{f}.
+
+  \ttitem{-n n} Set final model order to \texttt{n}.
+
+  \ttitem{-t ff} Load the FoF file \texttt{f}. This is only used for
+	         Turing-Good discounting, and is not essential.
+
+  \ttitem{-u c} Set the minimum occurrence count for unigrams to
+	        \texttt{c}.  (Default is 1)
+
+  \ttitem{-x} Produce a counts model.
+\end{optlist}
+\stdopts{LBuild}
+
+
+\mysubsect{Tracing}{LBuild-Tracing}
+
+\htool{LBuild} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+
+\ttitem{00001}  basic progress reporting. 
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{lbuild@\htool{LBuild}|)}
+
+
+
+
+

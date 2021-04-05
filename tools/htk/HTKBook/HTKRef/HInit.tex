@@ -1,0 +1,181 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young  31/10/95
+%
+
+\newpage
+\mysect{HInit}{HInit}
+
+\mysubsect{Function}{HInit-Function}
+
+\index{hinit@\htool{HInit}|(}
+\htool{HInit} is used to provide initial estimates for the parameters
+of a single HMM using a set of observation sequences.
+It works by repeatedly using Viterbi alignment to segment the
+training observations and then recomputing the parameters
+by pooling the vectors in each segment.   For mixture Gaussians, each
+vector in each segment is aligned with the component with the highest
+likelihood.   Each cluster of vectors then determines the parameters
+of the associated mixture component.
+In the absence of an initial model, the process
+is started by performing a uniform 
+segmentation of each training observation and for mixture Gaussians,
+the vectors in each uniform segment are clustered using a modified K-Means 
+algorithm\footnote{This algorithm is significantly different from 
+earlier versions of HTK where K-means clustering was used at every
+iteration and the Viterbi alignment was limited to states}. 
+
+\htool{HInit} can be used to provide initial estimates of whole word models
+in which case the observation sequences are realisations of the 
+corresponding vocabulary word.
+Alternatively, \htool{HInit} can be used to generate initial estimates of
+{\em seed} HMMs for phoneme-based speech recognition.
+In this latter case, the observation sequences will consist
+of segments of continuously spoken training material.  \htool{HInit} will
+{\it cut} these out of the training data automatically by simply
+giving it a segment label.
+
+In both of the above applications, \htool{HInit} normally takes 
+as input a prototype
+HMM definition which defines the required HMM topology i.e.\ it has
+the form of the required HMM except that means, variances and mixture
+weights are ignored\footnote{Prototypes should either
+have GConst set (the value does
+not matter) to avoid {\tt HTK} trying to compute it or
+variances should be set to a positive value such as 1.0 to
+ensure that GConst is computable}.  The
+transition matrix of the prototype specifies both the allowed
+transitions and their initial probabilities.  Transitions which
+are assigned zero probability will remain zero and hence denote
+non-allowed transitions.  \htool{HInit} estimates transition probabilities
+by counting the number of times each state is visited during
+the alignment process.
+
+\htool{HInit} supports multiple mixtures, multiple streams,
+parameter tying within a single model, full or diagonal
+covariance matrices, tied-mixture models and discrete models.  
+The output of HInit is typically input to HRest.
+
+Like all re-estimation tools, \htool{HInit} allows a floor to  be set on
+each individual variance by defining a variance floor macro for each
+data stream (see chapter~\ref{c:Training}).
+ 
+\mysubsect{Use}{HInit-Use}
+
+\htool{HInit} is invoked via the command line
+\begin{verbatim}
+   HInit [options] hmm trainFiles ...
+\end{verbatim}
+This causes the means and variances of the given {\tt hmm} to be
+estimated repeatedly using the data in {\tt trainFiles} 
+until either a maximum iteration limit is reached
+or the estimation converges.
+The HMM definition can be contained within one or more macro
+files loaded via the standard \texttt{-H} option.  Otherwise, the 
+definition will be read from a file called \texttt{hmm}.
+The list of train files can be stored in a script file if required.
+
+The detailed operation of \htool{HInit} is controlled by the following
+command line options
+\begin{optlist}
+
+  \ttitem{-e f} This sets the convergence factor to the real value {\tt f}.
+      The convergence factor is the relative change between successive
+      values of $P_{max}({O}|\lambda)$ computed as a by-product
+      of the Viterbi alignment stage (default value 0.0001).
+
+  \ttitem{-i N} This sets the maximum number of estimation cycles
+      to {\tt N} (default value 20).
+
+  \ttitem{-l s} The string {\tt s} must be the name of a
+      segment label.  When this option is used, \htool{HInit} searches
+      through all of the training files and cuts out all segments with
+      the given label.  When this option is not used, \htool{HInit} assumes that
+      each training file is a single token.
+
+  \ttitem{-m N}  This sets the minimum number of training examples so
+      that if fewer than {\tt N} examples are supplied an error is
+      reported (default value 3).
+
+  \ttitem{-n}  This flag suppresses the initial uniform
+      segmentation performed by \htool{HInit} allowing it to be used
+      to update the parameters of an existing model.
+  
+  \ttitem{-o s}  The string {\tt s} is used as the name of the output
+      HMM in place of the source name.  This is provided in \htool{HInit}
+      since it is often used to initialise a model from a prototype
+      input definition.  The default is to use the source name.
+
+  \ttitem{-u flags}  By default, \htool{HInit} updates all 
+      of the HMM parameters,
+      that is, means, variances, mixture weights
+      and transition probabilities. This 
+      option causes just the parameters indicated by the {\tt flags}
+      argument to be updated, this argument is a string containing one
+      or more of the letters {\tt m} (mean), {\tt v} (variance), 
+      {\tt t} (transition) and {\tt w} (mixture weight).  The presence of a
+      letter enables the updating of the corresponding parameter set.
+
+  \ttitem{-v f}  This sets the minimum variance (i.e. diagonal element of
+      the covariance matrix) to the real value {\tt f} The default value
+      is 0.0.
+
+  \ttitem{-w f}  Any mixture weight  or discrete observation probability
+      which falls below the global
+            constant {\tt MINMIX} is treated as being zero.
+      When this parameter is  set,  all mixture weights  are floored
+      to {\tt f * MINMIX}.
+
+\stdoptB
+\stdoptF
+\stdoptG
+\stdoptH
+\stdoptI
+\stdoptL
+\stdoptM
+\stdoptX
+
+\end{optlist}
+\stdopts{HInit}
+
+\mysubsect{Tracing}{HInit-Tracing}
+
+\htool{HInit} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{000001} basic progress reporting.
+   \ttitem{000002} file loading information.
+   \ttitem{000004} segments within each file.
+   \ttitem{000010} uniform segmentation.
+   \ttitem{000020} Viterbi alignment.
+   \ttitem{000040} state alignment.
+   \ttitem{000100} mixture component alignment.
+   \ttitem{000200} count updating.
+   \ttitem{000400} output probabilities.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hinit@\htool{HInit}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

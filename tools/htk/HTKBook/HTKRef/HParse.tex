@@ -1,0 +1,331 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Phil Woodland and Steve Young    24/11/97
+%
+
+\newpage
+\mysect{HParse}{HParse}
+
+\mysubsect{Function}{HParse-Function}
+
+\index{hparse@\htool{HParse}|(}
+The \htool{HParse} program generates word level lattice files (for use
+with e.g. \htool{HVite}) from a text file syntax description containing a 
+set of rewrite rules based on extended Backus-Naur Form (EBNF). 
+The EBNF rules are used to generate an internal
+representation of the corresponding finite-state network where \htool{HParse}
+network nodes represent the words in the network, and are connected via
+sets of links. This \htool{HParse} network is then converted to \HTK\ V2 word
+level lattice. The program provides one convenient way of defining such
+word level lattices. 
+
+\htool{HParse} also provides a {\em compatibility mode} for use
+with \htool{HParse} syntax descriptions used in \HTK\ V1.5 where
+the same format was used to define both the word level syntax 
+and the dictionary.
+In compatibility mode \htool{HParse} will output the word level
+portion of such a syntax as an \HTK\ V2 lattice file (via \htool{HNet})
+and the pronunciation information as an \HTK\ V2 dictionary file (via 
+\htool{HDict}).
+
+The lattice produced by \htool{HParse} will often contain a number
+of \texttt{!NULL} nodes in order to reduce the number of arcs in the
+lattice. The use of such \texttt{!NULL} nodes can both
+reduce size and  increase efficiency when used by recognition programs 
+such as \htool{HVite}.
+
+\mysubsect{Network Definition}{HParse-Network Definition}
+
+The syntax rules for the textual definition of the network are 
+as follows.  Each node in the network has a \texttt{nodename}.
+This node name will normally correspond to a word in the final syntax
+network. Additionally, for use in compatibility mode,
+each node can also have an external name.
+{\sf
+\begin{tabbing}
+++++++ \= ++++++++ \= ++ \= \kill
+\>        name \> = \> char\{char\} \\
+\>        nodename \> = \> name [ "\%" ( "\%" $|$ name ) ]
+\end{tabbing}}
+
+\noindent
+Here \texttt{char} represents any character except one of the meta chars 
+\texttt{\{ \} [ ] $<$ $>$$|$ = \$ ( ) ; $\backslash$ / *}.   The latter may, 
+however, be escaped using a backslash.  The first name in a \texttt{nodename}
+represents the name of the node (``internal name''), and the second optional name is
+the ``external'' name.  This is used only in compatibility mode, and is, by default
+the same as the internal name.
+
+Network definitions may also contain variables
+{\sf
+\begin{tabbing}
+++++++ \= ++++++++ \= ++ \= \kill
+\>      variable \> = \> \$name
+\end{tabbing}}
+\noindent
+Variables are identified by a leading \$ character.  They stand for
+sub-networks and must be defined before they appear in the RHS of a rule
+using the form
+{\sf
+\begin{tabbing}
+++++++ \= ++++++++ \= ++ \= ++++++++++++ \=  \kill
+\>      subnet \> = \> variable ``='' expr ``;''
+\end{tabbing}}
+\noindent
+An \texttt{expr} consists of a set of alternative sequences representing
+parallel branches of the network. 
+{\sf
+\begin{tabbing}
+++++++ \= ++++++++ \= ++ \= ++++++++++++ \=  \kill
+\>      expr \>  = \> sequence \{``$|$'' sequence\} \\
+\>      sequence \> = \> factor\{factor\}
+\end{tabbing}}
+\noindent
+Each sequence is composed of a sequence of factors where a factor
+is either a node name, a variable representing some sub-network or
+an expression contained within various sorts of brackets.
+
+{\sf
+\begin{tabbing}
+++++++ \= ++++++++ \= ++ \= ++++++++++++ \=  \kill
+\>   factor \> = \> ``('' expr ``)'' \> $|$ \\
+\>\>\>            ``\{'' expr ``\}'' \> $|$ \\
+\>\>\>            ``$<$'' expr ``$>$'' \> $|$ \\
+\>\>\>         ``['' expr ``]'' \>  $|$ \\
+\>\>\>             ``$<<$'' expr ``$>>$'' \> $|$ \\
+\>\>\>               nodename \> $|$ \\
+\>\>\>               variable 
+\end{tabbing}}
+
+Ordinary parentheses are used to bracket sub-expressions, curly braces \{ \} denote zero or more repetitions and angle brackets $<>$ denote one or more repetitions.  Square brackets [$\:$] are used to enclose optional items.  The double angle brackets are a special feature included for building context dependent loops and are explained further below.
+Finally, the complete network is defined by a list of sub-network
+definitions followed by a single expression within parentheses.
+{\sf
+\begin{tabbing}
+++++++ \= ++++++++ \= ++ \= ++++++++++++ \=  \kill
+\>    network \> = \> \{subnet\} ``('' expr ``)''
+\end{tabbing}}
+\noindent
+Note that C style comments may be placed anywhere in the text of
+the network definition.
+
+As an example, the following network defines a syntax for some
+simple edit commands
+\begin{verbatim}
+   $dir   = up | down | left | right;
+   $mvcmd = move $dir | top | bottom;      
+   $item  = char | word | line | page;
+   $dlcmd = delete [$item];   /* default is char */
+   $incmd = insert;
+   $encmd = end [insert];
+   $cmd = $mvcmd|$dlcmd|$incmd|$encmd;
+   ({sil} < $cmd {sil} > quit)
+\end{verbatim}
+
+Double angle brackets are used to
+construct contextually consistent context-dependent loops such
+as a word-pair grammar.\footnote{The expression between 
+double angle brackets must be a simple list of alternative node names or
+a variable which has such a list as its value}
+This function can also be used to generate consistent triphone loops 
+for phone recognition\footnote{In \HTK\ V2 it is preferable for
+these context-loop expansions to be done automatically via \htool{HNet},
+to avoid requiring a dictionary entry for every context-dependent
+model}.
+The entry and exit conditions to a
+context-dependent loop can be controlled by the invisible
+pseudo-words TLOOP\_BEGIN and TLOOP\_END.  The right context of TLOOP\_BEGIN
+defines the legal loop start nodes, and the left context of TLOOP\_END
+defines the legal loop finishers. If TLOOP\_BEGIN/TLOOP\_END are not
+present then all models are connected to the entry/exit of the loop.
+
+A word-pair grammar simply defines the legal
+set of words that can follow each word in the vocabulary.
+To generate a network to represent such a grammar a
+right context-dependent loop could be used.
+The legal sentence set of sentence start and end words are defined as
+above using TLOOP\_BEGIN/TLOOP\_END.
+
+For example, the following lists the legal followers for each
+word in a 7 word vocabulary
+
+\begin{tabbing}
++++\=++++++++\=++\= \kill
+\> ENTRY \> - \> show, tell, give \\
+\> show \> - \> me, all \\
+\> tell \> - \> me, all \\
+\> me \> - \> all \\
+\> all \> - \> names, addresses \\
+\> names \> - \> and, names, addresses, show, tell, EXIT \\
+\> addresses \> - \> and, names, addresses, show, tell, EXIT \\
+\> and \> - \>  names, addresses, show, tell
+\end{tabbing}
+
+\htool{HParse} can generate a suitable lattice to represent this word-pair
+grammar by using the following specification:
+\begin{verbatim}
+   $TLOOP_BEGIN_FLLWRS = show|tell|give;
+   $TLOOP_END_PREDS    = names|addresses;
+   $show_FLLWRS        = me|all;
+   $tell_FLLWRS        = me|all;
+   $me_FLLWRS          = all;
+   $all_FLLWRS         = names|addresses;
+   $names_FLLWRS       = and|names|addresses|show|tell|TLOOP_END;
+   $addresses_FLLWRS   = and|names|addresses|show|tell|TLOOP_END;
+   $and_FLLWRS         = names|addresses|show|tell;
+     
+   ( sil << 
+         TLOOP_BEGIN+TLOOP_BEGIN_FLLWRS |
+         TLOOP_END_PREDS-TLOOP_END |
+         show+show_FLLWRS |
+         tell+tell_FLLWRS |
+         me+me_FLLWRS |
+         all+all_FLLWRS |
+         names+names_FLLWRS |
+         addresses+addresses_FLLWRS |
+         and+and_FLLWRS 
+     >> sil )     
+\end{verbatim}
+where it is assumed that each utterance begins and ends with \texttt{sil}
+model. 
+
+In this example, each set of contexts is defined by creating a variable
+whose alternatives are the individual contexts.  The actual context-dependent
+ loop is indicated by the \texttt{<<  >>} brackets.  
+Each element in this loop is a single
+variable name of the form \texttt{A-B+C} where \texttt{A} represents the left
+context, \texttt{C} represents the right context and \texttt{B} is the actual word.
+Each of \texttt{A}, \texttt{B} and \texttt{C} can be nodenames or
+variable names but note that this is the only case where variable
+names are expanded automatically and the usual
+\texttt{\$} symbol is not used\footnote{If the base-names or left/right context of the context-dependent names in a context-dependent loop are variables,  
+no \texttt{\$} symbols are used when writing the context-dependent
+nodename.}.  Both \texttt{A} and \texttt{C} are optional, and left and
+right contexts can be mixed in the same triphone loop.
+
+\mysubsect{Compatibility Mode}{HParse-Compatibility Mode}
+In \htool{HParse} compatibility mode, the interpretation of the 
+ENBF network is that used by the \HTK\ V1.5 \htool{HVite} program.
+in which \htool{HParse} ENBF notation was used to define both the word 
+level syntax and the dictionary.
+Compatibility mode is aimed at converting files written for
+\HTK\ V1.5 into their equivalent \HTK\ V2 representation.
+Therefore \htool{HParse} will output the word level
+portion of such a ENBF syntax as an \HTK\ V2 lattice file and the
+pronunciation information is optionally stored in
+an \HTK\ V2 dictionary file. When operating in compatibility mode
+and not generating dictionary output, the pronunciation information
+is discarded.
+
+In compatibility mode, the reserved
+node names \texttt{WD\_BEGIN} and \texttt{WD\_END} are used to delimit word 
+boundaries---nodes between a \texttt{WD\_BEGIN/WD\_END} pair are called 
+``word-internal'' while all other nodes are  ``word-external''.  
+All \texttt{WD\_BEGIN/WD\_END} nodes 
+must have an ``external name'' attached that denotes the word. 
+It is a requirement that the number of \texttt{WD\_BEGIN} and the number
+of \texttt{WD\_END} nodes are equal and furthermore that there isn't
+a direct connection from a \texttt{WD\_BEGIN} node to a \texttt{WD\_END}.
+For example a portion of such an \HTK\ V1.5  network could be 
+\begin{verbatim}
+     $A        =  WD_BEGIN%A ax WD_END%A;
+     $ABDOMEN  =  WD_BEGIN%ABDOMEN ae b d ax m ax n WD_END%ABDOMEN;
+     $ABIDES   =  WD_BEGIN%ABIDES ax b ay d z WD_END%ABIDES;
+     $ABOLISH  =  WD_BEGIN%ABOLISH ax b aa l ih sh WD_END%ABOLISH;
+      ... etc
+
+
+     ( < 
+        $A | $ABDOMEN | $ABIDES | $ABOLISH | ... etc
+     > )
+\end{verbatim}
+\htool{HParse} will output the connectivity of the words 
+in an HTK V2 word lattice format file
+and the pronunciation information in an HTK V2 dictionary.
+Word-external nodes are treated as words and stored in the lattice
+with corresponding entries in the dictionary. 
+
+It should be noted that in \HTK\ V1.5 any ENBF network could appear
+between a \texttt{WD\_BEGIN/WD\_END} pair, which includes loops.
+Care should therefore be taken with syntaxes that define very complex
+sets of alternative pronunciations.  It should also be noted
+that each dictionary entry is limited in length to 100 phones.
+If multiple instances of the same word are found in the expanded
+HParse network, a dictionary entry will be created for only the
+first instance and subsequent instances are ignored (a warning is
+printed). If words with a NULL external name are present then 
+the dictionary will contain a NULL output symbol.
+
+Finally, since the implementation of the generation of
+the \htool{HParse} network has been revised\footnote{With the added benefit
+of rectifying some residual bugs in the HTK V1.5 implementation}
+the semantics of variable definition and use has been slightly changed. 
+Previously variables could be redefined during network definition
+and each use would follow the most recent definition. In HTK V2 only
+the final definition of any variable is used in network expansion.
+
+\mysubsect{Use}{HParse-Use}
+
+\htool{HParse} is invoked via the command line
+\begin{verbatim}
+   HParse [options] syntaxFile latFile
+\end{verbatim}
+\htool{HParse} will then read the set of ENBF rules 
+in \texttt{syntaxFile} and produce the output lattice in \texttt{latFile}.
+
+The detailed operation of \htool{HParse} is controlled by the following
+command line options
+\begin{optlist}
+  \ttitem{-b} Output the lattice in binary format. This increases
+              speed of subsequent loading (default ASCII text lattices).
+
+  \ttitem{-c} Set V1.5 compatibility mode. Compatibility mode can also
+              be set by using the configuration variable V1COMPAT
+              (default compatibility mode disabled).
+
+  \ttitem{-d s} Output dictionary to file {\tt s}. This is only
+                a valid option when operating in compatibility mode.
+                If not set no dictionary will be produced.
+
+  \ttitem{-l} Include language model log probabilities in the output
+              These  log probabilities are calculated as 
+              $-\log (\mbox{number of followers})$ for each network node.
+\end{optlist}
+\stdopts{HParse}
+
+\mysubsect{Tracing}{HParse-Tracing}
+
+\htool{HParse} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{0001} basic progress reporting.
+   \ttitem{0002} show final HParse network (before conversion to a lattice)
+   \ttitem{0004} print memory statistics after HParse lattice generation
+   \ttitem{0010} show progress through glue node removal.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hparse@\htool{HParse}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

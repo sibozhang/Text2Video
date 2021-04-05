@@ -1,0 +1,849 @@
+%
+% !HVER!hlmfund [SJY 05/04/97]
+%
+% Updated (and about 90% rewritten) - Gareth Moore 16/01/02 - 27/03/02
+%
+
+\mychap{Fundamentals of language modelling}{hlmfund}
+
+The \HTK\ language modelling tools are designed for constructing and
+testing statistical $n$-gram language models.  This chapter introduces
+language modelling and provides an overview of the supplied tools.  It
+is strongly recommended that you read this chapter and then work
+through the tutorial in the following chapter -- this will provide you
+with everything you need to know to get started building language models.
+
+\sidepic{HLMoperation}{80}{
+An $n$-gram is a sequence of $n$ symbols (e.g. words, syntactic
+categories, etc) and an $n$-gram language model (LM) is used to
+predict each symbol in the sequence given its $n-1$ predecessors.  It
+is built on the assumption that the probability of a specific $n$-gram
+occurring in some unknown test text can be estimated from the
+frequency of its occurrence in some given training text.  Thus, as
+illustrated by the picture above, $n$-gram construction is a three stage
+process.  Firstly, the training text is scanned and its $n$-grams are
+counted and stored in a database of \textit{gram} files.  In the
+second stage some words may be mapped to an out of vocabulary class or
+other class mapping may be applied, and then in the final stage
+the counts in the resulting gram files are used to compute
+$n$-gram probabilities which are stored in the \textit{language model}
+file.  Lastly, the \textit{goodness} of a language model can be
+estimated by using it to compute a measure called \textit{perplexity}
+on a previously unseen test set.  In general, the better a language model
+then the lower its test-set perplexity.}
+
+Although the basic principle of an $n$-gram LM is very simple, in
+practice there are usually many more potential $n$-grams than can ever
+be collected in a training text in sufficient numbers to yield robust
+frequency estimates.  Furthermore, for any real application such as
+speech recognition, the use of an essentially static and finite
+training text makes it difficult to generate a single LM which is
+well-matched to varying test material. For example, an LM trained on
+newspaper text would be a good predictor for dictating news
+reports but the same LM would be a poor predictor for personal letters
+or a spoken interface to a flight reservation system.  A final
+difficulty is that the \textit{vocabulary} of an $n$-gram LM is finite
+and fixed at construction time.  Thus, if the LM is word-based, it can
+only predict words within its vocabulary and furthermore new words
+cannot be added without rebuilding the LM.
+
+The following four sections provide a thorough introduction to the
+theory behind $n$-gram models.  It is well worth reading through this
+section because it will provide you with at least a basic
+understanding of what many of the tools and their parameters actually
+do -- you can safely skip the equations if you choose because the text
+explains all the most important parts in plain English.  The final
+section of this chapter then introduces the tools provided to
+implement the various aspects of $n$-gram language modelling that have
+been described.
+
+
+\mysect{{\it n}-gram language models}{ngramLMs}
+Language models estimate the probability of a word sequence, $\hat
+P(w_1, w_2, \ldots, w_m)$ -- that is, they evaluate $P(w_i)$ as defined in equation
+\ref{e:3} in chapter \ref{c:fundaments}.\footnote{The theory components of this chapter --
+these first four sections -- are condensed from portions of
+{\textbf{``Adaptive Statistical Class-based Language Modelling''},
+G.L. Moore; \textit{Ph.D thesis, Cambridge University} 2001}}
+
+The probability $\hat P(w_1, w_2, \ldots, w_m)$ can be decomposed as a
+product of conditional probabilities:
+\begin{equation}
+\hat P(w_1, w_2, \ldots, w_m) = \prod_{i=1}^{m} \hat P(w_i \;|\; w_1,
+\ldots, w_{i-1})\label{cond_prob_model}
+\end{equation}
+
+
+\mysubsect{Word {\it n}-gram models}{wordngrams}
+Equation \ref{cond_prob_model} presents an opportunity for
+approximating $\hat{P}(\cal{W})$ by limiting the context:
+\begin{equation}
+\hat P(w_1, w_2, \ldots, w_m) \simeq \prod_{i=1}^{m} \hat P(w_i \;|\; w_{i-n+1},
+\ldots, w_{i-1})\label{ngram_model}
+\end{equation}
+for some $n \geqslant 1$. If language is assumed to be ergodic -- that
+is, it has the property that the probability of any state can be
+estimated from a large enough history independent of the starting
+conditions\footnote{See section 5 of [Shannon 1948]
+for a more formal definition of ergodicity.} -- then for sufficiently high $n$ equation
+\ref{ngram_model} is exact.  Due to reasons of data sparsity, however,
+values of $n$ in the range of 1 to 4 inclusive are typically used, and
+there are also practicalities of storage space for these estimates to
+consider.  Models using contiguous but limited context in this way are
+usually referred to as $n$-gram language models, and the conditional
+context component of the probability (``$w_{i-n+1}, \ldots, w_{i-1}$''
+in equation \ref{ngram_model}) is referred to as the {\it history}.
+
+Estimates of probabilities in $n$-gram models are commonly based on maximum
+likelihood estimates -- that is, by counting events in context on some given
+training text:
+\begin{equation}
+\hat P(w_i | w_{i-n+1}, \ldots, w_{i-1}) =
+\frac{C(w_{i-n+1}, \ldots, w_i)}{C(w_{i-n+1}, \ldots, w_{i-1})}\label{ngramcountdiv}
+\end{equation}
+where $C(.)$ is the count of a given word sequence in the
+training text. Refinements to this maximum likelihood estimate are
+described later in this chapter.
+
+The choice of $n$ has a significant effect on the number of potential
+parameters that the model can have, which is maximally bounded by
+$|\mathbb{W}|^n$, where $\mathbb{W}$ is the set of words in the
+language model, also known as the {\it vocabulary}.  A 4-gram model
+with a typically-sized 65,000 word vocabulary can therefore
+potentially have $65,000\,^4
+\simeq 1.8\times10^{19}$ parameters.  In practice, however, only a
+small subset of the possible parameter combinations represent likely
+word sequences, so the storage requirement is far less than this
+theoretical maximum -- of the order of $10^{11}$ times less in
+fact.\footnote{Based on the analysis of 170 million words of newspaper
+and broadcast news text.}  Even given this significant reduction in
+coverage and a very large training text\footnote{A couple of hundred
+million words, for example.} there are still many plausible word
+sequences which will not be encountered in the training text, or will
+not be found a statistically significant number of times. It would not
+be sensible to assign all unseen sequences zero probability, so
+methods of coping with low and zero occurrence word tuples have been
+developed. This is discussed later in section \ref{robust_estimation}.
+
+It is not only the storage space that must be considered, however --
+it is also necessary to be able to attach a reasonable degree of
+confidence to the derived estimates. Suitably large quantities of
+example training text are also therefore required to ensure statistical
+significance.  Increasing the amount of training text not only gives
+greater confidence in model estimates, however, but also demands more
+storage space and longer analysis periods when estimating model
+parameters, which may place feasibility limits on how much data can be
+used in constructing the final model or how thoroughly it can be
+analysed. At the other end of the scale for restricted domain models
+there may be only a limited quantity of suitable in-domain text
+available, so local estimates may need smoothing with global priors.
+In addition, if language models are to be used for speech recognition
+then it is good to train them on {\it precise} acoustic transcriptions
+where possible -- that is, text which features the hesitations,
+repetitions, word fragments, mistakes and all the other sources of
+deviation from purely grammatical language that characterise everyday
+speech. However, such acoustically accurate transcriptions are in
+limited supply since they must be specifically prepared; real-world
+transcripts as available for various other purposes almost
+ubiquitously correct any disfluencies or mistakes made by speakers.
+
+
+\mysubsect{Equivalence classes}{HLMequivalenceclasses}
+The word $n$-gram model described in equation \ref{ngram_model} uses
+an equivalence mapping on the word history which assumes that all
+contexts which have the same most recent $n-1$ words all have the same
+probability. This concept can be expressed more generally by defining
+an equivalence class function that acts on word histories, $\mathcal
+E(.)$, such that if $\mathcal E(x) = \mathcal E(y)$ then $\forall w:$
+$P(w | x) = P(w | y)$:
+\begin{equation}
+P(w_i \;|\; w_1, w_2, \ldots, w_{i-1}) =
+P(w_i \;|\; \mathcal E(w_1, w_2, \ldots, w_{i-1}))\label{equiv_cond_prob_model}
+\end{equation}
+
+A definition of $\mathcal{E}$ that describes a word $n$-gram is thus:
+\begin{equation}
+\mathcal E_{\textrm{word-{\it n}-gram}}(w_1, \ldots, w_{i}) = \mathcal E(w_{i-n+1}, \ldots, w_{i})
+\end{equation}
+
+In a good language model the choice of $\mathcal{E}$ should be such that it
+provides a reliable predictor of the next word, resulting in classes
+which occur frequently enough in the training text that they can be
+well modelled, and does not result in so many distinct history
+equivalence classes that it is infeasible to store or analyse all the
+resultant separate probabilities.
+
+
+\mysubsect{Class {\it n}-gram models}{HLMclassngram}\label{classngram-description}
+One method of reducing the number of word history equivalence classes
+to be modelled in the $n$-gram case is to consider some words as
+equivalent. This can be implemented by mapping a set of words to a
+word class $g \in \mathbb{G}$ by using a classification function $G(w)
+= g$. If any class contains more than one word then this mapping will
+result in less distinct word classes than there are words,
+$|\mathbb{G}| < |\mathbb{W}|$, thus reducing the number of separate
+contexts that must be considered. The equivalence classes can then be
+described as a sequence of these classes:
+\begin{equation}
+\mathcal E_{\textrm{class-{\it n}-gram}}(w_1, \ldots, w_{i}) = \mathcal
+E(G(w_{i-n+1}), \ldots, G(w_{i}))\label{equiv_classes}
+\end{equation}
+
+A deterministic word-to-class mapping like this has some advantages
+over a word $n$-gram model since the reduction in the number of
+distinct histories reduces the storage space and training data
+requirements whilst improving the robustness of the probability
+estimates for a given quantity of training data. Because multiple
+words can be mapped to the same class, the model has the ability to
+make more confident assumptions about infrequent words in a class
+based on other more frequent words in the same class\footnote{Since it
+is assumed that words are placed in the same class because they share
+certain properties.} than is possible in the word $n$-gram case -- and
+furthermore for the same reason it is able to make generalising
+assumptions about words used in contexts which are not explicitly
+encountered in the training text. These gains, however, clearly
+correspond with a loss in the ability to distinguish between different
+histories, although this might be offset by the ability to
+choose a higher value of $n$.
+
+The most commonly used form of class $n$-gram model uses a single
+classification function, $G(.)$, as in equation \ref{equiv_classes},
+which is applied to each word in the $n$-gram, including the word which
+is being predicted. Considering for clarity the bigram\footnote{By convention
+{\it unigram} refers to a 1-gram,
+{\it bigram} indicates a 2-gram and {\it trigram} is a 3-gram. There is no
+standard term for a 4-gram.}
+case, then given $G(.)$ the language model has the terms $w_i$,
+$w_{i-1}$, $G(w_i)$ and $G(w_{i-1})$ available to it. The probability
+estimate can be decomposed as follows:
+\begin{eqnarray}
+P_{\textrm{class'}}(w_i \;|\; w_{i-1})
+& = & P(w_i \;|\; G(w_i), G(w_{i-1}), w_{i-1} )\nonumber\\
+  & \qquad\qquad\times & P(G(w_i) \;|\; G(w_{i-1}), w_{i-1})
+\label{chap2equalToOne}
+\end{eqnarray}
+
+It is assumed that $P(w_i
+\;|\; G(w_i), G(w_{i-1}), w_{i-1})$ is independent of $G(w_{i-1})$ and
+$w_{i-1}$ and that $P(G(w_i) \;|\; G(w_{i-1}), w_{i-1})$ is
+independent of $w_{i-1}$, resulting in the model:
+\begin{equation}
+P_{\textrm{class}}(w_i \;|\; w_{i-1}) = P(w_i \;|\; G(w_{i})) \;\times\;
+P(G(w_i) \;|\; G(w_{i-1}))
+\label{normclass}
+\end{equation} 
+
+Almost all reported class $n$-gram work using statistically-found classes
+is based on clustering algorithms which optimise $G(.)$ on the basis
+of bigram training set likelihood, even if the class map is to be used
+with longer-context models.  It is interesting to
+note that this approximation appears to works well, however,
+suggesting that the class maps found are in some respects ``general''
+and capture some features of natural language which apply irrespective
+of the context length used when finding these features.
+
+
+\mysect{Statistically-derived Class Maps}{HLMclustering}\label{clustering_section}
+An obvious question that arises is how to compute or otherwise obtain
+a class map for use in a language model. This section discusses
+one strategy which has successfully been used.
+
+Methods of statistical class map construction seek to maximise the
+likelihood of the training text given the class model by making
+iterative controlled changes to an initial class map -- in order to
+make this problem more computationally feasible they typically use a
+deterministic map.
+
+\mysubsect{Word exchange algorithm}{HLMexchangealg}\label{KN-clustering}
+[Kneser and Ney 1993]\footnote{R. Kneser and H. Ney,
+\textbf{``Improved Clustering Techniques for Class-Based Statistical Language
+Modelling''}; \textit{Proceedings of the European Conference on Speech
+Communication and Technology} 1993, pp. 973-976} describes an
+algorithm to build a class map by starting from some initial guess at
+a solution and then iteratively searching for changes to improve the
+existing class map.  This is repeated until some minimum change
+threshold has been reached or a chosen number of iterations have been
+performed. The initial guess at a class map is typically chosen by a
+simple method such as randomly distributing words amongst classes or
+placing all words in the first class except for the most frequent
+words which are put into singleton classes. Potential moves are then
+evaluated and those which increase the likelihood of the training text
+most are applied to the class map. The algorithm is described in
+detail below, and is implemented in the \HTK\ tool \htool{Cluster}.
+
+Let $\mathcal{W}$ be the training text list of words $(w_1, w_2, w_3,
+\ldots)$ and let $\mathbb{W}$ be the set of all words in
+$\mathcal{W}$.
+From equation
+\ref{cond_prob_model} it follows that:
+\begin{equation}
+P_\mathrm{class}(\mathcal{W}) \;=\; \prod_{x, y \in \mathbb{W}}
+P_\mathrm{class}(x \;|\; y)^{C(x,y)}\label{classnorm_totprob}
+\end{equation}
+where $(x, y)$ is some word pair `$x$' preceded by `$y$' and $C(x, y)$
+is the number of times that the word pair `$y$ $x$' occurs in the list
+$\mathcal{W}$.
+
+In general evaluating equation \ref{classnorm_totprob} will lead to
+problematically small values, so logarithms can be used:
+\begin{equation}
+\log P_\mathrm{class}(\mathcal{W}) \;=\; \sum_{x, y \in \mathbb{W}}
+C(x, y) . \log P_\mathrm{class}(x \;|\; y) \label{classnorm_logprob}
+\end{equation}
+
+Given the definition of a class $n$-gram model in equation
+\ref{normclass}, the maximum likelihood bigram
+probability estimate of a word is:
+\begin{eqnarray}
+P_\mathrm{class}(w_i \;|\; w_{i-1}) & = &
+ \frac{C(w_i)}{C(G(w_i))}
+  \times
+  \frac{C\left(G(w_i), G(w_{i-1})\right)}
+       {C(G(w_{i-1}))} \label{classnorm_breakdown}
+\end{eqnarray}
+where $C(w)$ is the number of times that the word `$w$' occurs in the
+list $\mathcal{W}$ and $C(G(w))$ is the number of times that the class
+$G(w)$ occurs in the list resulting from applying $G(.)$ to each entry
+of $\mathcal{W}$;\footnote{That is, $C(G(w))=\sum_{x:
+G(x)=G(w)}C(x)$.}  similarly $C(G(w_x), G(w_y))$ is the count of the
+class pair `$G(w_y)$ $G(w_x)$' in that resultant list.
+
+Substituting equation \ref{classnorm_breakdown} into equation \ref{classnorm_logprob}
+and then rearranging gives:
+\begin{eqnarray}
+\log P_\mathrm{class}(\mathcal{W}) & \;=\; &
+\sum_{x,y \in \mathbb{W}} C(x,y) . \log\left(
+  \frac{C(x)}{C(G(x))} \times \frac{C(G(x),G(y))}{C(G(y))} 
+  \right) \nonumber
+\\
+&\;=\;& \sum_{x,y \in \mathbb{W}} C(x,y) . \log
+  \left(\frac{C(x)}{C(G(x))}\right)
+ \;+\; \sum_{x,y \in \mathbb{W}} C(x,y)
+  . \log\left(\frac{C(G(x),G(y))}{C(G(y))}\right) \nonumber
+\\
+&\;=\;& \sum_{x \in \mathbb{W}} C(x) . \log \left(\frac{C(x)}{C(G(x))}\right)
+ \;+\; \sum_{g,h \in \mathbb{G}} C(g,h) . \log\left(\frac{C(g,h)}{C(h)}\right)
+  \nonumber
+\\
+&\;=\;& \sum_{x \in \mathbb{W}} C(x) . \log C(x)
+ \;-\; \sum_{x \in \mathbb{W}} C(x) . \log C(G(x))\nonumber\\
+&&\;+\; \sum_{g,h \in \mathbb{G}} C(g,h) . \log C(g,h)
+ \;-\; \sum_{g \in \mathbb{G}} C(g) . \log C(g) \nonumber
+\\
+&\;=\;& \sum_{x \in \mathbb{W}} C(x) . \log C(x)
+ \;+\; \sum_{g,h \in \mathbb{G}} C(g,h) . \log C(g,h)\nonumber\\
+&&\;-\; 2 \sum_{g \in \mathbb{G}} C(g) . \log C(g)\label{classnorm_ml}
+\end{eqnarray}
+where $(g,h)$ is some class sequence `$h$ $g$'.
+
+Note that the first of these three terms in the final stage of equation
+\ref{classnorm_ml}, ``$\sum_{x \in \mathbb{W}} C(x)$ $.$ $\log(C(x))$'', is
+independent of the class map function $G(.)$, therefore it is not
+necessary to consider it when optimising $G(.)$.  The value a class
+map must seek to maximise, $F_{\mathrm{M}_\mathrm{C}}$, can now be defined:
+\begin{eqnarray}
+F_{\mathrm{M}_\mathrm{C}}
+&\;=\;&
+ \sum_{g,h \in \mathbb{G}} C(g,h) . \log C(g,h)
+\;-\; 2 \sum_{g \in \mathbb{G}} C(g) . \log C(g)\label{classnorm_Fml}
+\end{eqnarray}
+
+A fixed number of classes must be decided before running the
+algorithm, which can now be formally defined:
+
+\begin{center}\framebox[13.5cm]{\parbox{12cm}{\vspace{0.5cm}
+\begin{enumerate}
+\item {\bfseries Initialise}:\label{Cstepone} $\forall w \in\mathbb{W}:\; G(w) = 1$\\
+Set up the class map so that all words are in the first class and all
+other classes are empty ({\it or} initialise using some other scheme)
+
+\item{\bfseries Iterate}: $\forall i \in \{1\ldots n\} \; \wedge \; \neg s$\\
+For a given number of iterations $1 \ldots n$ or until some stop
+criterion $s$ is fulfilled
+\begin{enumerate}
+\item {\bfseries Iterate}: $\forall w \in\mathbb{W}$\\
+For each word $w$ in the vocabulary
+\begin{enumerate}\label{Csteptwo}
+\item {\bfseries Iterate}: $\forall c\in\mathbb{G}$\\
+For each class $c$
+\begin{enumerate}
+\item {\bfseries Move} word $w$ to class $c$, remembering its previous class
+\item {\bfseries Calculate} the change in $F_{\mathrm{M}_\mathrm{C}}$ for this move
+\item {\bfseries Move} word $w$ back to its previous class
+\end{enumerate}
+\item {\bfseries Move} word $w$ to the class which increased $F_{\mathrm{M}_\mathrm{C}}$ by the
+most, or do not move it if no move increased $F_{\mathrm{M}_\mathrm{C}}$
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+\vspace{0.5cm}}}\end{center}
+
+The initialisation scheme given here in step \ref{Cstepone} represents
+a word unigram language model, making no assumptions about which words
+should belong in which class.\footnote{Given this initialisation, the
+first $(|\mathbb{G}|-1)$ moves will be to place each word into an
+empty class, however, since the class map which maximises
+$F_{\mathrm{M}_\mathrm{C}}$ is the one which places each word into a singleton
+class.}  The algorithm is greedy and so can get stuck in a local
+maximum and is therefore not guaranteed to find the optimal class map
+for the training text.  The algorithm is rarely run until total
+convergence, however, and it is found in practice that an extra
+iteration can compensate for even a deliberately poor choice of
+initialisation.
+
+The above algorithm requires the number of classes to be fixed before
+running. It should be noted that as the number of classes utilised
+increases so the overall likelihood of the training text will tend
+tend towards that of the word model.\footnote{Which will be higher,
+given maximum likelihood estimates.}  This is why the algorithm does
+not itself modify the number of classes, otherwise it would
+na\"{\i}vely converge on $|\mathbb{W}|$ classes.
+
+
+
+\mysect{Robust model estimation}{HLMrobustestimates}\label{robust_estimation}
+Given a suitably large amount of training data, an extremely long $n$-gram
+could be trained to give a very good model of language, as per equation
+\ref{cond_prob_model} -- in practice, however,
+any actual extant model must be an approximation. Because it is an
+approximation, it will be detrimental to include within the model
+information which in fact was just noise introduced by the limits of
+the bounded sample set used to train the model -- this information may
+not accurately represent text not contained within the training
+corpus. In the same way, word sequences which were not observed in the
+training text cannot be assumed to represent impossible sequences, so
+some probability mass must be reserved for these. The issue of how to
+redistribute the probability mass, as assigned by the maximum likelihood
+estimates derived from the raw statistics of a specific corpus, into a
+sensible estimate of the real world is addressed by various standard
+methods, all of which aim to create more robust language models.
+
+\mysubsect{Estimating probabilities}{HLMdiscounts}\label{discounting_and_other_fun_things}
+Language models seek to estimate the probability of each possible word
+sequence event occurring. In order to calculate maximum likelihood
+estimates this set of events must be finite so that the language model
+can ensure that the sum of the probabilities of all events is 1 given
+some context. In an $n$-gram model the combination of the finite vocabulary
+and fixed length history limits the number of unique events to
+$|\mathbb{W}|^n$.  For any $n>1$ it is highly unlikely that all word
+sequence events will be encountered in the training corpora, and many
+that do occur may only appear one or two times. A language model
+should not give any unseen event zero probability,\footnote{If it did
+then from equation \ref{cond_prob_model} it follows that the
+probability of any piece of text containing that event would also be
+zero, and would have infinite perplexity.} but without an infinite
+quantity of training text it is almost certain that there will be
+events it does not encounter during training, so various mechanisms
+have been developed to redistribute probability within the model such that these
+unseen events are given some non-zero probability. %The same or
+%similar mechanisms can also be used to
+%redistribute probability amongst infrequently-occurring events too in
+%the assumption that these were not seen commonly enough to draw firm
+%conclusions about their behaviour.
+
+%Various methods of discounting probability mass from observed events and
+%redistributing it to unseen events have been developed.
+
+As in equation \ref{ngramcountdiv}, the maximum likelihood estimate of
+the probability of an event $\mathcal{A}$ occurring is defined by the
+number of times that event is observed, $a$, and the total number of
+samples in the training set of all observations, $A$, where
+$P(\mathcal{A}) = \frac{a}{A}$.  With this definition, events that do
+not occur in the training data are assigned zero probability since it
+will be the case that $a=0$.  [Katz 1987]\footnote{S.M. Katz,
+\textbf{``Estimation of Probabilities from Sparse Data for the
+Language Model Component of a Speech Recogniser''}; \textit{IEEE
+Transactions on Acoustic, Speech and Signal Processing} 1987, vol. 35
+no. 3 pp. 400-401} suggests multiplying each observed count by a discount
+coefficient factor, $d_a$, which is dependent upon the number of times
+the event is observed, $a$, such that $a' = d_a \,.\, a$.
+Using this discounted occurrence count, the probability of an event
+that occurs $a$ times now becomes
+$P_\mathrm{discount}(\mathcal{A}) = \frac{a'}{A\,}$.
+Different discounting schemes have been proposed that define the
+discount coefficient, $d_a$, in specific ways. The same discount
+coefficient is used for all events that occur the same number of
+times on the basis of the symmetry requirement that two events that
+occur with equal frequency, $a$, must have the same probability, $p_a$.
+
+Defining $c_a$ as the number of events that occur exactly $a$ times
+such that $A = \sum_{a\ge 1} a\,.\,c_a$ %and given the discount
+%coefficients $d_a$ it therefore
+it follows that the total amount of
+reserved mass, left over for distribution amongst the unseen events,
+is 
+%\begin{eqnarray}
+%p_0 &=& \frac{1}{c_0} \; \sum_{a\ge 1}
+%       a \,\frac{(1-d_a)\,.\,c_a}{A}\nonumber\\
+%&=& \frac{1}{c_0\,.\,A} \; \left( \sum_{a\ge 1} c_a\,.\,a
+% - \sum_{a\ge 1} d_a\,.\,c_a\,.\,a \right) \nonumber\\
+%&=& 
+$\frac{1}{c_0} \; ( 1\;-$ $\frac{1}{A}\sum_{a\ge 1}$ $d_a\,.\,c_a\,.\,a)$.
+%\end{eqnarray}
+
+\subsubsection{Good-Turing discounting}
+In [Good 1953]\footnote{I.J. Good, \textbf{``The Population Frequencies
+of Species and the Estimation of Population Parameters''};
+\textit{Biometrika} 1953, vol. 40 (3,4) pp. 237-264}
+a method of discounting maximum likelihood estimates was proposed
+whereby the count of an event occurring $a$ times is discounted with
+\begin{equation}
+d_a = (a+1) \frac{c_{a+1}}{a\,.\,c_a}
+\end{equation}
+A problem with this scheme, referred to as {\it Good-Turing} discounting,
+is that due to the count in the denominator it will fail if there is a
+case where $c_a = 0$ if there is any count $c_b > 0$ for
+$b>a$. Inevitably as $a$ increases the count $c_a$ will tend towards
+zero and for high $a$ there are likely to be many such zero counts. A
+solution to this problem was proposed in
+[Katz 1987], which defines a cut-off value $k$ at which counts $a$
+for $a > k$ are not discounted\footnote{It is suggested that ``$k=5$
+or so is a good choice''} -- this is justified by
+considering these more frequently observed counts as reliable and
+therefore not needing to be discounted. Katz then describes a revised
+discount equation which preserves the same amount of mass for the
+unseen events:
+\begin{equation}
+d_a = \left\{ \begin{array}{c@{\quad:\quad}l}
+  \frac{(a+1) \frac{c_{a+1}}{a\,.\,c_a} \;-\; (k+1)\frac{c_{k+1}}{c_1}}
+      {1 - (k+1)\frac{c_{k+1}}{c_1}}
+  & 1 \le a \le k\\
+1 & a>k
+\end{array}\right.
+\end{equation}
+This method is itself unstable, however -- for example if $k.c_k > c_1$
+then $d_a$ will be negative for $1 \le a \le k$.
+
+\subsubsection{Absolute discounting}
+An alternative discounting method is {\it absolute}
+discounting,\footnote{H. Ney, U. Essen and R. Kneser, \textbf{``On
+Structuring Probabilistic Dependences in Stochastic Language
+Modelling''}; \textit{Computer Speech and Language} 1994, vol.8 no.1
+pp.1-38} in which a constant value $m$ is subtracted from each
+count. The effect of this is that the events with the lowest counts
+are discounted relatively more than those with higher counts. The
+discount coefficient is defined as
+\begin{equation}
+d_a = \frac{a-m}{a}
+\end{equation}
+
+In order to discount the same amount of probability mass as the
+Good-Turing estimate, $m$ must be set to:
+\begin{equation}
+m = \frac{c_1}{\sum_{a=1}^{A}a\,.\,c_a}
+\end{equation}
+
+%\subsubsection{Linear discounting}
+%In {\it linear} discounting, event counts are discounted in proportion to
+%their magnitude, thus $d_a$ is constant over all values of $a$. In
+%order to discount the same quantity of probability mass as the
+%Good-Turing discounting scheme, $d_a$ must be defined as
+%\begin{equation}
+%d_a = 1 \,-\, \frac{c_1}{A}
+%\end{equation}
+
+
+\mysubsect{Smoothing probabilities}{HLMsmoothingprobs}\label{smoothing_probs}
+The above discounting schemes present various methods of
+redistributing probability mass from observed events to unseen
+events. Additionally, if events are infrequently observed then they
+can be smoothed with less precise but more frequently observed events.
+
+In [Katz 1987] a {\it back off} scheme is proposed and used alongside
+Good-Turing discounting. In this method probabilities are
+redistributed via the recursive utilisation of lower level conditional
+distributions. Given the $n$-gram case, if the $n$-tuple is not observed
+frequently enough in the training text then a probability based on the
+occurrence count of a shorter-context $(n-1)$-tuple is used
+instead -- using the shorter context estimate is referred to as
+{\it backing off}.
+In practice probabilities are typically considered
+badly-estimated if their corresponding word sequences are not
+explicitly stored in the language model, either because they did not
+occur in the training text or they have been discarded using some
+pruning mechanism.
+
+Katz defines a function $\hat{\beta}(w_{i-n+1},
+\ldots w_{i-1})$ which represents the total
+probability of all the unseen events in a particular context. % $w_1,
+%%w_2, \ldots w_{i-1}$, given an existing probability estimate function $\hat{P}$:
+%\begin{equation}
+%\hat{\beta}(w_1, \ldots, w_{i-1}) = 1\, - \,\sum_{w_i: c(w_1, \ldots, w_i)>0}
+%  \hat{P}(w_i | w_1, \ldots, w_{i-1})
+%\end{equation}
+%where $c(w_1, \ldots, w_i)$ is the occurrence count of the sequence
+%$w_1, \ldots, w_i$ stored in the language model.
+The probability mass $\hat{\beta}$ is then distributed amongst all the
+unseen $w_i$ and the language model probability estimate becomes:% where $c(w_1,$ $\ldots,$ $w_i)$ $=$ $0$:
+%\begin{equation}
+%\hat{P}(w_i | w_1, \ldots, w_{i-1}) = \alpha(w_1, \ldots, w_{i-1}) \,.\, \hat{P}(w_i | w_2, \ldots, w_{i-1})
+%\end{equation}
+%given:
+%\begin{equation}
+%\alpha(w_1, \ldots, w_{i-1}) = \frac{\hat{\beta}(w_1, \ldots, w_{i-1})}
+%  {\sum_{w_i: c(w_1, \ldots, w_i)=0}\hat{P}(w_i | w_2, \ldots, w_{i-1})}
+%\end{equation}
+%
+%Combining this back off scheme for unseen events with a discounting
+%method, the resulting language model probability estimate becomes:
+\begin{equation}
+\hat{P}(w_i \;|\; w_{i-n+1},\ldots,w_{i-1}) =\qquad{}\qquad{}\qquad{}\qquad{}\qquad{}\qquad{}\qquad{}\qquad{}\qquad{}\qquad{}\qquad{}\qquad{}\qquad{}\qquad{}\nonumber
+\end{equation}
+\vspace{-0.5cm}\begin{equation}
+\left\{ \begin{array}{l@{\quad:\quad}l}
+\alpha(w_{i-n+1}, \ldots, w_{i-1}) \,.\, \hat{P}(w_i | w_{i-n+2}, \ldots, w_{i-1}) &
+c(w_{i-n+1}, \ldots, w_i) = 0\\
+d_{c(w_{i-n+1}, \ldots, w_i)} \,.\, \frac{c(w_{i-n+1}, \ldots, w_i)}{c(w_{i-n+1},
+\ldots, w_{i-1})} & 1 \le c(w_{i-n+1}, \ldots, w_i) \le k\\
+\frac{c(w_{i-n+1}, \ldots, w_i)}{c(w_{i-n+1},
+\ldots, w_{i-1})} & c(w_{i-n+1}, \ldots, w_i) > k\\
+\end{array}\right.
+\end{equation}
+where $c(.)$ is the count of an event and:
+\begin{equation}
+\alpha(w_{i-n+1}, \ldots, w_{i-1}) = \frac{\hat{\beta}(w_{i-n+1},
+\ldots, w_{i-1})} {\sum_{w_i: c(w_{i-n+1}, \ldots, w_i)=0}\hat{P}(w_i
+| w_{i-n+2}, \ldots, w_{i-1})}
+\end{equation}
+A back off scheme such as this can be implemented efficiently because
+all the back off weights $\alpha$ can be computed once and then stored
+as part of the language model, and through its recursive nature it is
+straightforward to incorporate within a language model.  Through the
+use of pruning methods, contexts which occur `too infrequently' are not
+stored in the model so in practice the test $c(w_1,\ldots,w_{i})=0$ is
+implemented as referring to whether or not the context is in the model.
+
+%\subsubsection{Interpolation}\label{interp_bit}
+%Instead of backing off to a shorter-context estimate only when a
+%longer context is not stored within the language model, a model can
+%combine multiple contexts in every estimate it makes by means of
+%linear interpolation:
+%\begin{equation}
+%\hat{P}(w_i \;|\; w_1,\ldots,w_{i-1}) = \lambda_1 \frac{c(w_i)}{A} \;+\; 
+% \sum_{m=1}^{i-1} \lambda_{i-m+1}
+% \frac{c(w_m,\ldots,w_i)}{c(w_m,\ldots,w_{i-1})}
+%\end{equation}
+%where $\lambda_m$ is the weight of each component of the language
+%model such that $\sum_m \lambda_m = 1$. In this example $\lambda_1$ and
+%$\lambda_2$ are the weight of the unigram and bigram models
+%respectively. The weights $\lambda_m$ are chosen so as to maximise the
+%probability of a held-out test set which was not originally used for
+%training each of the component models.
+
+\subsubsection{Cut-offs}
+With a back off scheme low count events
+can be discarded -- {\it cut-off} -- from the model and more frequently observed
+shorter-context estimates can be used instead. An additional advantage
+of discarding low occurrence events is that the model size can be
+substantially reduced, since in general as $a$ decreases so the number
+of events $c_a$ increases -- in fact the Good-Turing discounting
+scheme depends upon this relationship.
+
+
+\mysect{Perplexity}{HLMperplexity}
+A measure of language model performance based on average probability
+can be developed within the field of information theory
+[Shannon 1948]\footnote{C.E. Shannon, \textbf{``A Mathematical
+Theory of Communication''}; \textit{The Bell System Technical Journal}
+1948, vol. 27 pp. 379-423, 623-656. Available online at
+\texttt{http://galaxy.ucsd.edu/new/external/shannon.pdf}}.
+A speaker emitting language can be considered to be a discrete
+information source which is generating a sequence of words $w_1, w_2,
+\ldots, w_m$ from a vocabulary set, $\mathbb{W}$. The probability of a
+symbol $w_i$ is dependent upon the previous symbols $w_1, \ldots,
+w_{i-1}$. The information source's inherent per-word entropy $H$
+represents the amount of non-redundant information provided by each
+new word on average, defined in bits as:
+\begin{equation}
+H = - \lim_{m \to \infty} \frac{1}{m} \sum_{w_1, w_2, \ldots, w_m}\left( P(w_1, w_2, \ldots, w_m)\;
+\log_2 P(w_1, w_2, \ldots, w_m) \right)
+\end{equation}
+
+This summation is over all possible sequences of words, but if the
+source is ergodic then the summation over all possible word sequences
+can be discarded and the equation becomes equivalent to:
+\begin{equation}
+H = - \lim_{m \to \infty} \frac{1}{m} \log_2 P(w_1, w_2, \ldots, w_m)
+\end{equation}
+It is reasonable to assume ergodicity on the basis that we use
+language successfully without having been privy to all words that have
+ever been spoken or written, and we can disambiguate words on the
+basis of only the recent parts of a conversation or piece of text.
+
+Having assumed this ergodic property, it follows that given a large
+enough value of $m$, $H$ can be approximated with:
+\begin{equation}\label{2-3}
+\hat{H} = - \frac{1}{m} \log_2 P(w_1, w_2, \ldots, w_m)
+\end{equation}
+This last estimate is feasible to evaluate, thus providing the basis
+for a metric suitable for assessing the performance of a language model.
+
+Considering a language model as an information source, it follows that
+a language model which took advantage of all possible features of
+language to predict words would also achieve a per-word entropy of
+$H$. It therefore makes sense to use a measure related to entropy to
+assess the actual performance of a language model. Perplexity, $PP$,
+is one such measure that is in standard use, defined such that:
+\begin{equation}\label{2-4}
+PP = 2^{\hat{H}}
+\end{equation}
+Substituting equation \ref{2-3} into equation \ref{2-4} and
+rearranging obtains:
+\begin{equation}
+PP = \hat{P}(w_1, w_2, \ldots, w_m)^{-\frac{1}{m}}\label{pp_sum_eqn}
+\end{equation}
+where $\hat{P}(w_1, w_2, \ldots, w_m)$ is the probability estimate assigned to
+the word sequence $(w_1,$ $w_2,$ $\ldots, w_m)$ by a language model.
+
+Perplexity can be considered to be a measure of on average how many
+different equally most probable words can follow any given word.
+Lower perplexities represent better language models, although this
+simply means that they `model language better', rather than
+necessarily work better in speech recognition systems -- perplexity is
+only loosely correlated with performance in a speech recognition
+system since it has no ability to note the relevance of acoustically
+similar or dissimilar words.
+
+In order to calculate perplexity both a language model and some test
+text are required, so a meaningful comparison between two language
+models on the basis of perplexity requires the same test text and word
+vocabulary set to have been used in both cases. The size of the
+vocabulary can easily be seen to be relevant because as its
+cardinality is reduced so the number of possible words given any
+history must monotonically decrease, therefore the probability
+estimates must on average increase and so the perplexity will decrease.
+
+
+\mysect{Overview of $n$-Gram Construction Process}{mkngoview}
+This section describes the overall process of building an $n$-gram
+language model using the \HTK\ tools.  As noted in the introduction,
+it is a three stage process.  Firstly, the training text is scanned
+and the $n$-grams counts are stored in a set of \textit{gram} files.
+Secondly, and optionally, the counts in the gram files are modified to
+perform vocabulary and class mapping.  Finally the resulting gram
+files are used to build the LM. This separation into stages adds some
+complexity to the overall process but it makes it much more efficient
+to handle very large quantities of data since the gram files only need
+to be constructed once but they can be augmented, processed and used
+for constructing LMs many times.
+
+The overall process involved in building an $n$-gram language model
+using the \HTK\ tools is illustrated in Figure~\ref{f:WordLM}.  The
+procedure begins with some training text, which first of all should be
+conditioned into a suitable format by performing operations such as
+converting numbers to a citation form, expanding common abbreviations
+and so on.  The precise format of the training text depends on your
+requirements, however, and can vary enormously -- therefore
+conditioning tools are not supplied with \HTK.\footnote{In fact a very
+simple text conditioning Perl script is included in {\tt
+LMTutorial/extras/LCond.pl} for demonstration purposes only -- it
+converts text to uppercase (so that words are considered equivalent
+irrespective of case) and reads the input punctuation in order to tag
+sentences, stripping most other punctuation.  See the script for more
+details.}
+
+Given some input text, the tool \htool{LGPrep} scans the input word
+sequence and counts $n$-grams.\footnote{\htool{LGPrep} can also
+perform text modification using supplied rules.}  These $n$-gram counts
+are stored in a buffer which fills as each new $n$-gram is
+encountered.  When this buffer becomes full, the $n$-grams within it
+are sorted and stored in a \textit{gram} file.
+All words (and symbols generally) are represented within \HTK\ by a
+unique integer id.  The mapping from words to ids is recorded in a
+word map.  On startup, \htool{LGPrep} loads in an existing word map,
+then each new word encountered in the input text is allocated a new id
+and added to the map.  On completion, \htool{LGPrep} outputs the new
+updated word map.  If more text is input, this process is repeated and
+hence the word map will expand as more and more data is processed.
+
+Although each of the gram files output by \htool{LGPrep} is sorted,
+the range of $n$-grams within individual files will overlap.  To build
+a language model, all $n$-gram counts must be input in sort order so
+that words with equivalent histories can be grouped. To accommodate
+this, all \HTK\ language modelling tools can read multiple gram files
+and sort them on-the-fly.  This can be inefficient, however, and it is
+therefore useful to first copy a newly generated set of gram files
+using the \HLM\ tool \htool{LGCopy}.  This yields a set of gram files
+which are \textit{sequenced}, i.e. the ranges of $n$-grams within each
+gram file do not overlap and can therefore be read in a single stream.
+Furthermore, the sequenced files will take less disc space since the
+counts for identical $n$-gram in different files will have been
+merged.
+
+\centrefig{WordLM}{65}{The main stages in building an $n$-gram language
+model}
+
+The set of (possibly sequenced) gram files and their associated word
+map provide the raw data for building an $n$-gram LM.  The next stage
+in the construction process is to define the vocabulary of the LM and
+convert all $n$-grams which contain OOV (out of vocabulary) words so
+that each OOV word is replaced by a single symbol representing the
+\textit{unknown} class.  For example, the $n$-gram \texttt{AN OLEAGINOUS
+AFFAIR} would be converted to \texttt{AN !!UNK AFFAIR} if the word
+``oleaginous'' was not in the selected vocabulary and \texttt{!!UNK}
+is the name chosen for the unknown class.
+
+This assignment of OOV words to a class of unknown words is a specific
+example of a more general mechanism.  In \HTK, any word can be
+associated with a named class by listing it in a \textit{class map}
+file.  Classes can be defined either by listing the class members or
+by listing all non-members.  For defining the unknown class the latter
+is used, so a plain text list of all in-vocabulary words is supplied
+and all other words are mapped to the OOV class.  The tool
+\htool{LGCopy} can use a class map to make a copy of a set of gram
+files in which all words listed in the class map are replaced by the
+class name, and also output a word map which contains only the
+required vocabulary words and their ids plus any classes and their
+ids.
+
+As shown in Figure~\ref{f:WordLM}, the LM itself is built using the
+tool \htool{LBuild}.  This takes as input the gram files and the word
+map and generates the required LM.  The language model
+can be built in steps (first a unigram, then a bigram, then a trigram,
+etc.) or in a single pass if required.
+
+
+\mysect{Class-Based Language Models}{cllmoview}
+
+\centrefig{ClassLM}{110}{The main stages in building a 
+class-based language model}
+
+As described in section \ref{s:HLMclassngram}, a class-base language
+model consists of two separate components.  The first is an $n$-gram
+which models the sequence of classes (i.e.\ $p(c_i, | c_{i-n+1},
+\ldots, c_{n-1})$) and the second is a class map with associated word
+counts or probabilities within classes allowing the word-given-class
+probability bigram\ $p(w_k|c_k)$ to be evaluated.  These files may
+then either be linked into a single composite file or a third `linking'
+file is create to point to these two separate files -- both of these
+operations can be performed using the \htool{LLink} tool.
+
+Given a set of word classes defined in a class map file and a set of
+word level gram files, building a class-based model with the \HTK\
+tools requires only a few simple modifications to the basic procedure
+described above for building a word $n$-gram:
+\begin{itemize}
+\item \htool{Cluster} is used with the word map and word level gram
+  files derived from the source text to construct a class map which
+  defines which class each word is in.  The same tool is then used to
+  generate the word-classes component file referred to above.
+  Note that \htool{Cluster} can also be used to generate this file
+  from an existing or manually-generated class map.
+     
+\item \htool{LGCopy} is used with the class map to convert the word level 
+  gram files derived from the source text into class gram files.  
+  \htool{LBuild} can then be used directly with the class level gram
+  files to build the class sequence $n$-gram language model
+  referred to above.
+
+\item \htool{LLink} is then run to create either a language model
+  script pointing to the two separate language model files or a single
+  composite file.  The resulting language model
+  is then ready for use.
+\end{itemize}
+The main steps of this procedure are illustrated in
+Figure~\ref{f:ClassLM}.
+
+The next chapter provides a more thorough introduction to the tools as
+well as a tutorial to work through explaining how to use them in
+practice.

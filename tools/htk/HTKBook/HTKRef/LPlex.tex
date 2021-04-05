@@ -1,0 +1,96 @@
+%
+% HLMBook - Valtcho Valtchev    04/02/98
+%
+% Updated - Gareth Moore        15/01/02
+%
+
+\newpage
+\mysect{LPlex}{LPlex}
+
+\mysubsect{Function}{LPlex-Function}
+
+\index{lplex@\htool{LPlex}|(}
+This program computes the perplexity and out of vocabulary (OOV) statistics of
+text data using one or more language models. The perplexity is calculated on
+per-utterance basis. Each utterance in the text data should start with a
+sentence start symbol ({\tt <s>}) and finish with a sentence end ({\tt </s>})
+symbol. The default values for the sentence markers can be changed via the
+config parameters {\tt STARTWORD} and {\tt ENDWORD} respectively. Text data can
+be supplied as an \HTK\ Master Label File (MLF) or as plain text ({\tt -t}
+option). Multiple perplexity tests can be performed on the same texts using
+separate $n$-gram components of the model(s). OOV words in the test data can be
+handled in two ways. By default the probability of $n$-grams containing words
+not in the lexicon is simply not calculated. This is useful for testing closed
+vocabulary models on texts containing OOVs. If the {\tt -u} option is
+specified, $n$-grams giving the probability of an OOV word conditioned on its
+predecessors are discarded, however, the probability of words in the lexicon
+can be conditioned on context including OOV words. The latter mode of operation
+relies on the presence of the unknown class symbol ({\tt !!UNK}) in the
+language model (the default value can be changed via the config parameter {\tt
+UNKNOWNNAME}). If multiple models are specified ({\tt -i} option) the
+probability of an $n$-gram will be calculated as a sum of the weighted
+probabilities from each of the models.
+
+\mysubsect{Use}{LPlex-Use}
+
+\htool{LPlex} is invoked by the command line
+\begin{verbatim}
+   LPlex [options] langmodel labelFiles ...
+\end{verbatim}
+
+The allowable options to \htool{LPlex} are as follows
+\begin{optlist}
+
+  \ttitem{-c n c} Set the pruning threshold for $n$-grams to $c$.  Pruning can
+	be applied to the bigram (n=2) and trigram (n=3) components of the
+	model. The pruning procedure will keep only $n$-grams which have been
+	observed more than $c$ times. Note that this option is only applicable
+	to the model generated from the text data.
+
+  \ttitem{-e s t} Label {\tt t} is made equivalent to label {\tt s}. More 
+	precisely {\tt t} is assigned to an equivalence class of which {\tt s}
+	is the identifying member. The equivalence mappings are applied to the
+	text and should be used to map symbols in the text to symbols in the
+	language model's vocabulary.
+
+  \ttitem{-i w fn} Interpolate with model {\tt fn} using weight {\tt w}.
+
+  \ttitem{-n n} Perform a perplexity test using the $n$-gram component of the
+	model. Multiple tests can be specified. By default the tool will use
+	the maximum value of $n$ available.
+
+  \ttitem{-o} Print a sorted list of unique OOV words encountered in the text
+	and their occurrence counts.
+
+  \ttitem{-t} Text stream mode. If this option is set, the specified test files 
+	will be assumed to contain plain text. 
+
+  \ttitem{-u} In this mode OOV words can be present in the $n$-gram context
+	when predicting words in the vocabulary. The conditional probability of
+	OOV words is still ignored.
+
+  \ttitem{-w fn} Load word list in {\tt fn}. The word list will be used as the
+	restricting vocabulary for the perplexity calculation. If a word list
+	file is not specified, the target vocabulary will be constructed by
+	combining the vocabularies of all specified language models.
+
+  \ttitem{-z s} Redefine the null equivalence class name to {\tt s}. The default 
+	null class name is {\tt ???}. Any words mapped to the null class will be
+	deleted from the text.
+\end{optlist}
+\stdopts{LPlex}
+
+\mysubsect{Tracing}{LPlex-Tracing}
+
+\htool{LPlex} supports the following trace options where each trace flag is 
+given using an octal base
+\begin{optlist}
+  \ttitem{00001} basic progress reporting. 
+  \ttitem{00002} print information after each utterance processed.
+  \ttitem{00004} display encountered OOVs.
+  \ttitem{00010} display probability of each $n$-gram looked up.
+  \ttitem{00020} print each utterance and its perplexity.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the \texttt{TRACE}
+configuration variable.
+\index{lplex@\htool{LPlex}|)}

@@ -1,0 +1,79 @@
+# ----------------------------------------------------------- 
+#                                                             
+#                          ___                                
+#                       |_| | |_/   SPEECH                    
+#                       | | | | \   RECOGNITION               
+#                       =========   SOFTWARE                  
+#                                                             
+#                                                             
+# ----------------------------------------------------------- 
+#         Copyright: Cambridge University
+#          1995-2005 Engineering Department
+#                    http://htk.eng.cam.ac.uk
+#                    http://mi.eng.cam.ac.uk
+#                 
+#   Use of this software is governed by a License Agreement   
+#    ** See the file License for the Conditions of Use  **    
+#    **     This banner notice must not be removed      **    
+#                                                             
+# ----------------------------------------------------------- 
+# File: @configure_input@
+# ----------------------------------------------------------- 
+
+SHELL   =	/bin/sh
+inc     = 	../HTKLib
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+hlib    = 	../HTKLib
+llib    = 	../HLMLib
+HLIBS   = 	$(hlib)/HTKLib.a $(llib)/HLMLib.a
+CC      = 	@CC@
+CFLAGS  = 	@CFLAGS@ -I$(hlib) -I$(llib) 
+LDFLAGS = 	@LDFLAGS@ $(HLIBS) -lm
+INSTALL = 	@INSTALL@
+PROGS   =	Cluster HLMCopy LAdapt LBuild LFoF \
+		LGCopy LGList LGPrep LLink LMerge \
+		LNewMap LNorm LPlex LSubset 
+
+all:  $(PROGS)
+
+# build $(PROGS)
+%: %.c $(HLIBS)
+	if [ ! -d $(bindir) -a X_@TRADHTK@ = X_yes ] ; then mkdir -p $(bindir) ; fi
+	$(CC) -o $@ $(CFLAGS) $^ $(LDFLAGS)
+	if [ X_@TRADHTK@ = X_yes ] ; then $(INSTALL) -m 755 $@@BINARY_EXTENSION@ $(bindir) ; fi
+
+strip: $(PROGS)
+	-strip $(PROGS)
+
+clean:
+	-rm -f *.o 
+
+cleanup:
+	-rm -f *.o $(PROGS) *.exe
+
+distclean:
+	-rm -f *.o $(PROGS) Makefile *.exe
+
+install: mkinstalldir $(PROGS)
+	for program in $(PROGS) ; do $(INSTALL) -m 755 $${program}@BINARY_EXTENSION@ $(bindir) ; done
+
+mkinstalldir:
+        if [ ! -d $(bindir) -a X_@TRADHTK@ = X_yes ] ; then mkdir -p $(bindir) ; fi
+
+.PHONY: all strip clean cleanup distclean install mkinstalldir

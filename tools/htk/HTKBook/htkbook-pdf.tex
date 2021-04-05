@@ -1,0 +1,207 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/* developed at:                                               */
+%/*                                                             */
+%/*      Speech Vision and Robotics group                       */
+%/*      Cambridge University Engineering Department            */
+%/*      http://svr-www.eng.cam.ac.uk/                          */
+%/*                                                             */
+%/*      Entropic Cambridge Research Laboratory                 */
+%/*      (now part of Microsoft)                                */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                 */
+%/*                                                             */
+%/*            2001-6  Cambridge University                     */
+%/*                    Engineering Department                   */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young 23/09/95, VV 20/03/97
+%
+
+% Preamble
+\documentclass[a4paper,oneside]{book}
+
+% This next line is uncommented by the Makefile when building the
+% PDF version:
+\usepackage[dvipdfm,colorlinks]{hyperref}
+
+\input{HTK}
+\usepackage{makeidx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\makeindex
+
+% Start of Document
+\pagestyle{empty}
+\begin{document}
+\newlength{\saveindent}
+\setlength{\saveindent}{\parindent}
+
+%\initfloatingfigs
+
+% Show title page
+% \setlength{\epsfxsize}{150mm}
+% \leavevmode
+% \epsfbox{\figDir/cover.eps}
+
+{ \Large \ \\
+
+\vspace{1cm}
+
+\noindent The HTK Book
+
+\vspace{1cm}
+
+\noindent Steve Young \\
+\noindent Gunnar Evermann \\
+\noindent Mark Gales \\
+\noindent Thomas Hain \\
+\noindent Dan Kershaw \\
+\noindent Xunying (Andrew) Liu \\
+\noindent Gareth Moore \\
+\noindent Julian Odell \\
+\noindent Dave Ollason \\
+\noindent Dan Povey \\
+\noindent Valtcho Valtchev \\
+\noindent Phil Woodland \\
+
+\vspace{0.5cm}
+
+\noindent The HTK Book (for HTK Version \version)
+
+\vspace{1.0cm}
+
+\noindent \copyright COPYRIGHT 1995-1999 Microsoft Corporation. 
+
+\noindent \copyright COPYRIGHT 2001-2009 Cambridge University Engineering Department. 
+
+\vspace{0.2cm}
+
+\noindent All Rights Reserved
+
+\vspace{0,5cm}
+
+\noindent First published December 1995
+\vspace{0.05cm}
+
+\noindent Reprinted March 1996 
+\vspace{0.05cm}
+
+\noindent Revised for HTK Version 2.1 March 1997 
+\vspace{0.05cm}
+
+\noindent Revised for HTK Version 2.2 January 1999 
+\vspace{0.05cm}
+
+\noindent Revised for HTK Version 3.0 July 2000 
+\vspace{0.05cm}
+
+\noindent Revised for HTK Version 3.1 December 2001
+\vspace{0.05cm}
+
+\noindent Revised for HTK Version 3.2 December 2002
+\vspace{0.05cm}
+
+\noindent Revised for HTK Version 3.3 April 2005
+\vspace{0.05cm}
+
+\noindent Revised for HTK Version 3.4 March 2009
+\vspace{0.05cm}
+
+}
+
+% TOC
+\newpage
+\tableofcontents
+
+% Actual contents
+\newpage
+\pagestyle{myheadings}
+\pagenumbering{arabic}
+
+\part{Tutorial Overview}
+\include{fundaments}
+\include{htkoview}
+\include{exampsys}
+
+\part{HTK in Depth}
+\include{openviron}
+\include{speechio}
+\include{labels}
+\include{models}
+\include{train}
+\include{adapt}
+\include{refine}
+\include{discmods}
+\include{netdict}
+\include{decode}
+
+\part{Language Modelling}
+\include{hlmfund}
+\include{hlmtutorial}
+\include{hlmfiles}
+
+\part{Reference Section}
+\mychap{The HTK Tools}{toolref}
+\include{HTKRef/tools}
+\include{HTKRef/Cluster}
+\include{HTKRef/HBuild}
+\include{HTKRef/HCompV}
+\include{HTKRef/HCopy}
+\include{HTKRef/HDMan}
+\include{HTKRef/HDecode}
+\include{HTKRef/HERest}
+\include{HTKRef/HHEd}
+\include{HTKRef/HInit}
+\include{HTKRef/HLEd}
+\include{HTKRef/HList}
+\include{HTKRef/HLMCopy}
+\include{HTKRef/HLRescore}
+\include{HTKRef/HLStats}
+\include{HTKRef/HMMIRest}
+\include{HTKRef/HParse}
+\include{HTKRef/HQuant}
+\include{HTKRef/HRest}
+\include{HTKRef/HResults}
+\include{HTKRef/HSGen}
+\include{HTKRef/HSLab}
+\include{HTKRef/HSmooth}
+\include{HTKRef/HVite}
+\include{HTKRef/LAdapt}
+\include{HTKRef/LBuild}
+\include{HTKRef/LFoF}
+\include{HTKRef/LGCopy}
+\include{HTKRef/LGList}
+\include{HTKRef/LGPrep}
+\include{HTKRef/LLink}
+\include{HTKRef/LMerge}
+\include{HTKRef/LNewMap}
+\include{HTKRef/LNorm}
+\include{HTKRef/LPlex}
+\include{HTKRef/LSubset}
+\include{config}
+\include{errors}
+\include{htkslf}
+   
+\clearpage
+\markboth{\bfseries \rmfamily Index}{\bfseries \rmfamily Index}
+\printindex
+\end{document}
+
+

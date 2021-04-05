@@ -1,0 +1,74 @@
+%
+% HLMBook - Steve Young    13/01/97
+%
+% Updated - Gareth Moore   15/01/02
+%
+
+\newpage
+\mysect{LFoF}{LFoF}
+
+\mysubsect{Function}{LFoF-Function}
+
+\index{lFoF@\htool{LFoF}|(}
+This program will read one or more input gram files and generate a
+\textit{frequency-of-frequency} or \textit{FoF} file. A FoF file is a
+list giving the number of times that an $n$-gram occurs just once, the
+number of times that an $n$-gram occurs just twice, etc. The format of a
+FoF file is described in section~\ref{s:FoFs}.\index{FoF file}
+
+As for all tools which process gram files, the input gram files must
+each be sorted but they need not be sequenced. The counts in each
+input file can be modified by applying a multiplier factor.  Any $n$-gram
+containing an id which is not in the word map is ignored, thus, the
+supplied word map will typically contain just those word and class ids
+required for the language model under construction (see
+\htool{LSubset}).
+
+\htool{LFoF} also provides an option to generate an estimate
+of the number of $n$-grams which would be included in the final language
+model for each possible cutoff by setting \texttt{LPCALC: TRACE = 2}.
+
+\mysubsect{Use}{LFoF-Use}
+
+\htool{LFoF} is invoked by typing the command line
+\begin{verbatim}
+   LFoF [options] wordmap foffile [mult] gramfile .. [mult] gramfile ..
+\end{verbatim}
+The given word map file is loaded and then the set of named gram files
+are merged to form a single sorted stream of $n$-grams. Any $n$-grams
+containing ids not in the word map are ignored. The list of input gram
+files can be interspersed with multipliers. These are floating-point
+format numbers which must begin with a plus or minus character
+(e.g. \texttt{+1.0}, \texttt{-0.5}, etc.). The effect of a multiplier
+\texttt{x} is to scale the $n$-gram counts in the following gram files by
+the factor \texttt{x}.  A multiplier stays in effect until it is
+redefined.  The output to \texttt{foffile} is a FoF file as described
+in section~\ref{s:FoFs}.
+
+The allowable options to \htool{LFoF} are as follows
+
+\begin{optlist}
+  \ttitem{-f N} set the number of FoF entries to N (default 100).
+  \ttitem{-n N} Set $n$-gram size to \texttt{N} (defaults to max).
+\end{optlist}
+\stdopts{LFoF}
+
+
+\mysubsect{Tracing}{LFoF-Tracing}
+
+\htool{LFoF} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+\ttitem{00001}  basic progress reporting
+%\ttitem{00002}  print FoF table every 100,000 input grams
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{lFoF@\htool{LFoF}|)}
+
+
+
+
+
+
+

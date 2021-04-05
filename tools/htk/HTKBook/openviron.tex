@@ -1,0 +1,764 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/* developed at:                                               */
+%/*                                                             */
+%/*      Speech Vision and Robotics group                       */
+%/*      Cambridge University Engineering Department            */
+%/*      http://svr-www.eng.cam.ac.uk/                          */
+%/*                                                             */
+%/*      Entropic Cambridge Research Laboratory                 */
+%/*      (now part of Microsoft)                                */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                 */
+%/*                                                             */
+%/*          2001-2002 Cambridge University                     */
+%/*                    Engineering Department                   */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young 15/11/95
+%
+
+\mychap{The Operating Environment}{openviron}
+
+\sidepic{Tool.shell}{80}{
+This chapter discusses the various ways of  controlling the operation of
+\HTK\ tools along with related aspects of file system organisation, error
+reporting and memory management.   All of the operating 
+system\index{operating system} and user
+interface functions are provided by the \HTK\ 
+module \htool{HShell}. 
+Memory management is a low level function which is largely invisible to
+the user, but it is useful to have a basic understanding of it in order to
+appreciate memory requirements and interpret diagnostic output from
+tools.  Low level memory management in \HTK\ is provided by
+\htool{HMem} and the management of 
+higher level structures such as vectors
+and matrices is provided by \htool{HMath}.
+}
+\index{hshell@\htool{HShell}}
+\index{hmath@\htool{HMath}}
+\index{hmem@\htool{HMem}}
+
+The behaviour of a \HTK\ tool depends on three sources of information.
+Firstly,
+all \HTK\ tools are executed by issuing commands to the operating
+system shell.  
+Each command typically contains the names of the various files that the
+tool needs to function and a number of optional arguments which 
+control the detailed behaviour of the tool.  
+Secondly, 
+as noted in chapter~\ref{c:htkoview} and shown in the adjacent figure, every \HTK\ tool uses a set
+of standard library modules to interface to the various file types and
+to connect with the outside world.  Many of these modules can be
+customised by setting parameters in a {\it configuration file}.
+Thirdly, a small number of parameters are specified using
+environment variables.  
+
+Terminal output mostly depends on the specific tool 
+being used, however, there
+are some generic output functions which are provided by the library
+modules and which are therefore common across tools.  These include
+version reporting, memory usage and error reporting.
+
+Finally, \HTK\ can read and write most data sources through pipes\index{pipes} as an alternative
+to direct input and output from data files.  This allows 
+filters to be used, and in particular, it allows many of the external
+files used by \HTK\ to be stored directly in compressed form and then decompressed
+\textit{on-the-fly} when the data is read back in.
+
+All of the above is discussed in more detail in the following sections.
+
+\mysect{The Command Line}{cmdline}
+
+The general form of command line for invoking a tool 
+is\footnote{All of the examples in this book assume the
+UNIX Operating System and the C Shell but the principles apply to
+any OS which supports hierarchical files and command line arguments}
+\index{command line!arguments}\index{command line!options}
+\begin{verbatim}
+           tool [options] files ...
+\end{verbatim}
+Options always consist of a dash followed by a single letter.  Some options
+are followed by an argument as follows
+\begin{tabbing}
++++++ \= ++++++++++++ \=  \kill
+\>           \texttt{-i} \>  - a switch option \\
+\>           \texttt{-t 3} \> - an integer valued option \\
+\>           \texttt{-a 0.01} \> - a float valued option \\
+\>           \texttt{-s hello} \> - a string valued option 
+\end{tabbing}   
+Option names consisting of a capital letter are common across all tools
+(see section~\ref{s:stdopts}).
+Integer arguments\index{command line!integer argument formats} may be given 
+in any of the standard C formats, for example,
+\texttt{13}, \texttt{0xD} and \texttt{015} all represent the same number.
+Typing the name of a tool on its own always causes a short summary of
+the command line options to be printed in place of its normal
+operation.  For example, typing
+\begin{verbatim}
+    HERest
+\end{verbatim}
+would result in the following output
+\begin{verbatim}
+    USAGE: HERest [options] hmmList dataFiles...
+
+     Option                                   Default
+
+     -c f    Mixture pruning threshold          10.0
+     -d s    dir to find hmm definitions       current
+     -m N    set min examples needed per model   3
+     -o s    extension for new hmm files        as src
+     -p N    set parallel mode to N             off
+     ...
+\end{verbatim}
+The first line shows the names of the required files and the rest
+consists of a listing of each option, its meaning, and its default
+value.
+
+The precise naming convention for specifying files depends on the operating
+system being used, but \HTK\ always assumes the existence of a hierarchical
+file system and it maintains a distinction between directory paths
+and file names.
+
+In general, a file will be located either in
+the current directory, some subdirectory of the current directory or some
+subdirectory of the root directory.  For example, in the command
+\begin{verbatim}
+      HList s1 dir/s2 /users/sjy/speech/s3
+\end{verbatim}
+file \texttt{s1} must be in the current directory, \texttt{s2} must be in the
+directory \texttt{dir} within the current directory and \texttt{s3} must be in the
+directory \texttt{/users/sjy/speech}.
+
+Some tools allow directories to be specified via configuration
+parameters and command line options.  In all cases, the final path
+character (eg / in UNIX) need not (but may be)
+included.  For example, both of the following are acceptable and have
+equivalent effect
+\begin{verbatim}
+      HInit -L mymodels/new/  hmmfile data*
+      HInit -L mymodels/new   hmmfile data*
+\end{verbatim}  
+where the \texttt{-L} option specifies the directory in which to find the 
+label files associated with the data files. 
+
+\mysect{Script Files}{script}
+
+Tools which require a potentially very long list of files (e.g.\ training
+tools) always allow the files to be specified in a script\index{files!script}
+file\index{script files} via the \texttt{-S} option instead of via the command
+line.
+\index{standard options!aaas@\texttt{-S}}This is particularly useful when running
+under an OS with limited file name expansion capability.  Thus, for example,
+\htool{HInit}\index{hinit@\htool{HInit}} may be invoked by either
+\begin{verbatim}
+     HInit hmmfile s1 s2 s3 s4 s5 ....
+\end{verbatim}  
+or
+\begin{verbatim}
+     HInit -S filelist hmmfile
+\end{verbatim}          
+where \texttt{filelist} holds the list of files \texttt{s1}, \texttt{s2}, etc.
+Each file listed in a script should be separated by white space or a new line.
+Usually, files are listed on separate lines, however, when using
+\htool{HCopy}\index{hcopy@\htool{HCopy}} which read pairs of files as its
+arguments, it is normal to write each pair on a single line.  Script files
+should only be used for storing ellipsed\index{command line!ellipsed arguments}
+file list arguments. Note that shell meta-characters should not be
+used in script files and will not be interpreted by the \HTK\ tools.
+
+Starting with \HTK\ 3.1 the syntax of script files has been extended.
+In addition to directly specifying the name of a physical file it is
+possible to define aliases and to select a segment from a file. The
+general syntax of an extended filename \index{extended filenames} is
+\begin{verbatim}
+     logfile=physfile[s,e]   
+\end{verbatim}
+where \texttt{logfile} is the logical filename used by the HTK tools
+and will appear in mlf files and similar. \texttt{physfile} is the
+physical name of the actual file on disk that will be accessed and
+\texttt{s} and \texttt{e} are indices that can be used to select only
+a segment of the file. One example of a use of this feature is the
+evaluation of different segmentations of the audio data. A new
+segmentation can be used by creating a new script file without having
+to create multiple copies of the data.
+
+A typical script file might look like:
+\begin{verbatim}
+s23-0001-A_000143_000291.plp=/data/plp/complete/s23-0001-A.plp[143,291]
+s23-0001-A_000291_000500.plp=/data/plp/complete/s23-0001-A.plp[291,500]
+s23-0001-A_000500_000889.plp=/data/plp/complete/s23-0001-A.plp[500,889]
+\end{verbatim}
+
+
+\mysect{Configuration Files}{config}
+
+Configuration files\index{configuration files|(}\index{files!configuration} 
+are used for customising the \HTK\ working environment.
+They consist of a list of parameter-values pairs along with an optional
+prefix which limits the scope of the parameter to a specific module
+or tool.
+
+The name of a configuration file can be specified explicitly on the
+command line using the \texttt{-C}\index{standard
+options!aaac@\texttt{-C}} command.  For example, when executing
+\begin{verbatim}
+    HERest ... -C myconfig  s1 s2 s3 s4 ...
+\end{verbatim}
+The operation of \htool{HERest} will depend on the parameter settings
+in the file \texttt{myconfig}.    
+
+When an explicit configuration file is specified, only those parameters mentioned
+in that file are actually changed and all other parameters retain their
+default values.  These defaults are built-in.  However, user-defined defaults
+can be set by assigning the name of a default configuration file to
+the environment variable \texttt{HCONFIG}\index{HCONFIG@\texttt{HCONFIG}}.
+\index{configuration files!default}
+Thus, for example, using the UNIX C Shell, writing
+\begin{verbatim}
+    setenv HCONFIG myconfig
+    HERest ... s1 s2 s3 s4 ...
+\end{verbatim}
+would have an identical effect to the preceding example.  However, in this
+case, a further refinement of the configuration values is possible since
+the opportunity to specify an explicit configuration file on the command
+line remains.  For example, in
+\begin{verbatim}
+    setenv HCONFIG myconfig
+    HERest ... -C xconfig  s1 s2 s3 s4 ...
+\end{verbatim}
+
+\sidefig{Config}{60}{Defining a Configuration}{2}
+\noindent
+the parameter values in \texttt{xconfig} will over-ride those in 
+\texttt{myconfig} which in turn will over-ride the built-in defaults.
+In practice, most \HTK\ users will set general-purpose
+default configuration values using \texttt{HCONFIG} and will then over-ride
+these as required for specific tasks using the \texttt{-C} command line option.
+This is illustrated in Fig.~\href{f:Config} where the darkened rectangles
+indicate \textit{active} parameter definitions.
+Viewed from above, 
+all of the remaining parameter definitions can be seen to be masked by
+higher level over-rides.
+
+The configuration file itself consists of a sequence of parameter
+definitions of the form\index{configuration files!format}
+\begin{verbatim}
+    [MODULE:] PARAMETER = VALUE
+\end{verbatim}
+One parameter definition is written per line and square brackets
+indicate that the module name is
+optional. Parameter definitions are not case sensitive
+but by convention they are written in upper case.  A \verb+#+ character 
+indicates that the rest of the line is a comment.
+
+As an example, the following is a simple configuration file
+\begin{verbatim}
+    # Example config file
+            TARGETKIND = MFCC
+            NUMCHANS   = 20
+            WINDOWSIZE = 250000.0    # ie 25 msecs
+            PREEMCOEF = 0.97
+            ENORMALISE = T
+    HSHELL: TRACE = 02               # octal
+    HPARM:  TRACE = 0101
+\end{verbatim}
+The first five lines contain no module name and hence they apply
+globally, that is, any library module or tool which is interested
+in the configuration parameter \texttt{NUMCHANS} will read the given
+parameter value.  In practice, this is not a problem with library modules
+since nearly all configuration parameters have unique
+names.  The final two lines show the same parameter name being given
+different values within different modules.  This is an example of
+a parameter which every module responds to and hence does not have a unique
+name.
+
+This example also shows each of the four possible types of value that can
+appear in a configuration file: string\index{string values}, 
+integer\index{integer values}, float\index{float values} and 
+Boolean\index{Boolean values}.
+The configuration parameter \texttt{TARGETKIND}
+\index{targetkind@\texttt{TARGETKIND}} requires a string
+value specifying the name of a speech parameter kind. Strings not
+starting with a letter should be enclosed in double quotes. 
+\texttt{NUMCHANS}\index{numchans@\texttt{NUMCHANS}}  requires an 
+integer value specifying the number of
+filter-bank channels to use in the analysis.
+\texttt{WINDOWSIZE}\index{windowsize@\texttt{WINDOWSIZE}}  actually requires a floating-point value
+specifying  the window size in units of 100ns.  However, an integer
+can always be given wherever a float is required.
+\texttt{PREEMCOEF} also requires a floating-point  value specifying the
+pre-emphasis coefficient to be used.  Finally, \texttt{ENORMALISE}
+\index{enormalise@\texttt{ENORMALISE}} is
+a Boolean parameter  which determines whether or not energy
+normalisation is to be performed, its value must be \texttt{T}, \texttt{TRUE} or
+\texttt{F}, \texttt{FALSE}.  Notice also that, as in command line options,
+integer values can use the C conventions for writing in non-decimal bases.
+Thus, the trace value of 0101 is equal to decimal 65.  This is particularly
+useful in this
+case because trace values are typically interpreted as bit-strings by
+\HTK\ modules and tools.\index{configuration files!types}
+
+If the name of a configuration variable is mis-typed, there will be no
+warning and the variable will simply be ignored.  To help guard
+against this, the standard option \texttt{-D} can be used.  This
+displays all of the configuration variables before and after the tool
+runs.  In the latter case, all configuration variables which are still
+unread are marked by a hash character.  The initial display allows the
+configuration values to be checked before potentially wasting a large
+amount of cpu time through incorrectly set parameters.  The final
+display shows which configuration variables were actually used during
+the execution of the tool.  The form of the output is shown by the
+following example
+\begin{verbatim}
+    HTK Configuration Parameters[3]
+      Module/Tool     Parameter                  Value
+    #                 SAVEBINARY                  TRUE
+      HPARM           TARGETRATE         256000.000000
+                      TARGETKIND                MFCC_0
+\end{verbatim}
+Here three configuration parameters have been set but the hash
+(\verb+#+) indicates that \texttt{SAVEBINARY} has not been used.
+\index{configuration variables!display}
+\index{configuration files|)}
+
+\mysect{Standard Options}{stdopts}
+
+\index{standard options} As noted in section~\ref{s:cmdline}, options
+consisting of a capital letter are common across all tools.  Many are
+specific to particular file types and they will be introduced as they
+arise.  However, there are six options that are standard across all
+tools.  Three of these have been mentioned already.  The
+option \texttt{-C}\index{standard options!aaac@\texttt{-C}} is used to
+specify a configuration file name and the option
+\texttt{-S}\index{standard options!aaas@\texttt{-S}} is used to
+specify a script file name, whilst the option
+\texttt{-D}\index{standard options!aaad@\texttt{-D}} is used to
+display configuration settings.
+
+The two remaining standard options provided directly by 
+\htool{HShell} are \texttt{-A}\index{standard options!aaaa@\texttt{-A}}
+and \texttt{-V}. 
+The option \texttt{-A} causes the current command line arguments to 
+be printed. When running experiments via
+scripts, it is a good idea to use this option to record in a log file the
+precise settings used for each tool.
+The option \texttt{-V}\index{standard options!aaav@\texttt{-V}}
+causes version information for the tool and each module used by that
+tool to be listed.  These should always be quoted when making bug reports.
+
+Finally, all tools implement the trace 
+option \texttt{-T}\index{standard options!aaat@\texttt{-T}}.
+Trace values are typically bit strings and the meaning of each bit
+is described in the reference section for each tool.  Setting a trace\index{tracing}
+option via the command line overrides any setting for that same trace
+option in a configuration file.  This is a general rule, command line
+options always override defaults set in configuration files.
+
+All of the standard options are listed in the final summary section of
+this chapter. As a general rule, you should consider passing at least
+-A -D -V -T 1 to all tools, which will guarantee that sufficient
+information is available in the tool output.
+
+
+\mysect{Error Reporting}{erep}
+
+The \htool{HShell} module provides a standard mechanism for reporting
+errors\index{errors} and warnings\index{warnings}.  
+A typical error message is as follows
+\begin{verbatim}
+    HList: ERROR [+1110]
+      IsWave: cannot open file speech.dat
+\end{verbatim}
+This indicates that the tool \htool{HList} is reporting an error
+number +1110.  All errors have positive error 
+numbers\index{error numbers!structure of} and always
+result in the tool terminating.  Warnings have negative error numbers
+and the tool does not terminate.  The first two digits of an error
+number indicate the module or tool in which the error is located
+(\htool{HList} in this case)
+and the last two digits define the class of error.
+The second line of the error message names the actual routine
+in which the error occurred (here \texttt{IsWave}) and the 
+actual error message.    All errors and warnings are listed
+in the reference section at the end of this book indexed by
+error/warning number.  This listing contains more details on each
+error or warning along with suggested causes.
+
+Error messages are sent to the  standard error stream but warnings
+are sent to the standard output stream.  The reason for the latter
+is that most 
+\HTK\ tools are run with progress tracing enabled.  Sending warnings
+to the standard output stream ensures that they are properly
+interleaved with the trace of progress so that it is easy to determine
+the point at which the warning was issued.  Sending warnings to
+standard error would lose this information.
+
+The default behaviour of a \HTK\ tool on terminating due to an
+error is to exit normally returning the error number as exit status.
+If, however, the configuration variable 
+\texttt{ABORTONERR}\index{abortonerr@\texttt{ABORTONERR}} is set to
+true then the tool will core dump.  This is a debugging facility which
+should not concern most users.\index{termination}
+
+\mysect{Strings and Names}{htkstrings}
+
+Many \HTK\  definition files include names of various types of
+objects: for example labels, model names, words, etc.
+In order to achieve some uniformity, \HTK\ applies standard
+rules for reading strings which are names.\index{strings!rules for}
+These rules are not, however, necessary when using the language
+modelling tools -- see below.
+
+A name string consists of a single white space delimited word or
+a quoted string.  Either the single quote \verb+'+ or 
+the double quote \verb+"+ can be used to quote strings but the
+start and end quotes must be matched.  The backslash \verb+\+ 
+character can also
+be used to introduce otherwise reserved characters.  The 
+character following a backslash is inserted into the string without special
+processing unless that character is a digit in the range 0 to 7.  
+In that case, the three
+characters following the backslash are read and interpreted as an octal
+character code.  When the three characters are not octal digits the result
+is not well defined.\index{strings!metacharacters in}
+
+In summary the special processing is
+\begin{center}
+\begin{tabular}{|c|l|} \hline
+Notation   & Meaning \\ \hline
+\verb+\\+   & \verb+\+ \\ \hline
+\verb+\_ +  & represents a space that will not terminate a string \\ \hline
+\verb+\'+   & \verb+'+  (and will not end a quoted string) \\ \hline
+\verb+\"+   & \verb+"+ (and will not end a quoted string) \\ \hline
+\verb+\nnn+ & the character with octal code \verb+\nnn+ \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent\index{non-printing chars}
+Note that the above allows the same effect to be achieved in a number of 
+different ways.  For example,
+\begin{verbatim}
+    "\"QUOTE" 
+    \"QUOTE 
+    '"QUOTE' 
+    \042QUOTE 
+\end{verbatim}
+all produce the string \verb+"QUOTE+.
+
+The only exceptions to the above general rules are:
+\begin{itemize}
+
+\item  Where models are specified in \htool{HHEd} scripts,
+commas (\verb+,+), 
+dots (\verb+.+),
+and closing brackets (\verb+)+) 
+are all used as extra delimiters to allow  \htool{HHEd} scripts
+created for earlier versions of \HTK\ to be used unchanged.
+Hence for example, \texttt{(a,b,c,d)} would be split into 4 
+distinct name strings \texttt{a}, \texttt{b}, \texttt{c} and \texttt{d}.
+
+\item When the configuration variable
+\texttt{RAWMITFORMAT} is set true,  each word in a language model
+definition file consists of a white space delimited string with no 
+special processing being performed.
+
+\item  Source dictionaries read by \htool{HDMan} are read using
+the standard \HTK\ string conventions, however, the command \texttt{IR}
+can be used in a \htool{HDMan} source edit script to switch to using
+this raw format.
+
+\item 
+To ensure that the general definition of a name string works
+properly in \HTK\ master label files, all
+MLFs must have the reserved \texttt{.} and \verb+///+ terminators 
+alone on a line with no surrounding white space. 
+If this causes problems reading old MLF files, the configuration
+variable \texttt{V1COMPAT} should be set true in the module \htool{HLabel}.  
+In this case,
+\HTK\ will attempt to simulate the behaviour of the older version 1.5.
+
+\item
+To force numbers to be interpreted as strings rather than times or scores in a
+label file, they must be quoted.  If the configuration variable
+\texttt{QUOTECHAR} is set to \verb+'+ or \verb+"+ then output labels will be
+quoted with the specified quote character.  If \texttt{QUOTECHAR} is set to  
+\verb+\+, then output labels will be escaped. The default is to select the 
+simplest quoting mechanism.\index{strings!output of}
+\end{itemize}
+
+Note that under some versions of \texttt{Unix} \HTK\ can support the 8-bit
+character sets used for the representation of various orthographies. In
+such cases the shell environment variable \texttt{\$LANG} usually governs
+which ISO character set is in use.
+
+\subsubsection{Language modelling tools}
+Although these string conventions are unnecessary in \HLM, to maintain
+compatibility with \HTK the same conventions are used. However, a
+number of options are provided to allow a mix of escaped and unescaped
+text files to be handled.  Word maps allow the type of escaping (HTK
+or none) to be defined in their headers.  When a degenerate form of
+word map is used (i.e. a map with no header), the \htool{LWMap}
+configuration variable \texttt{INWMAPRAW} may be set to true to
+disable \HTK\ escaping. By default, \HLM\ tools output word lists and
+maps in HTK escaped form.  However, this can be overridden by setting
+the configuration variable \texttt{OUTWMAPRAW} to true.  Similar
+conventions apply to class maps.  A degenerate class map can be read
+in raw mode by setting the \htool{LClass} configuration variable
+\texttt{INCMAPRAW} to true, and a class map can be written in raw form
+by setting \texttt{OUTCMAPRAW} to  true.
+
+Input/output of N-gram language model files are handled by the \HLM\
+module \texttt{LModel}. Hence, by default input/output of LMs stored
+in the ARPA-MIT text format will assume \HTK\ escaping conventions.
+This can be disabled for both input and output by setting 
+\texttt{RAWMITFORMAT} to true.
+
+% $
+
+\mysect{Memory Management}{memman}
+
+Memory management\index{memory management} is a very low level function and is
+mostly invisible to \HTK\ users.  However, some applications require very large
+amounts of memory.  For example, building the models for a large vocabulary
+continuous speech dictation system might require 150MB or more.  Clearly, when
+memory demands become this large, a proper understanding of the impact of
+system design decisions on memory usage is important.  The first step in this
+is to have a basic understanding of memory allocation in \HTK.
+
+Many \HTK\ tools dynamically construct large and complex data structures in
+memory.  To keep strict control over this and to reduce memory allocation
+overheads to an absolute minimum, \HTK\ performs its own memory
+management. Thus, every time that a module or tool wishes to allocate some
+memory, it does so by calling routines in
+\htool{HMem}\index{hmem@\htool{HMem}}. At a slightly higher level, math objects
+such as vectors and matrices are allocated by \htool{HMath} but using the
+primitives provided by \htool{HMem}.
+
+To make memory allocation\index{memory!allocators} and de-allocation very fast,
+tools create specific memory allocators for specific objects or groups of
+objects.  These memory allocators are divided into a sequence of blocks, and
+they are organised as either Stacks\index{stacks}, M-heaps\index{M-heaps} or
+C-heaps\index{C-heaps}.  A Stack constrains the pattern of allocation and
+de-allocation requests to be made in a last-allocated first-deallocated order
+but allows objects of any size to be allocated. An M-heap allows an arbitrary
+pattern of allocation and de-allocation requests to be made but all allocated
+objects must be the same size.  Both of these memory allocation disciplines are
+more restricted than the general mechanism supplied by the operating system,
+and as a result, such memory operations are faster and incur no storage
+overhead due to the need to maintain hidden housekeeping information in each
+allocated object.  Finally, a C-heap uses the underlying operating system and
+allows arbitrary allocation patterns, and as a result incurs the associated
+time and space overheads.  The use of C-heaps is avoided wherever possible.
+
+Most tools provide one or more trace options which show how
+much memory has been allocated.  The following shows the form of
+the output\index{memory!statistics}
+\begin{verbatim}
+  ---------------------- Heap Statistics ------------------------
+  nblk=1, siz= 100000*1, used= 32056, alloc= 100000 : Global Stack[S]
+  nblk=1, siz=   200*28, used=   100, alloc=   5600 : cellHeap[M]
+  nblk=1, siz=  10000*1, used=  3450, alloc=  10000 : mlfHeap[S]
+  nblk=2, siz=   7504*1, used=  9216, alloc=  10346 : nameHeap[S]
+  ---------------------------------------------------------------
+\end{verbatim}
+Each line describes the status of each memory allocator and gives the number of
+blocks allocated, the current block size (number of elements in block $\times$
+the number of bytes in each element)\footnote{ Block sizes typically grow as
+more blocks are allocated}, the total number of bytes in use by the tool and
+the total number of bytes currently allocated to that allocator.  The end of
+each line gives the name of the allocator and its type: Stack[S], M-heap[M] or
+C-heap[M].  The element size for Stacks will always be 1 but will be variable
+in M-heaps.\index{memory!element sizes} The documentation for the memory
+intensive \HTK\ tools indicates what each of the main memory allocators are
+used for and this information allows the effects of various system design
+choices to be monitored.
+
+\mysect{Input/Output via Pipes and Networks}{iopipes}
+
+Most types of file in \HTK\ can be input or output via a pipe\index{pipes}
+instead of directly from or to disk.  The mechanism for doing this is to assign
+the required input or output filter\index{output filter} command to a
+configuration parameter or to an environment variable, either can be used.
+Within this command, any occurrence of the dollar symbol
+\verb+$+ will be replaced by the name of the required file. The
+output of the command will then be input to or output from the \HTK\ tool via a
+pipe.\index{filters}
+
+For example, the following command will
+normally list the contents of the speech waveform file \texttt{spfile}
+\begin{verbatim}
+    HList spfile
+\end{verbatim}
+However, if the value of the environment variable \texttt{HWAVEFILTER}
+is set as follows
+\begin{verbatim}
+    setenv HWAVEFILTER 'gunzip -c $'
+\end{verbatim}
+then the effect is to invoke the decompression filter\index{decompression
+filter} \texttt{gunzip} with its input connected to the file \texttt{spfile}
+and its output connected to \htool{HList} via a pipe.  Each different type of
+file has a unique associated variable so that multiple input and/or filters can
+be used.  The full list of these is given in the summary section at the end of
+this chapter.
+
+\HTK\ is often used to process large amounts of data and typically this
+data is distributed across a network.  In many systems, an attempt to open a
+file can fail because of temporary network \textit{glitches}.  In the majority
+of cases, a second or third attempt to open the file a few seconds later will
+succeed and all will be well.  To allow this to be done automatically, 
+\HTK\ tools can be configured to retry opening a file several times before giving up.
+This is done simply by setting the configuration parameter
+\texttt{MAXTRYOPEN}\index{maxtryopen@\texttt{MAXTRYOPEN}} to the required
+number of retries\footnote{ This does not work if input filters are used.  }.
+\index{files!network problems}\index{files!opening}
+
+\mysect{Byte-swapping of HTK data files}{byteswap}
+
+\index{natreadorder@\texttt{NATURALREADORDER}}
+\index{natwriteorder@\texttt{NATURALWRITEORDER}}
+\index{byte swapping}
+Virtually all \HTK\ tools can read and write data to and from binary files. The
+use of binary format as opposed to text can speed up the performance of the
+tools and at the same time reduce the file size when manipulating large
+quantities of data.  Typical binary files used by the \HTK\ tools are speech
+waveform/parameter files, binary master model files (MMF), binary accumulator
+files used in HMM parameter estimation and binary lattice files. However, the
+use of binary data format often introduces incompatibilities between different
+machine architectures due to the different byte ordering conventions used to
+represent numerical quantities. In such cases, byte swapping of the data is
+required. To avoid incompatibilities across different machine architectures,
+all \HTK\ binary data files are written out using big-endian (\texttt{NONVAX})
+representation of numerical values. Similarly, during loading \HTK\ binary
+format files are assumed to be in \texttt{NONVAX} byte order. The default
+behaviour can be altered using the configuration parameters
+\texttt{NATURALREADORDER} and
+\texttt{NATURALWRITEORDER}. Setting \texttt{NATURALREADORDER} to true will
+instruct the \HTK\ tools to interpret the binary input data in the machine's
+natural byte order (byte swapping will never take place). Similarly, setting
+\texttt{NATURALWRITEORDER} to true will instruct the tools to write out data
+using the machine's natural byte order. The default value of these two
+configuration variables is false which is the appropriate setting when using
+\HTK\ in a multiple machine architecture environment. In an environment
+comprising entirely of machines with \texttt{VAX} byte order both configuration
+parameters can be set true which will disable the byte swapping procedure
+during reading and writing of data.
+
+\mysect{Summary}{openvsum}
+
+This section summarises the globally-used environment
+variables\index{environment variables} and configuration
+parameters\index{configuration parameters!operating environment}. It
+also provides a list of all the standard command line options used
+with \HTK.
+
+Table~\href{t:openvcparms} lists all of the configuration parameters
+along with a brief description.  A missing module name means that it
+is recognised by more than one module. Table~\href{t:openvars} lists
+all of the environment parameters used by these modules.  Finally,
+table~\href{t:stdopts} lists all of the standard options.
+
+\begin{center}
+\begin{tabular}{|p{1.4cm}|p{3.0cm}|p{6.4cm}|} \hline
+Module & Name  & Description  \\ \hline
+\htool{HShell} & \texttt{ABORTONERR}      & Core dump on error (for debugging) \\
+\htool{HShell} & \texttt{HWAVEFILTER}     & Filter for waveform file input\\
+\htool{HShell} & \texttt{HPARMFILTER}     & Filter for parameter file input\\
+\htool{HShell} & \texttt{HLANGMODFILTER}  & Filter for language model file input\\
+\htool{HShell} & \texttt{HMMLISTFILTER}   & Filter for HMM list file input\\
+\htool{HShell} & \texttt{HMMDEFFILTER}    & Filter for HMM definition file input\\
+\htool{HShell} & \texttt{HLABELFILTER}    & Filter for Label file input\\
+\htool{HShell} & \texttt{HNETFILTER}      & Filter for Network file input\\
+\htool{HShell} & \texttt{HDICTFILTER}     & Filter for Dictionary file input \\ 
+\htool{HShell} & \texttt{LGRAMFILTER}     & Filter for gram file input\\
+\htool{HShell} & \texttt{LWMAPFILTER}     & Filter for word map file input\\
+\htool{HShell} & \texttt{LCMAPFILTER}     & Filter for class map file input\\
+\htool{HShell} & \texttt{LMTEXTFILTER}    & Filter for text file input\\
+\htool{HShell} & \texttt{HWAVEOFILTER}    & Filter for waveform file output\\
+\htool{HShell} & \texttt{HPARMOFILTER}    & Filter for parameter file output\\
+\htool{HShell} & \texttt{HLANGMODOFILTER} & Filter for language model file output\\
+\htool{HShell} & \texttt{HMMLISTOFILTER}  & Filter for HMM list file output\\
+\htool{HShell} & \texttt{HMMDEFOFILTER}   & Filter for HMM definition file output\\
+\htool{HShell} & \texttt{HLABELOFILTER}   & Filter for Label file output\\
+\htool{HShell} & \texttt{HNETOFILTER}     & Filter for Network file output\\
+\htool{HShell} & \texttt{HDICTOFILTER}    & Filter for Dictionary file output \\ 
+\htool{HShell} & \texttt{LGRAMOFILTER}    & Filter for gram file output\\
+\htool{HShell} & \texttt{LWMAPOFILTER}    & Filter for word map file output\\
+\htool{HShell} & \texttt{LCMAPOFILTER}    & Filter for class map file output\\
+\htool{HShell} & \texttt{MAXTRYOPEN}     & Number of file open retries \\
+\htool{HShell} & \texttt{NONUMESCAPES}   & Prevent string output using \verb+\012+ format \\
+\htool{HShell} & \texttt{NATURALREADORDER}  & Enable natural read order for HTK binary files \\
+\htool{HShell} & \texttt{NATURALWRITEORDER} & Enable natural write order for HTK binary files \\
+\htool{HMem} & \texttt{PROTECTSTAKS}   & Warn if stack is cut-back (debugging) \\
+ & \texttt{TRACE}             & Trace control (default=0) \\
+ & \texttt{STARTWORD}         & Set sentence start symbol ({\tt <s>}) \\
+ & \texttt{ENDWORD}           & Set sentence end symbol   ({\tt </s>}) \\
+ & \texttt{UNKNOWNNAME}       & Set OOV class symbol      ({\tt !!UNK}) \\
+ & \texttt{RAWMITFORMAT}      & Disable \HTK\ escaping for LM tools\\
+\htool{LWMap}  & \texttt{INWMAPRAW}  & Disable \HTK\ escaping for input word lists and maps \\
+\htool{LWMap}  & \texttt{OUTWMAPRAW} & Disable \HTK\ escaping for output word lists and maps \\
+\htool{LCMap}  & \texttt{INCMAPRAW}  & Disable \HTK\ escaping for input class lists and maps \\
+\htool{LCMap}  & \texttt{OUTCMAPRAW} & Disable \HTK\ escaping for output class lists and maps \\
+\hline
+\end{tabular}
+\tabcap{openvcparms}{Configuration Parameters used in Operating Environment}
+\end{center}
+
+\vspace*{1cm}
+\begin{center}
+\begin{tabular}{|p{2.6cm}|p{8.2cm}|} \hline
+Env Variable &  Meaning  \\ \hline
+\texttt{HCONFIG}     &   Name of default configuration file\\
+\texttt{HxxxFILTER} & Input/Output filters as above \\ \hline
+\end{tabular}
+\tabcap{openvars}{Environment Variables used in Operating Environment}
+\end{center}
+
+\vspace*{1cm}
+\begin{center}
+\begin{tabular}{|p{2.6cm}|p{8.2cm}|} \hline
+Standard Option &   Meaning  \\ \hline
+\texttt{-A}     &   Print command line arguments\\
+\texttt{-B}     &  Store output HMM macro files in binary \\
+\texttt{-C cf}  &   Configuration file is cf \\
+\texttt{-D}     &   Display configuration variables\\
+\texttt{-E dir [ext]}  &  Search for parent transform macros in directory dir \\
+\texttt{-F fmt}  &  Set source data file format to fmt \\
+\texttt{-G fmt}  &  Set source label file format to fmt \\
+\texttt{-H mmf}  &  Load HMM macro file mmf \\
+\texttt{-I mlf}  &  Load master label file mlf \\
+\texttt{-J dir [ext]}  &  Search for transform macros in directory dir \\
+\texttt{-K dir [ext]}  &  Save transform models in directory dir  \\
+\texttt{-L dir}  &  Look for label files in directory dir \\
+\texttt{-M dir}  &  Store output HMM macro files in directory dir \\
+\texttt{-O fmt}  &  Set output data file format to fmt \\
+\texttt{-P fmt}  &  Set output label file format to fmt \\
+\texttt{-Q}     &   Print command summary info\\
+\texttt{-S scp}  &   Use command line script file scp \\
+\texttt{-T N}  &   Set trace level to N \\
+\texttt{-V}     &   Print version information\\
+\texttt{-X ext} &   Set label file extension to ext \\ \hline
+\end{tabular}
+\tabcap{stdopts}{Summary of Standard Options}
+\end{center}\index{standard options!summary}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "htkbook"
+%%% End: 

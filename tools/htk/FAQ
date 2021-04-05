@@ -1,0 +1,108 @@
+			HTK3 FAQ
+
+License Issues
+==============
+
+What is the role of Microsoft in all this?
+
+        See the 'History of HTK' page on the website for a full
+        explanation. The short version is:
+
+        HTK was originally developed at the Cambridge University
+        Engineering Department (CUED). In 1993 Entropic Research
+        Laboratory Inc. acquired the rights to sell HTK and the
+        development of HTK was fully transferred to Entropic in 1995
+        when the Entropic Cambridge Research Laboratory Ltd was
+        established. HTK was sold by Entropic until 1999 when
+        Microsoft bought Entropic. Microsoft has now licensed HTK back
+        to CUED and is providing support so that CUED can redistribute
+        HTK and provide development support via the HTK3 web site.
+        While Microsoft retains the copyright to the existing HTK
+        code, everybody is encouraged to make changes to the source
+        code and contribute them for inclusion in HTK3.
+
+
+Can I build & sell products based on HTK3?
+
+        You may build a product but you are not allowed to
+        redistribute (parts of) HTK3, i.e. you can't ship shrink-wrap
+        boxes with products that contain HTK3 code.
+
+Can I use this version for teaching & academic research?
+
+        Yes, absolutely.
+
+Can I use this version in commercial product Research & Development?
+
+        Yes. You can for example use HTK3 to train models that are
+        then used in your products.
+
+Can I use HDecode in commercial product Research & Development?
+
+        The licence agreement for HDecode is more restrictive that 
+        the standard HTK licence. HDecode is primarily distributed for 
+        research purposes only, BUT may be used as part of the training
+        process for producing models for products. This is to 
+        enable users to make use of the discriminative training
+        code. If in doubt you should contact the licensor.
+
+
+General
+=======
+
+What is HTK and what is it not?
+
+        HTK is a toolkit for research in automatic speech recognition
+        and has been used in many commercial and academic research
+        groups for many years.
+
+        It is not a desktop dictation system or an application that
+        you just install on your PC to get a speech interface to your
+        computer.
+
+Are there any teaching materials available that use HTK3?
+
+        Not yet, but we always welcome contributions.
+
+I have a problem using HTK3 -- where can I get support?
+
+        A set of mailing lists have been created to help solve HTK
+        related problems (see Mailing List page). Queries about the use
+        of HTK3 should be addressed to htk-user@eng.cam.ac.uk.
+
+
+Source Code
+===========
+
+What is the difference between this version and the Entropic one?
+
+        The HTK3 code is based on the final release from Entropic
+        (V2.2_ref). The source code now contains Microsoft Copyright
+        headers; there is revised and consistent indentation and some
+        minor changes to remove some compiler warnings have been made.
+        Functionally the code in HTK 3.0.0 should be identical to HTK
+        V2.2_ref.
+
+
+Can I build the CU-HTK evaluation system with HTK3?
+
+	No. The HTK version used internally at the Cambridge
+	University Engineering Department has some extra
+	functionality not available in HTK3; support for
+        context dependency beyond triphones; long-span language model
+        support, confusion network generation and combination
+        etc. Some of the most generally useful of these
+        features may be made available in future releases of HTK.
+
+What kind of computer/OS do I need to run HTK3?
+
+         The distributed version of HTK3 should build on Solaris,
+         IRIX, HPUX and Linux. If it doesn't, please file a bug
+         report. HTK has also been successfully built on Windows NT.
+
+
+Commonly used abbreviations:
+
+   CUED - Cambridge University Engineering Department
+   HTK - Hidden Markov Model Toolkit
+   PLP - Perceptual Linear Prediction

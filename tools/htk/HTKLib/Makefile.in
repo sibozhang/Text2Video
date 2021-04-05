@@ -1,0 +1,142 @@
+# ----------------------------------------------------------- 
+#                                                             
+#                          ___                                
+#                       |_| | |_/   SPEECH                    
+#                       | | | | \   RECOGNITION               
+#                       =========   SOFTWARE                  
+#                                                             
+#                                                             
+# ----------------------------------------------------------- 
+#         Copyright: Cambridge University
+#          1995-2005 Engineering Department
+#                    http://htk.eng.cam.ac.uk
+#                    http://mi.eng.cam.ac.uk
+#                 
+#   Use of this software is governed by a License Agreement   
+#    ** See the file License for the Conditions of Use  **    
+#    **     This banner notice must not be removed      **    
+#                                                             
+# ----------------------------------------------------------- 
+# File: @configure_input@
+# ----------------------------------------------------------- 
+SHELL = /bin/sh
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+hlib = .
+HLIBS = ${exec_prefix}/lib/HTKLib.a
+
+CC     = @CC@
+CFLAGS := $(CFLAGS) @CFLAGS@ -I. -DPHNALG
+RANLIB = @RANLIB@
+INSTALL= @INSTALL@
+target = HTKLib.a
+objects = @HGRAF@ esig_asc.o \
+	esig_edr.o \
+	esignal.o \
+	esig_nat.o \
+	HAdapt.o \
+	HArc.o \
+	HAudio.o \
+	HDict.o \
+	HExactMPE.o \
+	HFB.o \
+	HFBLat.o \
+	HLabel.o \
+	HLat.o \
+	HLM.o \
+	HMap.o \
+	HMath.o \
+	HMem.o \
+	HModel.o \
+	HNet.o \
+	HParm.o \
+	HRec.o \
+	HShell.o \
+	HSigP.o \
+	HTrain.o \
+	HUtil.o \
+	HVQ.o \
+	HWave.o \
+	strarr.o 
+
+lvobjects = $(basename @HGRAF@).lv.o esig_asc.lv.o \
+	esig_edr.lv.o \
+	esignal.lv.o \
+	esig_nat.lv.o \
+	HAdapt.lv.o \
+	HArc.lv.o \
+	HAudio.lv.o \
+	HDict.lv.o \
+	HExactMPE.lv.o \
+	HFB.lv.o \
+	HFBLat.lv.o \
+	HLabel.lv.o \
+	HLat.lv.o \
+	HLM.lv.o \
+	HMap.lv.o \
+	HMath.lv.o \
+	HMem.lv.o \
+	HModel.lv.o \
+	HNet.lv.o \
+	HParm.lv.o \
+	HRec.lv.o \
+	HShell.lv.o \
+	HSigP.lv.o \
+	HTrain.lv.o \
+	HUtil.lv.o \
+	HVQ.lv.o \
+	HWave.lv.o \
+	strarr.lv.o 
+
+all:    HTKLib.a HTKLiblv.a
+
+# This is the library used by HTKTools and HLMTools
+HTKLib.a: $(objects)
+	if [ -f $@ ] ; then  /bin/rm $@ ; fi
+	ar rv $@ $^
+	$(RANLIB) $@
+
+# This version is used by HDecode (HTKLVRec)
+HTKLiblv.a: $(lvobjects)
+	if [ -f $@ ] ; then  /bin/rm $@ ; fi
+	ar rv $@ $^
+	$(RANLIB) $@
+
+%.lv.o: %.c
+	$(CC) -DNO_LAT_LM $(CFLAGS) -c -o $@ $<
+
+.PHONY: clean cleanup depend mkinstalldir install
+
+clean:
+	-rm -f $(objects) $(lvobjects) HTKLib.a HTKLiblv.a
+
+cleanup:
+	-rm -f $(objects) $(lvobjects)
+
+depend:
+	-makedepend -Y *.c
+
+distclean: clean
+	-rm -f Makefile
+
+install: HTKLib.a HTKLiblv.a  mkinstalldir 
+	$(INSTALL) -m 755 HTKLib.a HTKLiblv.a $(libdir)
+
+mkinstalldir:
+	-mkdir -p $(libdir)

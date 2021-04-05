@@ -1,0 +1,188 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/* developed at:                                               */
+%/*                                                             */
+%/*      Speech Vision and Robotics group                       */
+%/*      Cambridge University Engineering Department            */
+%/*      http://svr-www.eng.cam.ac.uk/                          */
+%/*                                                             */
+%/*      Entropic Cambridge Research Laboratory                 */
+%/*      (now part of Microsoft)                                */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                 */
+%/*                                                             */
+%/*              2001  Cambridge University                     */
+%/*                    Engineering Department                   */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young   11/11/95
+%
+
+
+\newpage
+\mysect{HCompV}{HCompV}
+
+\mysubsect{Function}{HCompV-Function}
+
+\index{hcompv@\htool{HCompV}|(}
+This program will calculate the global mean and covariance
+of a set of training data.  It is primarily used to initialise
+the parameters of a HMM such that all component means and all covariances
+are set equal to the global data mean and covariance.  This might form
+the first stage of a \textit{flat start} training scheme 
+where all models are initially given the same parameters.  
+Alternatively, the covariances may be used as the basis for Fixed
+Variance and Grand Variance training schemes.  These can sometimes be
+beneficial in adverse conditions where a fixed covariance matrix can
+give increased robustness.
+
+When training large model sets from limited data, setting a floor
+is often necessary to prevent variances being badly underestimated
+through lack of data.  One way of doing this is to define
+a variance macro called \texttt{varFloorN}
+where \texttt{N} is the stream index. \htool{HCompV} can also be
+used to create these variance floor macros with values equal to
+a specified fraction of the global variance.
+
+Another application of \htool{HCompV} is the estimation of mean and variance
+vectors for use in cluster-based mean and variance normalisation
+schemes. Given a list of utterances and a speaker pattern
+\htool{HCompV} will estimate a mean and a variance for each speaker.
+
+\mysubsect{Use}{HCompV-Use}
+
+\htool{HCompV} is invoked via the command line
+\begin{verbatim}
+   HCompV [options] [hmm] trainFiles ...
+\end{verbatim}
+where \texttt{hmm} is the name of the physical HMM whose parameters
+are to be initialised. Note that no HMM name needs to be specified
+when cepstral mean or variance vectors are estimated (\texttt{-c}
+option). The effect of this command is to compute the covariance of
+the speech training data and then copy it into every Gaussian
+component of the given HMM definition.  If there are multiple data
+streams, then a separate covariance is estimated for each stream.  The
+HMM can have a mix of diagonal and full covariances and an option
+exists to update the means also.  The HMM definition can be contained
+within one or more macro files loaded via the standard \texttt{-H}
+option.  Otherwise, the definition will be read from a file called
+\texttt{hmm}.  Any tyings in the input definition will be preserved in
+the output. By default, the new updated definition overwrites the
+existing one.  However, a new definition file including any macro
+files can be created by specifying an appropriate target directory
+using the standard \texttt{-M} option.
+
+In addition to the above, an option \texttt{-f} is provided to compute
+variance floor macros equal to a specified fraction
+of the global variance.  In this case, the newly created macros are
+written to a file called \texttt{vFloors}.  
+For each stream \texttt{N} defined for \texttt{hmm},  a variance macro 
+called \texttt{varFloorN} is created.
+If a target directory is specified
+using the standard \texttt{-M} option then the new file will be written
+there, otherwise it is written in the current directory.
+
+The list of train files can be stored in a script file if required.
+Furthermore, the data used for estimating the global
+covariance can be limited to that corresponding to a specified label.
+
+
+The calculation of cluster-based mean and variances estimates is
+enabled by the option \texttt{-c} which specifies the output directory
+where the estimated vectors should be stored.
+
+The detailed operation of \htool{HCompV} is controlled by the following
+command line options
+\begin{optlist}
+  \ttitem{-c s} Calculate cluster-based mean/variance estimate and
+  store results in the specified directory.
+
+  \ttitem{-k s} Speaker pattern for cluster-based mean/variance
+  estimation. Each utterance filename is matched against the pattern
+  and the characters that are matched against \verb|%| are used as the
+  cluster name. One mean/variance vector is estimated for each
+  cluster.
+
+  \ttitem{-p s} Path pattern for cluster-based mean/variance
+  estimation. Each utterance filename is matched against the pattern
+  and the characters that are matched against \verb|%| are spliced to
+  the end of the directory string specified with option `-c' for the final
+  mean/variance vectors output. 
+  
+  \ttitem{-q s} For cluster-based mean/variance estimation different
+  types of output can be requested. Any subset of the letters
+  \texttt{nmv} can be specified. Specifying \texttt{n} causes the
+  number of frames in a cluster to be written to the output file.
+  \texttt{m} and \texttt{v} cause the mean and variance vectors to be
+  included, respectively.
+
+  \ttitem{-f f} Create variance floor macros with values equal to 
+     \texttt{f} times the global variance.  One macro is created for
+     each input stream and the output is stored in a file 
+     called \texttt{vFloors}. 
+
+  \ttitem{-l s} The string {\tt s} must be the name of a
+      segment label.  When this option is used, \htool{HCompV} searches
+      through all of the training files and uses only the speech
+      frames from segments with the given label.  When this option is not 
+      used, \htool{HCompV} uses
+      all of the data in each training file.
+
+  \ttitem{-m} The covariances of the output HMM are always updated
+    however updating the means must be specifically requested. When 
+    this option is set, \htool{HCompV} updates all the HMM component 
+    means with the sample mean computed from the training files. 
+
+  \ttitem{-o s}  The string {\tt s} is used as the name of the output
+      HMM in place of the source name.
+
+  \ttitem{-v f}  This sets the minimum variance (i.e. diagonal elements of
+      the covariance matrix) to the real value {\tt f} (default value
+      0.0).
+
+\stdoptB
+\stdoptF
+\stdoptG
+\stdoptH
+\stdoptI
+\stdoptL
+\stdoptM
+\stdoptX
+
+\end{optlist}
+\stdopts{HCompV}
+
+\mysubsect{Tracing}{HCompV-Tracing}
+
+\htool{HCompV} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting.
+   \ttitem{00002} show covariance matrices.
+   \ttitem{00004} trace data loading.
+   \ttitem{00010} list label segments.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hcompv@\htool{HCompV}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

@@ -1,0 +1,9 @@
+export HTKCF='-ansi -Wall -Wno-uninitialized -Wno-switch -g -O3 -DOSS_AUDIO -DNDEBUG'
+export HTKLF='-L/usr/X11R6/lib'
+export HTKCC='/usr/local/gcc-3.1.1/bin/gcc'
+export Arch=linux
+export Objcopy="echo"
+export PRILF='-x'
+export CPU=linux
+export SHRLF='-shared'
+export LIBEXT='so'

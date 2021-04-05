@@ -1,0 +1,170 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young    31/10/95
+%
+
+\newpage
+\mysect{HRest}{HRest}
+
+\mysubsect{Function}{HRest-Function}
+
+\index{hrest@\htool{HRest}|(}
+\htool{HRest} performs basic Baum-Welch re-estimation of the parameters of
+a single HMM using a set of observation sequences.  \htool{HRest} can be used
+for normal isolated word training in which the observation sequences
+are realisations of the corresponding vocabulary word.  
+
+Alternatively,
+\htool{HRest} can be used to generate \textit{seed} HMMs for phoneme-based
+recognition.  In this latter case, the observation sequences will consist
+of segments of continuously spoken training material.  \htool{HRest} will
+\textit{cut} these out of the training data automatically by simply
+giving it a segment label.
+
+In both of the above applications, \htool{HRest} is intended to operate on
+HMMs with initial parameter values estimated by \htool{HInit}.
+
+\htool{HRest} supports multiple mixture components, multiple streams,
+parameter tying within a single model, full or diagonal
+covariance matrices, tied-mixture models and discrete models.  
+The outputs of \htool{HRest} are often further 
+processed by \htool{HERest}.
+
+Like all re-estimation tools, \htool{HRest} allows a floor to  be set on
+each individual variance by defining a variance floor macro for each
+data stream (see chapter~\ref{c:Training}).  If any diagonal covariance
+component falls below $0.00001$, then the corresponding mixture weight is
+set to zero.  A warning is issued if the number of mixtures is greater
+than one, otherwise an error occurs.  Applying a variance floor via the
+{\tt -v} option or a variance floor macro can be used to prevent this.
+
+\mysubsect{Use}{HRest-Use}
+
+\htool{HRest} is invoked via the command line
+\begin{verbatim}
+   HRest [options] hmm trainFiles ...
+\end{verbatim}
+This causes the parameters of the given {\tt hmm} to be
+re-estimated repeatedly using the data in {\tt trainFiles} 
+until either a maximum iteration limit is reached
+or the re-estimation converges. 
+The HMM definition can be contained within one or more macro
+files loaded via the standard \texttt{-H} option.  Otherwise, the 
+definition will be read from a file called \texttt{hmm}.
+The list of train files
+can be stored in a script file if required.
+
+The detailed operation of \htool{HRest} is controlled by the following
+command line options
+\begin{optlist}
+  \ttitem{-c f} Set the threshold for tied-mixture observation
+      pruning to {\tt f}.
+      When all mixtures of all models are tied to create a full
+      tied-mixture system, the calculation of output probabilities
+      is treated as a special case.  Only those 
+      mixture component probabilities which fall within {\tt f} of
+      the maximum mixture component probability are used in calculating
+      the state output probabilities (default 10.0).
+
+  \ttitem{-e f} This sets the convergence factor to the real value {\tt f}.
+      The convergence factor is the relative change between successive
+      values of $P({O}|\lambda)$ (default value 0.0001).
+
+  \ttitem{-i N} This sets the maximum number of re-estimation cycles
+      to {\tt N} (default value 20).
+
+  \ttitem{-l s} The string {\tt s} must be the name of a
+      segment label.  When this option is used, \htool{HRest} searches
+      through all of the training files and cuts out all segments with
+      the given label.  When this option is not used, \htool{HRest} assumes that
+      each training file is a single token.
+
+  \ttitem{-m N}  Sets the minimum number of training examples to be {\tt N}.
+      If fewer than {\tt N} examples are supplied then an error is
+      reported (default value 3).
+
+  \ttitem{-t}  Normally, training sequences are rejected if they
+      have fewer frames
+      than the number of emitting states in the HMM.  Setting this
+      switch disables this reject mechanism\footnote{Using this option
+      only makes sense if the HMM has skip transitions}.
+      
+  \ttitem{-u flags}  By default, \htool{HRest} updates all 
+      of the HMM parameters,
+      that is, means, variances, mixture weights
+      and transition probabilities. This 
+      option causes just the parameters indicated by the {\tt flags}
+      argument to be updated, this argument is a string containing one
+      or more of the letters {\tt m} (mean), {\tt v} (variance), 
+      {\tt t} (transition) and {\tt w} (mixture weight).  The presence of a
+      letter enables the updating of the corresponding parameter set.
+
+  \ttitem{-v f}  This sets the minimum variance (i.e. diagonal element of
+      the covariance matrix) to the real value {\tt f}.  This is ignored
+      if an explicit variance floor macro is defined. The default value
+      is 0.0.
+      
+  \ttitem{-w f}  Any mixture weight or discrete observation probability
+      which falls below the global
+            constant {\tt MINMIX} is treated as being zero.
+      When this parameter is  set,  all mixture weights  are floored
+      to {\tt f * MINMIX}.
+
+\stdoptB
+\stdoptF
+\stdoptG
+\stdoptH
+\stdoptI
+\stdoptL
+\stdoptM
+\stdoptX
+
+\end{optlist}
+\stdopts{HRest}
+
+\mysubsect{Tracing}{HRest-Tracing}
+
+\htool{HRest} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{000001} basic progress reporting.
+   \ttitem{000002} output information on the training data loaded.
+   \ttitem{000004} the observation probabilities.
+   \ttitem{000010} the alpha matrices.
+   \ttitem{000020} the beta matrices.
+   \ttitem{000040} the occupation counters.
+   \ttitem{000100} the transition counters.
+   \ttitem{000200} the mean counters.
+   \ttitem{000400} the variance counters.
+   \ttitem{001000} the mixture weight counters.
+   \ttitem{002000} the re-estimated transition matrix.
+   \ttitem{004000} the re-estimated mixture weights.
+   \ttitem{010000} the re-estimated means.
+   \ttitem{020000} the re-estimated variances.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hrest@\htool{HRest}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

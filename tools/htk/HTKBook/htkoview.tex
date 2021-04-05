@@ -1,0 +1,684 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/* developed at:                                               */
+%/*                                                             */
+%/*      Speech Vision and Robotics group                       */
+%/*      Cambridge University Engineering Department            */
+%/*      http://svr-www.eng.cam.ac.uk/                          */
+%/*                                                             */
+%/*      Entropic Cambridge Research Laboratory                 */
+%/*      (now part of Microsoft)                                */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                 */
+%/*                                                             */
+%/*          2001-2002 Cambridge University                     */
+%/*                    Engineering Department                   */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young 1/12/97
+%
+
+\mychap{An Overview of the \HTK\ Toolkit}{htkoview}
+
+\sidepic{toolkit}{50}{}
+The basic principles of HMM-based recognition were outlined in
+the previous chapter and a number of the key \HTK\ tools have already
+been mentioned.  This chapter describes the software architecture
+of a \HTK\ tool.   It then gives a brief outline of all the
+\HTK\ tools and the way that they are used together to construct
+and test HMM-based recognisers.  For the benefit of existing \HTK\ users,
+the major changes in recent versions of \HTK\ are listed.
+The following chapter will then illustrate
+the use of the \HTK\ toolkit 
+by working through a practical example of building a simple 
+continuous speech recognition system.
+
+\mysect{\HTK\ Software Architecture}{softarch}
+
+Much of the functionality of \HTK\ is built into the library modules. 
+These modules ensure that every tool interfaces to the outside world 
+in exactly the same way.  They also provide a central resource of 
+commonly used functions.  Fig.~\href{f:softarch} illustrates 
+the software\index{software architecture}
+structure of a typical \HTK\ tool and shows its input/output interfaces.
+
+User input/output and interaction with the operating system is 
+controlled by the library 
+module \htool{HShell}\index{hshell@\htool{HShell}} and all memory management
+is controlled by \htool{HMem}\index{hmem@\htool{HMem}}.  
+Math support is provided by \htool{HMath}\index{hmath@\htool{HMath}}
+and the signal processing operations needed for speech analysis are
+in \htool{HSigP}\index{hsigp@\htool{HSigP}}.\index{library modules}
+Each of the file types required by \HTK\ has a dedicated
+interface module.  
+\htool{HLabel}\index{hlabel@\htool{HLabel}} provides the interface for label files,
+\htool{HLM}\index{hlm@\htool{HLM}} for language model files,
+\htool{HNet}\index{hnet@\htool{HNet}} for networks and lattices,
+\htool{HDict}\index{hdict@\htool{HDict}} for dictionaries,
+\htool{HVQ}\index{hvq@\htool{HVQ}} for VQ codebooks and
+\htool{HModel}\index{hmodel@\htool{HModel}} for HMM definitions.
+
+\sidefig{softarch}{75}{Software Architecture}{-4}{
+All speech input and output at the waveform level
+is via \htool{HWave} 
+and at the parameterised level via \htool{HParm}.
+As well as providing a consistent interface, \htool{HWave} and 
+\htool{HLabel}
+support multiple file formats allowing data to be imported
+from other systems.   Direct audio input is 
+supported by \htool{HAudio}
+and simple interactive graphics is 
+provided by \htool{HGraf}.  
+\htool{HUtil} provides a 
+number of utility routines for manipulating
+HMMs while \htool{HTrain} and \htool{HFB} contain support for the 
+various \HTK\ training tools.   \htool{HAdapt} provides support
+for the various \HTK\ adaptation tools.
+Finally, \htool{HRec} contains 
+the main recognition processing functions.
+}\index{haudio@\htool{HAudio}}
+\index{hrec@\htool{HRec}}
+\index{hutil@\htool{HUtil}}
+\index{hwave@\htool{HWave}}
+\index{hparm@\htool{HParm}}
+\index{hgraf@\htool{HGraf}}
+\index{htrain@\htool{HTrain}}
+
+As noted in the next section, fine control over 
+the behaviour of these library modules
+is provided by setting configuration variables\index{configuration variables}.  Detailed descriptions
+of the functions provided by the library modules are given in the second
+part of this book and the relevant configuration variables are described
+as they arise.  For reference purposes, a complete list is given in
+chapter~\ref{c:confvars}.
+
+\mysect{Generic Properties of a HTK Tool}{genprops}
+
+\HTK\ tools are designed to run with a traditional command-line style interface.
+Each tool\index{command line!options}
+has a number of required arguments plus optional arguments.
+The latter are always prefixed by a minus sign.  As an example,
+the following command would invoke the mythical \HTK\ tool called
+\htool{HFoo}
+\begin{verbatim}
+    HFoo -T 1 -f 34.3 -a -s myfile file1 file2
+\end{verbatim}
+This tool has two main arguments called \texttt{file1} and
+\texttt{file2} plus four optional arguments.  Options
+are always introduced by a single letter option name followed
+where appropriate by the option value.  The option value
+is always separated from the option name by a space. Thus, the value of the
+\texttt{-f} option is a real number, the value of the
+\texttt{-T} option is an integer number and the value of the
+\texttt{-s} option is a string.  The \texttt{-a} option has no following
+value and it is used as a simple flag to enable or disable some
+feature of the tool.  Options whose names are a capital letter
+have the same meaning across all tools.  For example, the \texttt{-T}
+option is always used to control the trace output of a \HTK\ tool.
+
+In addition to command line arguments, the operation of a tool
+can be controlled by parameters stored 
+in a configuration file\index{configuration files}.
+For example, if the command 
+\begin{verbatim}
+    HFoo -C config -f 34.3 -a -s myfile file1 file2
+\end{verbatim}
+is executed, the tool \htool{HFoo} will load the 
+parameters stored in the configuration
+file \texttt{config} during its initialisation procedures.  Multiple
+configuration files can be specified by repeating the \verb|-C|
+option, e.g.\ 
+\begin{verbatim}
+    HFoo -C config1 -C config2 -f 34.3 -a -s myfile file1 file2
+\end{verbatim}
+Configuration parameters can sometimes be used as an
+alternative to using command line arguments.  For example, trace
+options can always be set within a configuration file.  However, the
+main use of configuration files is to control the detailed behaviour
+of the library modules on which all \HTK\ tools depend.
+
+Although this style of command-line 
+working may seem old-fashioned when compared to modern
+graphical user interfaces, it has many advantages.  In particular,
+it makes it simple to write shell scripts to control \HTK\ tool execution.  This
+is vital for performing large-scale system building and experimentation.
+Furthermore, defining all operations using text-based commands allows
+the details of system construction or experimental procedure to
+be recorded and documented.
+
+Finally, note that a summary of the command line and
+options for any \HTK\ tool can be obtained simply by executing
+the tool with no arguments.
+
+\mysect{The Toolkit}{toolkit}
+
+The \HTK\ tools are best introduced by going through the
+processing steps involved in building a sub-word based continuous speech 
+recogniser.  As shown in Fig.~\href{f:sysoview}, there are 4
+main phases: data preparation, training, testing and analysis.
+
+\subsection{Data Preparation Tools}
+
+\index{data preparation}
+In order to build a set of HMMs, a set of speech data files
+and their associated transcriptions are required.  Very often
+speech data will be obtained from database archives, typically
+on CD-ROMs.  Before it can be used in training, it must be 
+converted into the appropriate parametric form and any associated
+transcriptions must be converted to have the correct format
+and use the required phone or word labels.  If the speech needs to be
+recorded, then the tool \htool{HSLab}\index{hslab@\htool{HSLab}} can be used both to record the
+speech and to manually annotate it with any required transcriptions.
+
+Although all \HTK\ tools can parameterise waveforms \textit{on-the-fly}, in practice
+it is usually better to
+parameterise the data just once.  The tool \htool{HCopy}\index{hcopy@\htool{HCopy}}
+is used for this.  As the name suggests, \htool{HCopy} is used to copy one
+or more source files to an output file.  
+Normally, \htool{HCopy} copies the whole file, but a variety
+of mechanisms are provided for extracting segments of files and concatenating
+files.  By setting the appropriate configuration variables, all input files
+can be converted to parametric form as they are read-in.
+Thus, simply copying each file in this manner performs the required encoding.
+The tool \htool{HList}\index{hlist@\htool{HList}} can be used to check the contents of any speech file
+and since it can also convert input on-the-fly, it can be used to check
+the results of any conversions before processing large quantities of data.
+Transcriptions will also need preparing.  Typically the labels used in the
+original source transcriptions will not be exactly as required, for example,
+because of differences in the phone sets used.  Also, HMM training might
+require the labels to be context-dependent.  The tool \htool{HLEd}\index{hled@\htool{HLEd}} is
+a script-driven label editor which is designed to make the required transformations
+to label files.  \htool{HLEd} can also output files  to a single \textit{Master Label
+File} MLF which is usually more convenient for subsequent processing.
+Finally on data preparation, \htool{HLStats}\index{hlstats@\htool{HLStats}} can gather and display statistics
+on label files and where required, \htool{HQuant}\index{hquant@\htool{HQuant}} can be used to build a
+VQ codebook in preparation for building  discrete probability HMM system.
+
+\subsection{Training Tools}
+
+The second step of system building is to\index{training tools}
+define the topology required for each HMM by writing a prototype definition.
+\HTK\ allows HMMs to be built with any desired topology.
+HMM definitions can be stored externally as simple text files and
+hence it is possible to edit them with any convenient text
+editor. Alternatively, the standard \HTK\ distribution includes
+a number of example HMM prototypes and a script to generate
+the most common topologies automatically.
+With the exception of the transition
+probabilities, all of the HMM parameters given in 
+the prototype definition\index{prototype definition}
+are ignored.  The purpose of the prototype definition is only
+to specify the overall characteristics and topology of the HMM.  The
+actual parameters will be computed later by the training tools.  
+Sensible values for
+the transition probabilities must be given but the training
+process is very insensitive to these.  An acceptable and  simple strategy
+for choosing these probabilities is to make all of the transitions
+out of any state equally likely.
+
+
+\centrefig{sysoview}{100}{\HTK\ Processing Stages}
+
+The actual training process takes place in stages and it is
+illustrated in more detail in Fig.~\href{f:tsubword}.  
+Firstly, an initial set of models must be created.  If there is
+some speech data available for which the location of the sub-word (i.e.\ phone)
+boundaries have been marked, then this can be used as \textit{bootstrap data}.
+In this case, the tools \htool{HInit}\index{hinit@\htool{HInit}} 
+and \htool{HRest}\index{hrest@\htool{HRest}}
+provide {\it isolated word} style
+training using the fully labelled bootstrap\index{bootstrapping} data.  Each of the required
+HMMs is generated individually.  \htool{HInit} reads in all of the bootstrap
+training data and {\it cuts out} all of the examples of the required
+phone.  It then iteratively computes an initial set of parameter values
+using a {\it segmental k-means} procedure\index{segmental k-means}.  On the first cycle, the training data
+is uniformly segmented, each model state is matched with the
+corresponding data segments and then means and variances are estimated.
+If mixture Gaussian models are being trained, then a modified form
+of k-means clustering is used.  On the second and successive cycles,
+the uniform segmentation is replaced by Viterbi alignment.  
+The initial parameter values computed by \htool{HInit} are then further re-estimated
+by \htool{HRest}.  Again, the fully labelled bootstrap data is used but this
+time the segmental k-means procedure is replaced by the Baum-Welch re-estimation
+procedure described in the previous chapter.  When no bootstrap data is
+available, a so-called \textit{flat start} can be used.  In this case all
+of the phone models are initialised to be identical and have state means
+and variances equal to the global speech mean and variance.  The tool
+\htool{HCompV}\index{hcompv@\htool{HCompV}} can be used for this.\index{flat start}
+
+\centrefig{tsubword}{90}{Training Sub-word HMMs}
+
+Once an initial set of models has been created, the tool \htool{HERest}
+is used to perform {\em embedded training} using the 
+entire\index{embedded training}
+training set.  \htool{HERest}\index{herest@\htool{HERest}} performs a single Baum-Welch
+re-estimation of the whole set of HMM phone models simultaneously.  For each
+training utterance, the corresponding phone models are concatenated and then
+the forward-backward algorithm is used to accumulate the statistics of state
+occupation, means, variances, etc., for each HMM in the sequence.  When
+all of the training data has been processed, the accumulated statistics
+are used to compute re-estimates of the HMM parameters.  \htool{HERest} is
+the core \HTK\ training tool.  It is designed to process large databases, it has
+facilities for pruning\index{pruning} to reduce computation and it can be run in parallel 
+across a network of machines.
+
+The philosophy of system construction in \HTK\  is that HMMs should be
+\index{HMM!build philosophy}
+refined incrementally.  Thus, a typical progression is to start with a
+simple set of single Gaussian context-independent phone models and then
+iteratively refine them by expanding them to include context-dependency 
+and use multiple mixture component Gaussian distributions.
+The tool \htool{HHEd}\index{hhed@\htool{HHEd}} is a 
+HMM definition editor which will clone models\index{HMM!editor}
+into context-dependent sets, apply a variety of parameter tyings
+and increment the number of mixture components in specified distributions.
+The usual process is to modify a set of HMMs in stages using \htool{HHEd}
+and then 
+re-estimate the parameters of the modified set using \htool{HERest}
+after each stage.  
+To improve performance for specific speakers the tools 
+\htool{HERest}\index{herest@\htool{HERest}} 
+and \htool{HVite}\index{hvite@\htool{HVite}} can be 
+used to adapt HMMs to better model the characteristics of particular 
+speakers using a small amount of training or adaptation data.
+The end result of which is a speaker adapted system.
+
+The single biggest problem in building context-dependent 
+HMM systems is always data
+insufficiency.  The more complex the model set, the more data is 
+needed to make robust estimates of its parameters, and since data is
+usually limited, a balance must be struck between complexity and 
+the available data.
+For continuous density systems, this balance is achieved by 
+tying parameters together as mentioned above.  Parameter tying
+allows data to be pooled so that the shared parameters can be robustly
+estimated. 
+In addition to continuous density systems, \HTK\ also supports
+fully tied mixture systems and discrete probability systems.  In these
+cases, the data insufficiency problem is usually addressed by smoothing
+the distributions and the 
+tool \htool{HSmooth}\index{hsmooth@\htool{HSmooth}} is used for this.
+
+\subsection{Recognition Tools}
+
+\HTK\ provides a recognition tool\index{recognition!tools} called
+\htool{HVite}\index{hvite@\htool{HVite}} that allows recognition
+using language models and lattices. 
+\htool{HLRecsore}\index{hvite@\htool{HLRescore}} is a tool that allows
+lattices generated using \htool{HVite} (or \htool{HDecode}) to
+be manipulated for example to apply a more complex language model.
+An additional recogniser is also available as an extension to \HTK\,
+\htool{HDecode}\index{hdecode@\htool{HDecode}}. Note: \htool{HDecode} is
+distributed under a more restrictive licence agreement.
+
+\subsubsection{\htool{HVite}}
+\HTK\ provides a recognition 
+tool\index{recognition!tools} called \htool{HVite}\index{hvite@\htool{HVite}}
+which uses the token passing algorithm described in the previous
+chapter to perform Viterbi-based speech recognition.  \htool{HVite}
+takes as input a network describing the allowable word sequences,
+a dictionary defining how each word is pronounced and a set of HMMs.
+It operates by converting the word network to a phone network and
+then attaching the appropriate HMM definition to each phone instance.
+Recognition can then be performed on either a list of stored speech
+files or on direct audio input.  As noted at the end of the last
+chapter, \htool{HVite} can support cross-word triphones and it can
+run with multiple tokens to generate
+lattices containing multiple hypotheses.  It can also be configured
+to rescore lattices and perform forced alignments.
+
+The word networks needed to drive \htool{HVite} are usually either
+simple word loops in which any word can follow any other word or they
+are directed graphs representing a finite-state task grammar.  In the
+former case, bigram probabilities are normally attached to the word
+transitions.  Word networks are stored using
+the \HTK\ standard lattice format\index{lattice!format}.  
+This is a text-based format and\index{standard lattice format}\index{SLF}
+hence word networks can be created directly using a text-editor.
+However, this is rather tedious and hence \HTK\ provides two
+tools to assist in creating word networks.  Firstly, \htool{HBuild} 
+allows sub-networks to be created and used within higher level networks.
+Hence, although the same low level notation is used, much duplication
+is avoided.  Also, \htool{HBuild}\index{hbuild@\htool{HBuild}} can be used to generate word loops
+and it can also read in a backed-off bigram language model and 
+modify the word loop transitions to incorporate the bigram probabilities.
+Note that the label statistics tool \htool{HLStats} mentioned earlier
+can be used to generate a backed-off bigram language model.
+
+As an alternative to specifying a word network directly, a higher
+level grammar notation can be used.  This notation is based on
+the Extended Backus Naur Form (EBNF\index{EBNF}) used in compiler specification and
+it is compatible with the grammar specification language used in 
+earlier versions of \HTK.  The 
+tool \htool{HParse}\index{hparse@\htool{HParse}} is supplied
+to convert this notation into the equivalent word network.
+
+Whichever method is chosen to generate a word network, it is useful
+to be able to see examples of the \textit{language} that it defines.
+The tool \htool{HSGen}\index{hsgen@\htool{HSGen}} is 
+provided to do this.  It takes as input
+a network and then randomly traverses the network outputting word
+strings.  These strings can then be inspected to ensure that they
+correspond to what is required.  \htool{HSGen} can also compute
+the empirical perplexity of the task.
+
+Finally, the construction of large dictionaries can involve merging
+several sources and performing a variety of transformations on each
+sources.  The dictionary management 
+tool \htool{HDMan}\index{hdman@\htool{HDMan}} is supplied
+to assist with this process.
+
+\subsubsection{\htool{HLRescore}}
+\htool{HLRescore} is a tools for manipulating lattices. It reads
+lattices in standard lattice format (for example produced by
+\htool{HVite}) and applies one of the following operations on them:
+
+\begin{itemize}
+\item finding 1-best path through lattice: this allows language
+model scale factors and insertion penalties to be optimised rapidly;
+\item expanding lattices with new language model: allows the application
+of more complex language, e,g, 4-grams, than can be efficiently used
+on the decoder.
+\item converting lattices to equivalent word networks: this is necessary
+prior to using lattices generated with \htool{HVite} (or \htool{HDecode})
+to merge duplicate paths.
+\item calculating various lattice statistics
+\item pruning lattice using forward-backward scores: efficient pruning
+of lattices for 
+\item converting word MLF files to lattices with a language model: this
+is necessary for generating numerator lattices for discriminative training.
+\end{itemize}
+
+\htool{HLRescore} expects lattices which are directed acyclic graphs
+(DAGs).  If cycles occur in the lattices then \htool{HLRescore} will
+throw an error.  These cycles may occur after the merging operation
+({\tt -m} option) with HLRescore.
+
+\subsubsection{\htool{HDecode}}
+\htool{HDecode} is a decoder suited for large vocabulary speech
+recognition and lattice generation, that is available as an extension
+to \HTK, distributed under a slightly more restrictive licence.
+Similar to \htool{HVite}, \htool{HDecode} transcribes speech files
+using a HMM model set and a dictionary (vocabulary). The best
+transcription hypothesis will be generated in the Master Label File
+(MLF) format. Optionally, multiple hypotheses can also be generated as
+a word lattice in the form of the HTK Standard Lattice Format (SLF).
+
+The search space of the recognition process is defined by a model
+based network, produced from expanding a supplied language model or a
+word level lattice using the dictionary. In the absence of a word
+lattice, a language model must be supplied to perform a \emph{full
+decoding}.  The current version of \htool{HDecode} only supports
+trigram and bigram full decoding.  When a word lattice is supplied, the use of a
+language model is optional.  This mode of operation is known as
+\emph{lattice rescoring}.
+
+\htool{HDecode} expects lattices where there are no duplicates of word
+paths. However by default lattices that are generated by
+\htool{HDecode} contains duplicates due to multiple pronunciations
+and optional inter-word silence. To modify the lattices to be suitable
+for lattic rescoring \htool{HLRescore} should be used to merge (using
+the {\tt -m} option)multiple paths. Note as a side-effect of this
+merged lattices may not be DAGs (cycles may exist), thus merged lattices
+may not be suitable for applying more complex LMs (using for example
+\htool{HLRescore}).
+
+The current implementation of \htool{HDecode} has a number of limitations
+for use as a general decoder for HMMs. It has primarily been developed for 
+speech recognition. Limitations include:
+\begin{itemize}
+\item only works for cross-word triphones;
+\item \texttt{sil} and \texttt{sp} models are reserved as silence
+models and are, by default, automatically added to the end of all
+``words'' in the pronunciation dictionary.
+\item lattices generated with \htool{HDecode} must be {\em merged}
+to remove duplicate word paths prior to being used for lattice rescoring
+with \htool{HDecode} and \htool{HVite}.
+\end{itemize}
+
+\subsection{Analysis Tool}
+
+\index{results analysis}
+Once the HMM-based recogniser has been built, it is necessary
+to evaluate its performance.  This is usually done by using it
+to transcribe some pre-recorded test sentences and match the
+recogniser output with the correct reference transcriptions.
+This comparison is performed by a tool called 
+\htool{HResults} which uses dynamic programming to align the two transcriptions
+and then count substitution, deletion and insertion errors.
+Options are provided to ensure that the
+algorithms and output formats used 
+by \htool{HResults}\index{hresults@\htool{HResults}} are compatible
+with those used by the US National Institute of Standards and Technology
+(NIST).
+As well as global performance measures,
+\htool{HResults} can also provide speaker-by-speaker breakdowns,
+confusion matrices and time-aligned transcriptions.  For word spotting
+applications, it can also compute \textit{Figure of Merit} (FOM) scores
+and \textit{Receiver Operating Curve} (ROC) information.
+\index{NIST}\index{FOM}\index{Figure of Merit}
+
+
+\mysect{What's New In Version 3.4.1}{whatsnew}
+
+This \index{new features!in Version 3.4.1} section lists the new
+features in \HTK\ Version 3.4.1 compared to the preceding Version~3.4.
+
+\begin{enumerate}
+\item The HTK Book has been extended to include tutorial sections on
+  \htool{HDecode} and discriminative training. An initial description of the
+  theory and options for discriminative training has also been added.
+
+\item \htool{HDecode} has been extended to support decoding with trigram
+  language models.
+
+\item Lattice generation with \htool{HDecode} has been improved to yield a
+  greater lattice density.
+
+\item \htool{HVite} now supports model-marking of lattices.
+
+\item Issues with \htool{HERest} using single-pass retraining with HLDA and
+  other input transforms have been resolved.
+
+\item Many other smaller changes and bug fixes have been integrated.
+\end{enumerate}
+
+
+\mysubsect{New In Version 3.4}{nv3.4}
+
+This \index{new features!in Version 3.4} section lists the new
+features in \HTK\ Version 3.4 compared to the preceding Version~3.3.
+
+\begin{enumerate}
+\item \htool{HMMIRest} has now been added as a tool for performing
+discriminative training. This supports both Minimum Phone Error (MPE)
+and Maximum Mutual Information (MMI) training. To support this
+additional library modules for performing the forward-backward
+algorithm on lattices, and the ability to mark phone boundary
+times in lattices have been added.
+
+\item \htool{HDecode} has now been added as a tool for performing
+large vocabulary decoding. See section~\ref{s:HDecode} for
+further details of limitations associated with this tool.
+
+\item \htool{HERest} has been extended to support estimating 
+semitied and HLDA transformations.
+
+\item Compilation issues have now been dealt with.
+
+\item Many other smaller changes and bug fixes have been integrated.
+\end{enumerate}
+
+\mysubsect{New In Version 3.3}{nv3.3}
+
+This \index{new features!in Version 3.3} section lists the new
+features in \HTK\ Version 3.3 compared to the preceding Version~3.2.
+\begin{enumerate}
+\item \htool{HERest} now incorporates the adaptation transform
+generation that was previously performed in \htool{HEAdapt}.  The
+range of linear transformations and the ability to combine transforms
+hierarchically has now been included. The system also now supports 
+adaptive training with constrained MLLR transforms.
+
+\item Many other smaller changes and bug fixes have been integrated.
+\end{enumerate}
+
+\mysubsect{New In Version 3.2}{nv3.2}
+
+This \index{new features!in Version 3.2} section lists the new
+features in \HTK\ Version 3.2 compared to the preceding Version~3.1.
+
+\begin{enumerate}
+\item The \htool{HLM} toolkit has been incorporated into HTK. It
+  supports the training and testing of word or class-based n-gram
+  language models. 
+\item \htool{HPARM} supports global feature space transforms.
+\item \htool{HPARM} now supports third differentials
+  ($\Delta\Delta\Delta$ parameters).
+\item A new tool named \htool{HLRescore} offers support for a number
+  of lattice post-processing operations such as lattice pruning,
+  finding the 1-best path in a lattice and language model expansion of
+  lattices.
+\item \htool{HERest} supports 2-model re-estimation which allows the
+  use of a separate alignment model set in the Baum-Welch
+  re-estimation.
+\item The initialisation of the decision-tree state clustering in
+  \htool{HHEd} has been improved.
+\item \htool{HHEd} supports a number of new commands related to
+  variance flooring and decreasing the number of mixtures.
+\item A major bug in the estimation of block-diagonal MLLR transforms
+  has been fixed.
+\item Many other smaller changes and bug fixes have been integrated.
+\end{enumerate}
+
+\subsection{New In Version 3.1}{}
+
+This \index{new features!in Version 3.1} section lists the new
+features in \HTK\ Version 3.1 compared to the preceding Version~3.0
+which was functionally equivalent to Version~2.2.
+
+\begin{enumerate}
+
+\item \htool{HPARM} supports Perceptual Linear Prediction (PLP) feature
+  extraction.
+
+\item \htool{HPARM} supports Vocal Tract Length Normalisation (VTLN)
+  by warping the frequency axis in the filterbank analysis.
+
+\item \htool{HPARM} supports variance scaling.
+
+\item \htool{HPARM} supports cluster-based cepstral mean and variance
+  normalisation. 
+
+\item All tools support an extended filename syntax that can be used
+  to deal with unsegmented data more easily.
+
+\end{enumerate}
+
+
+\subsection{New In Version 2.2}{}
+
+This section lists the new features and refinements in \HTK\ Version
+2.2 compared to the preceding Version 2.1.
+ 
+\begin{enumerate}
+
+\item Speaker adaptation is now supported via the \htool{HEAdapt} and 
+\htool{HVite} tools, which adapt a current set of models to a new speaker and/or
+environment.
+\begin{itemize}
+
+\item \htool{HEAdapt} performs offline supervised adaptation using maximum 
+likelihood linear regression (MLLR) and/or maximum a-posteriori (MAP) adaptation.
+
+\item \htool{HVite} performs unsupervised adaptation using just MLLR.
+
+\end{itemize}
+
+Both tools can be used in a static mode, where all the
+data is presented prior to any adaptation, or in an incremental fashion.
+
+\item Improved support for PC WAV files\\
+In addition to 16-bit PCM linear, HTK can now read  
+\begin{itemize}
+
+\item 8-bit CCITT mu-law
+
+\item 8-bit CCITT a-law
+
+\item 8-bit PCM linear
+
+\end{itemize}
+
+\end{enumerate}
+
+\subsection{Features Added To Version 2.1}{}
+
+For the benefit of users of earlier versions of \HTK\, this 
+\index{new features!in Version 2.1} section lists the main changes 
+in \HTK\ Version 2.1 compared to the preceding Version 2.0.
+
+\begin{enumerate}
+
+\item The speech input handling has been partially re-designed and a new 
+energy-based speech/silence detector has been incorporated into \htool{HParm}.
+The detector is robust yet flexible and can be configured through a number of
+configuration variables. Speech/silence detection can now be performed on
+waveform files. The calibration of speech/silence detector parameters is now
+accomplished by asking the user to speak an arbitrary sentence.
+
+\item \htool{HParm} now allows random noise signal to be added to waveform
+data via the configuration parameter \texttt{ADDDITHER}. This prevents
+numerical overflows which can occur with artificially created waveform data
+under some coding schemes.
+
+\item \htool{HNet} has been optimised for more efficient operation when
+performing forced alignments of utterances using \htool{HVite}. Further
+network optimisations tailored to biphone/triphone-based phone recognition 
+have also been incorporated.
+
+\item \htool{HVite} can now produce partial recognition hypothesis even when 
+no tokens survive to the end of the network. This is accomplished by setting
+the \htool{HRec} configuration parameter \texttt{FORCEOUT} to true.
+
+\item Dictionary support has been extended to allow pronunciation probabilities
+to be associated with different pronunciations of the same word. At the same
+time, \htool{HVite} now allows the use of a pronunciation scale factor during
+recognition.
+
+\item \HTK\ now provides consistent support for reading and writing of \HTK\ 
+binary files (waveforms, binary MMFs, binary SLFs, \htool{HERest} accumulators)
+across different machine architectures incorporating automatic byte swapping.
+By default, all binary data files handled by the tools are now written/read in
+big-endian (\texttt{NONVAX}) byte order. The default behaviour can be changed
+via the configuration parameters \texttt{NATURALREADORDER} and
+\texttt{NATURALWRITEORDER}.
+
+\item \htool{HWave} supports the reading of waveforms in Microsoft WAVE file
+format.
+
+\item \htool{HAudio} allows key-press control of live audio input.
+
+\end{enumerate}
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "htkbook"
+%%% End: 

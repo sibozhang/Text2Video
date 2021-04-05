@@ -1,0 +1,96 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young  31/10/95
+%
+
+\newpage
+\mysect{HSGen}{HSGen}
+
+\mysubsect{Function}{HSGen-Function}
+
+\index{hsgen@\htool{HSGen}|(}
+This program will read in a word network definition in standard 
+\HTK\ lattice format representing a Regular Grammar $G$ and randomly
+generate sentences from the language $L(G)$ of $G$.  The sentences are
+written to standard output, one per line and an option is provided
+to number them if required.
+
+The empirical entropy $H_e$ can also be calculated using the formula
+\begin{equation}
+  H_e = \frac{\sum_k P(S_k)}{\sum_k |S_k|}
+\end{equation}
+where $S_k$ is the $k$'th sentence generated and $|S_k|$ is its length.
+The perplexity $P_e$ is computed from $H_e$ by
+\begin{equation}
+  P_e = 2^{H_e}
+\end{equation}
+The probability of each sentence $P(S_k)$ is computed from the product of
+the individual branch probabilities.
+
+
+\mysubsect{Use}{HSGen-Use}
+
+\htool{HSGen} is invoked by the command line
+\begin{verbatim}
+   HSGen [options] wdnet dictfile
+\end{verbatim}
+where \texttt{dictfile} is a dictionary containing all of the words
+used in the word network stored in \texttt{wdnet}.  This dictionary
+is only used as a word list, the pronunciations are ignored.
+
+The available options are
+
+\begin{optlist}
+
+  \ttitem{-l} When this option is set, each generated sentence 
+              is preceded by a line number.
+
+  \ttitem{-n N}  This sets the total number of sentences generated
+              to be \texttt{N} (default value 100).
+
+  \ttitem{-q}  Set quiet mode.  This suppresses the printing of sentences.
+         It is useful when estimating the entropy of $L(G)$ since the
+    accuracy of the latter depends on the number of sentences generated.
+
+  \ttitem{-s}  Compute word network statistics.  When set, the number of
+    network nodes, the vocabulary size, the empirical entropy, the
+    perplexity, the average sentence length, the minimum sentence length
+    and the maximum sentence length 
+    are computed and printed on the standard output.
+\end{optlist}
+\stdopts{HSLab}
+
+\mysubsect{Tracing}{HSGen-Tracing}
+
+\htool{HSLab} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting 
+   \ttitem{00002} detailed trace of lattice traversal
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hsgen@\htool{HSGen}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

@@ -1,0 +1,98 @@
+%
+% HTKBook - Valtcho Valtchev    04/02/98
+%
+% Updated - Gareth Moore        15/01/02 - 1/3/02
+%
+
+\newpage
+\mysect{LAdapt}{LAdapt}
+
+\mysubsect{Function}{Function}
+
+\index{ladapt@\htool{LAdapt}|(}
+This program will adapt an existing language model from supplied text
+data.  This is accomplished in two stages. First, the text data is
+scanned and a new language model is generated. In the second stage, an
+existing model is loaded and adapted (merged) with the newly created
+one according to the specified ratio.  The target model can be
+optionally pruned to a specific vocabulary.  Note that you can only
+apply this tool to word models or the class $n$-gram component of a
+class model -- that is, you cannot apply it to full class models.
+
+\mysubsect{Use}{LAdapt-Use}
+
+\htool{LAdapt} is invoked by the command line
+\begin{verbatim}
+   LAdapt [options] -i weight inLMFile outLMFile [texttfile ...]
+\end{verbatim}
+The text data is scanned and a new LM generated. The input language model is
+then loaded and the two models merged. The effect of the weight (0.0-1.0) is to
+control the overall contribution of each model during the merging process. The
+output to outLMFile is an $n$-gram model stored in the user-specified format.
+
+The allowable options to \htool{LAdapt} are as follows
+\begin{optlist}
+  \ttitem{-a n} Allow upto \texttt{n} new words in input text
+        (default 100000).
+
+  \ttitem{-b n} Set the $n$-gram buffer size to $n$. This controls the size of the
+	buffer used to accumulate $n$-gram statistics whilst scanning the input
+	text.  Larger buffer sizes will result in more efficient operation of
+	the tool with fewer sort operations required (default 2000000).
+
+  \ttitem{-c n c} Set the pruning threshold for $n$-grams to $c$.  Pruning can
+	be applied to the bigram ($n$=2) and longer ($n$>2) components of the
+	newly generated model. The pruning procedure will keep only $n$-grams
+	which have been observed more than $c$ times.
+
+  \ttitem{-d s} Set the root $n$-gram data file name to {\tt s}. By default,
+  	$n$-gram statistics from the text data will be accumulated and stored
+  	as {\tt gram.0, gram.1, ...}, etc. Note that a larger buffer size will
+  	result in fewer files.
+        
+  \ttitem{-f s} Set the output language model format to {\tt s}.
+        Possible options are {\tt text} for the standard ARPA-MIT
+	LM format, {\tt bin} for Entropic {\em binary} format and 
+        {\tt ultra} for Entropic {\em ultra} format.
+
+  \ttitem{-g} Use existing $n$-gram data files. If this option is specified the
+	tool will use the existing gram files rather than scanning the actual
+	texts. This option is useful when adapting multiple language models
+	from the same text data or when experimenting with different merging
+	weights.
+
+  \ttitem{-i w f} Interpolate with model {\tt f} using weight {\tt w}. Note 
+        that at least one model must be specified with this option.
+
+  \ttitem{-j n c} Set weighted discounting pruning for $n$ grams to
+        $c$. This cannot be applied to unigrams ($n$=1).
+
+  \ttitem{-n n} Produce $n$-gram language model.
+
+  \ttitem{-s s} Store {\tt s} in the header of the gram files.
+
+  \ttitem{-t} Force Turing-Good discounting if configured otherwise.
+
+  \ttitem{-w fn} Load word list from {\tt fn}. The word list will be used to
+	define the target model's vocabulary. If a word list is not specified,
+	the target model's vocabulary will have all words from the source
+	model(s) together with any new words encountered in the text
+	data.
+
+  \ttitem{-x} Create a count-based model.
+\end{optlist}
+\stdopts{LAdapt}
+
+\mysubsect{Tracing}{LAdapt-Tracing}
+
+\htool{LAdapt} supports the following trace options where each trace flag is 
+given using an octal base
+\begin{optlist}
+  \ttitem{00001}  basic progress reporting
+  \ttitem{00002}  monitor buffer saving
+  \ttitem{00004}  trace word input stream
+  \ttitem{00010}  trace shift register input
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the \texttt{TRACE}
+configuration variable.
+\index{ladapt@\htool{LAdapt}|)}

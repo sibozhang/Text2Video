@@ -1,0 +1,63 @@
+%
+% HLMBook - Steve Young    07/01/97
+%
+% Updated - Gareth Moore   15/01/02
+%
+
+\newpage
+\mysect{LGList}{LGList}
+
+\mysubsect{Function}{LGList-Function}
+
+\index{lglist@\htool{LGList}|(}
+This program will list the contents of one or more \HLM\ gram files.
+In addition to printing the whole file, an option is provided to print
+just those $n$-grams containing certain specified words and/or ids.  It
+is mainly used for debugging.
+
+\mysubsect{Use}{LGList-Use}
+
+\htool{LGList} is invoked by typing the command line
+\begin{verbatim}
+   LGList [options] wmapfile gramfile ....
+\end{verbatim}
+The specified gram files are printed to the output. The $n$-grams are
+printed one per line following a summary of the header information.
+Each $n$-gram is printed in the form of a list of words followed by the
+count.
+
+Normally all $n$-grams are printed. However, if either of the options
+\texttt{-i} or \texttt{-f} are used to add words to a \textit{filter
+list}, then only those $n$-grams which include a word in the filter list
+are printed.
+
+The allowable options to \htool{LGList} are as follows
+
+\begin{optlist}
+ \ttitem{-f w} Add word \texttt{w} to the filter list.  This option
+     can be repeated, it can also be mixed with uses of the
+     \texttt{-i} option.
+ \ttitem{-i n} Add word with id \texttt{n} to the filter list.  This
+     option can be repeated, it can also be mixed with uses of the
+     \texttt{-f} option.
+\end{optlist}
+\stdopts{LGList}
+
+\mysubsect{Tracing}{LGList-Tracing}
+
+\htool{LGList} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+
+\ttitem{00001}  basic progress reporting. 
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{lglist@\htool{LGList}|)}
+
+
+
+
+
+
+

@@ -1,0 +1,54 @@
+%
+% HLMBook - V.Valtchev    26/05/98
+%
+% Updated - Gareth Moore  15/01/02 - 1/3/02
+%
+
+\newpage
+\mysect{LMerge}{LMerge}
+
+\mysubsect{Function}{LMerge-Function}
+
+\index{lmerge@\htool{LMerge}|(}
+This program combines one or more language models to produce an output 
+model for a specified vocabulary.  You can only apply it to word
+models or the class $n$-gram component of a class model -- that is,
+you cannot apply it to full class models.
+
+\mysubsect{Use}{LMerge-Use}
+
+\htool{LMerge} is invoked by typing the command line
+\begin{verbatim}
+   LMerge [options] wordList inModel outModel
+\end{verbatim}
+The word map and class map are loaded, word-class mappings performed and 
+a new map is saved to \texttt{outMapFile}. The output map's name will be
+set to 
+\begin{verbatim}
+Name = inMapName%%classMapName
+\end{verbatim}
+
+The allowable options to \htool{LMerge} are as follows
+
+\begin{optlist}
+{
+  \ttitem{-f s} Set the output LM file format to \texttt{s}. Available options
+  are \texttt{text}, \texttt{bin} or \texttt{ultra} (default \texttt{bin}).
+
+  \ttitem{-i f fn} Interpolate with model \texttt{fn} using weight \texttt{f}.
+
+  \ttitem{-n n} Produce an \texttt{n}-gram model.
+
+}
+\end{optlist}
+\stdopts{LMerge}
+
+
+\mysubsect{Tracing}{LMerge-Tracing}
+
+\htool{LMerge} Does not provide any trace options. However, trace 
+information is available from the underlying library modules 
+\htool{LWMap} and \htool{LCMap} by setting the appropriate trace
+configuration parameters.
+
+\index{lmerge@\htool{LMerge}|)}

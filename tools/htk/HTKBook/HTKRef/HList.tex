@@ -1,0 +1,114 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young  11/11/95
+%
+
+\newpage
+\mysect{HList}{HList}
+
+\mysubsect{Function}{HList-Function}
+
+\index{hlist@\htool{HList}|(}
+This program will list the contents of one or more
+data sources in any \HTK\ supported format.  It uses the full \HTK\ speech
+input facilities described in chapter~\ref{c:speechio} and it can thus
+read data from a waveform file, from a parameter file and direct from
+an audio source.  \htool{HList} provides
+a dual r\^{o}le in \HTK.  Firstly, it is used for examining the contents
+of speech data files.  For this function, the \texttt{TARGETKIND} configuration
+variable should not be set since no conversions
+of the data are required.
+Secondly, it is used for checking that input 
+conversions are being performed properly.  In the latter case, a configuration
+designed for a recognition system can be used with \htool{HList} to
+make sure that the translation from the source data into the required
+observation structure is exactly as intended.  To assist  this, options
+are provided to split the input data into separate data streams (\texttt{-n})
+and to explicitly list the identity of each parameter in an observation
+(\texttt{-o}).
+
+\mysubsect{Use}{HList-Use}
+
+HList is invoked by typing the command line
+\begin{verbatim}
+   HList [options] file ...
+\end{verbatim}
+This causes the contents of each {\tt file} to be listed to the
+standard output.  If no files are given and the source format
+is \texttt{HAUDIO}, then the audio source is listed.  The source
+form of the data can be converted and listed in a variety of target forms by
+appropriate settings of the configuration variables, in particular
+\texttt{TARGETKIND}\footnote{The \texttt{TARGETKIND} is equivalent to
+the \texttt{HCOERCE} environment variable used in earlier versions
+of HTK}.
+
+The allowable options to \htool{HList} are
+
+\begin{optlist}
+
+  \ttitem{-d} Force each observation to be listed as discrete VQ symbols.
+    For this to be possible the source must be either \texttt{DISCRETE}
+    or have an associated VQ table specified via the \texttt{VQTABLE}
+    configuration variable.
+
+  \ttitem{-e N}  End listing samples at sample index N. 
+
+  \ttitem{-h}  Print the source header information.
+
+  \ttitem{-i N}  Print N items on each line.
+
+  \ttitem{-n N}  Display the data split into N independent data streams.
+
+  \ttitem{-o}  Show the observation structure.  This identifies the r\^{o}le
+      of each item in each sample vector.
+
+  \ttitem{-p}  Playback the audio.  When sourcing from an audio device,
+     this option enables the playback buffer so that after displaying the
+     sampled data, the captured audio is replayed.
+
+  \ttitem{-r}  Print the raw data only.  This is useful for exporting a file
+     into a program which can only accept simple character format data.
+
+  \ttitem{-s N}  Start listing samples from sample index N.  The first sample
+index is 0.
+ 
+  \ttitem{-t}  Print the target header information.
+
+\stdoptF
+
+\end{optlist}
+\stdopts{HList}
+
+\mysubsect{Tracing}{HList-Tracing}
+
+\htool{HList} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hlist@\htool{HList}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

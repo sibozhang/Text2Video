@@ -1,0 +1,2314 @@
+%!PS-Adobe-2.0 EPSF-1.2
+%%Title: isoword.eps
+%%Creator: CLARIS EPSF Export Filter V1.0
+%%CreationDate:7/4/95  10:39:21 p.m.
+%%BoundingBox: 8.500 461.000 216.500 767.000                                                           
+%%QDBoundingBox: 8.500 25.000 216.500 331.000                                                            
+%%DocumentFonts: Times-Roman
+%%DocumentProcessColors: Cyan Magenta Yellow Black
+%%ObjectsIncluded: tText=T tLine=T tRect=T tRRect=T tOval=F tArc=F tFree=F tPoly=F tBMap=F tNote=F tBez=T tPMap=F 
+%%AttributesIncluded: kBaWPattType=T kPixPattType=F kGradientType=F 
+%%EndComments
+/MAV 300 dict def
+MAV begin 
+/useClip true def 
+/top    0 def 
+/left   1 def 
+/bottom 2 def 
+/right  3 def 
+/CM     6 array def 
+/CTM    6 array def 
+/CTMR   6 array def 
+/MTC    6 array def 
+/blimit 1500 def 
+/bcnt   0 def 
+/rbox 8 array def 
+/segbox 8 array def 
+/bbox1 4 array def 
+/c1 3 array def 
+/c2 3 array def 
+/d 3 array def    
+/delta 3 array def 
+/mycurrentrgbcolor 3 array def 
+/ulx 0 def 
+/uly 1 def 
+/llx 2 def 
+/lly 3 def 
+/urx 4 def 
+/ury 5 def 
+/lrx 6 def 
+/lry 7 def 
+/sp [0 0] def 
+/ep [0 0] def 
+/bbox 4 array def 
+/pbox 4 array def 
+/scrnProc currentscreen 3 1 roll pop pop def
+/currentcolorscreen where {
+begin
+currentcolorscreen
+end
+3 1 roll pop pop 
+4 2 roll pop pop 
+5 -2 roll pop pop 
+6 -2 roll pop pop 
+/kProc exch def 
+/bProc exch def 
+/gProc exch def 
+/rProc exch def 
+} if 
+/Max {2 copy gt {pop}{exch pop} ifelse} bind def
+/cellPenW 72.0 /currentcolorscreen where
+{begin currentcolorscreen end pop pop
+10 1 roll pop pop 8 1 roll pop pop
+ 6 1 roll pop pop Max Max Max }
+{currentscreen pop pop} ifelse div 2.0 div def
+%%BeginProcSet : rect 
+/rect { 
+ /saveobj save def 
+ R PC PF LC SS 
+ saveobj restore 
+} bind def 
+%%EndProcSet 
+%%BeginProcSet : R 
+/R { 
+ newpath
+ pbox astore pop
+ 0 792 translate 1 -1 scale CTMR currentmatrix pop exch translate
+ /objectCord mstore def
+ pbox right get 2 div
+ dup pbox left get exch sub
+ pbox left 3 -1 roll put 
+ dup pbox right 3 -1 roll put
+ pbox bottom get 2 div 
+ dup pbox top get exch sub
+ pbox top 3 -1 roll put
+ dup pbox bottom 3 -1 roll put
+ translate 
+ CTM currentmatrix pop
+ 57.3 mul rotate
+ RT
+} bind def
+%%EndProcSet
+%%BeginProcSet : SaveScreenBW
+ /SaveScreenBW {
+ currentscreen
+ /scrnProc exch def
+ /scrnAngle exch def
+ /scrnFreq exch def
+  } bind def
+%%EndProcSet
+%%BeginProcSet : RestoreScreenBW
+ /RestoreScreenBW {
+ scrnFreq scrnAngle MAV /scrnProc get setscreen
+ } bind def
+%%EndProcSet
+%%BeginProcSet : SetFreqAngleBW
+ /SetFreqAngleBW {
+ currentscreen
+ 3 1 roll
+ pop pop
+ setscreen
+ } bind def
+%%EndProcSet
+%%BeginProcSet : SaveScreenColor 
+ /SaveScreenColor {
+ currentcolorscreen
+ /grayProc exch def
+ /grayAngle exch def
+ /grayFreq exch def
+ /bProc exch def
+ /bAngle exch def
+ /bFreq exch def
+ /gProc exch def
+ /gAngle exch def
+ /gFreq exch def
+ /rProc exch def
+ /rAngle exch def
+ /rFreq exch def
+  } bind def
+%%EndProcSet
+%%BeginProcSet : RestoreColorScreen
+ /RestoreColorScreen {
+ rFreq rAngle MAV /rProc get gFreq gAngle MAV /gProc get bFreq bAngle MAV /bProc get grayFreq grayAngle MAV /grayProc get setcolorscreen
+ } bind def
+%%EndProcSet
+%%BeginProcSet : SetFreqAngleColor
+ /SetFreqAngleColor { 
+ currentcolorscreen 
+ 3 1 roll pop pop
+ 4 2 roll pop pop
+ 5 -2 roll pop pop
+ 6 -2 roll pop pop
+ 4 1 roll 
+ 6 1 roll 
+ 8 1 roll 
+ 10 1 roll 
+ setcolorscreen 
+ } bind def 
+%%EndProcSet 
+/initmsaverestore { 
+userdict begin 
+/mdict 10 dict def 
+mdict begin 
+/mindex -1 def 
+/mstacksize 25 def 
+/mstack mstacksize array def 
+/incmindex { 
+/mindex mindex 1 add def 
+} bind def 
+/decmindex { 
+/mindex mindex 1 sub def 
+} bind def 
+/checkmindex { 
+mindex 0 lt { 
+(%ERROR: msave/mrestore stack underflow: Offending command 'mrestore'
+) print flush 
+stop 
+} 
+{ 
+mindex mstacksize ge { 
+(%ERROR: msave/mrestore stack overflow: Offending command 'msave'
+) print flush 
+stop 
+} if 
+} ifelse 
+} bind def 
+/mpush { 
+incmindex 
+checkmindex 
+mstack mindex 
+3 -1 roll put 
+} bind def 
+/mpop { 
+checkmindex 
+mstack mindex get 
+decmindex 
+} bind def 
+end 
+end 
+} bind def 
+/msave { 
+mdict begin 
+matrix currentmatrix mpush 
+end 
+} bind def 
+/mrestore { 
+mdict begin 
+mpop setmatrix 
+end 
+} bind def 
+/msavelevel { 
+mdict begin 
+mindex 1 add 
+end 
+} bind def 
+/mstore {
+matrix currentmatrix
+} bind def
+/AutoSizeY {
+0 0 pl
+dup 3 1 roll
+4 -1 roll  
+add
+pl exch pop
+exch sub
+} bind def
+/pl {  
+transform
+0.25 sub round 0.25 add exch
+0.25 sub round 0.25 add exch
+itransform
+} bind def
+/pll {
+transform
+round exch
+round exch
+itransform
+} bind def
+/pr { 
+dtransform
+round exch
+round exch
+idtransform
+} bind def
+/m { 
+pl  moveto
+} bind def
+/l { 
+pl lineto
+} bind def
+/c { 
+pl curveto
+} bind def
+/rm { 
+pr rmoveto
+} bind def
+/rl { 
+pr rlineto
+} bind def
+/ar { 
+5 -2 roll pl
+5 2 roll
+arc
+} bind def
+/an { 
+5 -2 roll pl
+5 2 roll
+arcn
+} bind def
+/MakePatternFont {
+/FontDict 20 dict def
+FontDict begin
+/FontName exch def
+/Encoding exch def
+/FontMatrix [1 0 0 1 0 0 ] def
+/FontType 3 def
+/FontBBox [ 0 0 1 1 ] def
+/PatternDict exch def
+/RenderPattern {
+patternDict exch get
+exec
+} bind def
+/BuildChar {
+exch begin
+1 0 0 0 1 1 setcachedevice
+Encoding exch get RenderPattern
+end
+} bind def
+FontName FontDict definefont pop
+end
+} bind def
+/SnapToPattenGrid
+	{
+	exch
+	dup 0 lt {
+		1 index sub
+	} if
+	1 index
+	div truncate
+	mul
+} bind def
+/FillPatternString {
+dup length
+1 sub
+0 1 3 -1 roll {
+2 index
+2 index
+3 -2 roll
+put
+} for
+pop pop
+} bind def
+/AutoSizeY {
+	0.0 exch dtransform
+	round
+	idtransform exch pop
+} bind def
+ /AutoSizeX {
+	0.0 dtransform
+	exch
+	round
+	exch
+	idtransform pop
+} bind def 
+/AutoCellSize {
+	AutoSizeY
+	exch
+	AutoSizeX
+	exch
+} bind def
+/CheckPath {
+	false
+	{ pop pop pop true exit}
+	{ pop pop pop true exit}
+	{ pop pop pop pop pop pop pop true exit}
+	{ pop true exit}
+	pathforall
+} bind def
+/PatternFill {					%		patternCharacter
+	/patternString 1 string def
+	/cm mstore def
+	patternMatrix setmatrix
+	1 1 AutoCellSize
+	dup 0 eq { pop 1} if
+	exch
+	dup 0 eq { pop 1} if
+	exch
+	/patternSize exch 24.0 mul def
+	/PatternSizeX exch 24.0 mul patternString length mul def
+	/flaterror 0 def
+	patternString FillPatternString
+	gsave
+		flaterror 1 add setflat
+		flattenpath
+		pathbbox
+	grestore
+	psy add flaterror add psy SnapToPattenGrid
+	exch psx add flaterror add psx SnapToPattenGrid
+	3 -1 roll flaterror sub psy SnapToPattenGrid
+	4 -1 roll flaterror sub psx SnapToPattenGrid
+	4 2 roll pll
+	4 2 roll pll
+	/llxsnap exch def
+	/llysnap exch def
+	/urxsnap exch def
+	/urysnap exch def
+	gsave
+		useClip true eq {clip}{eoclip} ifelse newpath
+		/PatternFont findfont [psx 0.0 0.0 psy 0.0 0.0] makefont setfont
+		llysnap patternSize urysnap {
+			llxsnap exch moveto
+			llxsnap PatternSizeX urxsnap {
+				pop
+				patternString show
+				%currentpoint am
+			} for
+		} bind for
+	grestore
+	cm setmatrix
+} bind def				%		End 'PatternFill'
+/DefaultPatternFont {
+	/cm mstore def
+	patternMatrix setmatrix
+	1 1 AutoCellSize
+	dup 0 eq { pop 1} if
+	exch
+	dup 0 eq { pop 1} if
+	exch
+	/psy exch iSizeY mul def
+	/psx exch iSizeX mul def
+	/patternDict 64 dict def
+	patternDict begin
+		/NotDef {} def
+		/LiteDiagLines {
+			iSizeX iSizeY false [iSizeX 0.0 0.0 iSizeY -1.0 mul  0.0 iSizeY]
+			{pat}
+			imagemask
+		} bind def
+	end
+	/CustEncoding 256 array def
+	0 255 1 {
+		CustEncoding exch /NotDef put
+	} bind for
+	CustEncoding 65 /LiteDiagLines put
+	patternDict CustEncoding /PatternFont MakePatternFont
+	/pathSegProc {
+		strokepath
+		CheckPath {
+			65 PatternFill newpath
+		} if
+	} bind def
+	cm setmatrix
+} bind def
+/XRound {
+	dup
+	3 -1 roll
+	exch mul round
+	exch div
+} bind def
+/RoundMatrix {
+	/i 0 def
+	dup {
+		100000.0 XRound
+		1 index
+		exch i exch put
+		/i i 1 add def
+	} forall
+} bind def
+/GetBoxesRatio {
+3 -1 roll sub
+7 1 roll
+exch sub
+6 1 roll
+3 -1 roll sub
+5 1 roll
+exch sub
+4 1 roll
+3 -1 roll div
+3 1 roll
+exch div
+exch
+} bind def
+%%BeginProcSet : Text Attributes Procs
+/T {792 exch sub} bind def
+/sx 0 def
+/sy 0 def
+/ex 0 def
+/ey 0 def
+/lw  0 def
+/siz 0 def
+/U {gsave 0 setlinecap
+/lw siz 0.078125 mul def  /ey exch neg def /ex exch def /sy exch neg def /sx exch def
+fontkind plain eq 
+ {
+  lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto stroke
+ }
+ {
+   currentdict /outlineFontSize known outlineFontSize 0 gt and
+     {
+       fontkind outline eq
+         {
+           /sy sy 0.0119444 siz mul sub def
+           /ey ey 0.0119444 siz mul sub def
+           gsave 
+           1 1 1 setrgbcolor lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto stroke
+           grestore
+           lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto
+           strokepath 0.0119444 siz mul setlinewidth stroke
+         } if
+       fontkind shadow eq fontkind outlineshadow eq or
+         {
+           /sy sy 0.0358332 siz mul sub def
+           /ey ey 0.0358332 siz mul sub def
+           lw setlinewidth
+           lw 2 div sx add sy
+           lw 2 div sub moveto
+           lw 2 div ex add ey
+           lw 2 div sub lineto stroke 
+           gsave
+           1 1 1 setrgbcolor lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto stroke
+           grestore
+           lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto
+           strokepath 0.0119444 siz mul setlinewidth stroke
+         } if
+      } if
+ } ifelse
+grestore} bind def
+/plain 1 def
+/outline 2 def
+/shadow 3 def
+/outlineshadow 4 def
+/fess {
+	currentdict /outlineFontSize known {
+		/outlineFontSize 2 index def
+	} if
+	findfont exch dup /siz exch def scalefont setfont
+} bind def
+/SHDW {gsave siz oldfontname fess siz 0.055 mul x add y siz 0.05 mul sub moveto c show grestore} def
+/NRML {gsave 1 1 1 setrgbcolor siz oldfontname fess x y moveto c show grestore siz /Outline fess  x y moveto c show} def
+/S {
+fontkind plain eq {neg moveto show} if
+fontkind outline eq {neg /y exch def /x exch def /c exch def NRML} if
+fontkind shadow eq {neg /y exch def /x exch def /c exch def SHDW NRML} if
+fontkind outlineshadow eq {neg /y exch def /x exch def /c exch def SHDW NRML} if
+} bind def
+/F {
+/fontkind exch def
+fontkind plain eq {fess} if
+fontkind outline eq {dup /oldfontname exch def exch dup /siz exch def exch OLF} if
+fontkind shadow eq {dup /oldfontname exch def exch dup /siz exch def exch OLF} if
+fontkind outlineshadow eq {dup /oldfontname exch def exch dup /siz exch def exch OLF} if
+} bind def
+/makeoutlinedict 15 dict def
+/makeoutlinefont
+ {
+  makeoutlinedict begin
+   /uniqueid exch def
+   /strokewidth exch def
+   /newfontname exch def
+   /basefontname exch def
+   /basefontdict basefontname findfont def
+   /numentries basefontdict maxlength 1 add def
+   basefontdict /UniqueID known not
+   {/numentries numentries 1 add def} if
+   /outfontdict numentries dict def
+   basefontdict
+   {
+     exch dup /FID ne {exch outfontdict 3 1 roll put} {pop pop} ifelse
+	  }forall
+   outfontdict /FontName newfontname put
+   outfontdict /PaintType 2 put
+   outfontdict /StrokeWidth strokewidth put
+   outfontdict /UniqueID uniqueid put
+   newfontname outfontdict definefont pop
+  end
+  }def
+/UID {
+ findfont dup /UniqueID known
+  {/UniqueID get 1 add}
+  {pop 1}
+  ifelse
+} def
+/OLF {
+dup
+/Outline
+1000 62 div
+4 -1 roll
+UID
+/outlineFontSize 5 index def
+makeoutlinefont
+/Outline findfont exch scalefont setfont
+} def
+/CopyEncoding {
+findfont
+/Encoding get
+dup length array
+/tarrayz exch def
+tarrayz 0
+3 -1 roll
+putinterval
+tarrayz
+} bind def
+/Re-encode {
+dup length array copy
+/eap 0 def
+exch {
+dup type /integertype eq {
+/eap exch def
+} {
+1 index
+exch
+eap exch
+put
+/eap eap 1 add def
+} ifelse
+} forall
+} bind def
+/EncodeFont	{
+findfont dup
+length dict
+begin
+{	1 index /FID ne
+{ def }
+{ pop pop } ifelse
+} forall
+/FontName exch def
+/Encoding exch def
+FontName currentdict
+end
+definefont pop
+} bind def
+%%EndProcSet
+%%BeginProcSet : clip2pathbbox
+/clip2pathbbox {
+	/magicNum linewidth 2 div 1 2 sqrt div mul def
+	pathbbox
+	/urymn exch magicNum add def
+	/urxmn exch magicNum add def
+	/llymn exch magicNum sub def
+	/llxmn exch magicNum sub def
+	newpath llxmn llymn moveto llxmn urymn lineto urxmn urymn lineto urxmn llymn lineto
+	closepath clip newpath
+} bind def
+%%EndProcSet 
+%% Line takes the following arguments:
+%% linewidth xEnd yEnd xStart yStart
+%%BeginProcSet : Line
+/Line {
+MAV /LC get length 0 ne
+{
+	gsave
+			newpath
+			MAV /ArrowType get length 0 eq
+			MAV /SD get length 0 eq and
+			{2 setlinecap /UseClip {clip2pathbbox} def }
+			{0 setlinecap /UseClip {} def } ifelse
+			0 792 translate
+			1 -1 scale
+			CTM currentmatrix pop
+			/yStart exch def /xStart exch def /yEnd exch def /xEnd exch def /linewidth exch def
+			MAV /ArrowType get length 0 eq xStart xEnd ne yStart yEnd ne and and
+			{xStart yStart moveto xEnd yEnd lineto UseClip xStart yStart moveto xEnd yEnd lineto}
+			{xStart yStart moveto xEnd yEnd lineto} ifelse
+			linewidth setlinewidth SD strokepath
+			CheckPath {LC PF ArrowType} if
+	grestore
+}
+{pop pop pop pop pop} ifelse
+} bind def
+/CompensateForStroke {
+	sin currentlinewidth mul
+	exch
+	cos currentlinewidth mul
+	dup 0 translate
+	4 -1 roll exch 2.0 mul sub
+	3 1 roll
+	2.0 mul sub
+} bind def
+/arrowdict 10 dict def
+arrowdict begin
+	/SwallowTail {
+		newpath
+		0.0 0.0 moveto
+		1.0 -.5 lineto
+		.666 0.0 lineto
+		1.0 .5 lineto
+		closepath
+	} bind def
+	/Triangular {
+		newpath
+		0.0 0.0 moveto
+		1.0 -.5 lineto
+		1.0 .5 lineto
+		closepath
+	} bind def
+	/OpenTri {
+		newpath
+		1.0 0.5 moveto
+		0.0 0.0 lineto
+		1.0 -0.5 lineto
+	} bind def
+	/ClosedTri {
+		newpath
+		1.0 0.5 moveto
+		0.0 0.0 lineto
+		1.0 -0.5 lineto
+		closepath
+	} bind def
+	/SlashBar {
+		newpath
+		0.5 -.5 moveto
+		-.5 0.5 lineto
+	} bind def
+	/Dot {
+		newpath
+		0.5 0.0 moveto
+		0 0 1 0 360 arc
+		closepath
+	} bind def
+	/ExtSlashBar {
+		newpath
+		1.0 -.5 moveto
+		0.0 0.5 lineto
+	} bind def
+end
+/ScaleArrowHead {
+	0 0 4 -2 roll
+	0 0 1 1
+	8 -4 roll GetBoxesRatio
+	scale
+} bind def
+/DrawArrowHead {
+	gsave
+	[] 0 setdash
+	currentpoint translate rotate
+	{
+		4 copy
+		gsave
+			initmatrix
+			100 200 translate
+			msave
+				ScaleArrowHead pop
+				arrowdict exch get exec
+			mrestore
+			strokepath
+			0 0 3 index 3 index
+			pathbbox 8 4 roll
+			GetBoxesRatio
+			4 2 roll
+		grestore
+		3 index 1.0 exch sub
+		6 -1 roll
+		{
+			2 index mul
+			0 translate
+		}{
+			pop
+		} ifelse
+		msave
+			ScaleArrowHead scale
+			arrowdict exch get exec
+		mrestore
+		strokepath
+	} {
+		msave
+		ScaleArrowHead
+		arrowdict exch get exec
+		mrestore
+	} ifelse
+		CheckPath {
+			LC PF
+		} if
+	grestore
+} bind def
+%%EndProcSet 
+%%BeginProcSet : SR 
+/SR { 
+ pbox left get pbox top get moveto 
+ pbox right get pbox top get lineto 
+ pbox right get pbox bottom get lineto 
+ pbox left get pbox bottom get lineto 
+ closepath
+} bind def 
+%%EndProcSet 
+%%BeginProcSet : RR1 
+/RR1 { 
+pbox top get pbox bottom get sub abs 2 div dup dup dup 
+pbox left get add pbox left 3 -1 roll put 
+pbox right get exch sub pbox right 3 -1 roll put 
+pbox left get pbox bottom get moveto 
+pbox right get 0 3 -1 roll 90 -90 arcn 
+pbox left get 0 3 -1 roll -90 90 arcn closepath
+} bind def 
+%%EndProcSet 
+%%BeginProcSet : RR2 
+/RR2 { 
+dup dup dup dup dup dup dup dup 
+pbox top get add pbox top 3 -1 roll put 
+pbox left get add pbox left 3 -1 roll put 
+pbox bottom get exch sub pbox bottom 3 -1 roll put 
+pbox right get exch sub pbox right 3 -1 roll put 
+pbox bottom get add pbox left get exch moveto 
+pbox right get pbox bottom get 3 -1 roll 90 0 arcn 
+pbox right get pbox top get 3 -1 roll  0 270 arcn 
+pbox left get pbox top get 3 -1 roll  270 180 arcn 
+pbox left get pbox bottom get 3 -1 roll 180 90 arcn closepath
+} bind def 
+%%EndProcSet
+
+/StripFromFront { 
+dup length
+2 index sub
+3 1 roll
+exch 3 -1 roll
+getinterval
+} bind def
+/MakePathArray { 
+ /k 0 def 
+ {/k k 1 add def pop pop}{/k k 1 add def pop pop}{/k k 1 add def pop pop pop pop pop pop}{/k k 1 add def }pathforall 
+ k array
+ /k 0 def 
+ {{moveto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+ {{lineto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+ {{curveto} 7 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+ {{closepath} 1 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+pathforall 
+}bind def 
+/MakeFlatPathArray { 
+/k 0 def 
+{/k k 1 add def pop pop}{/k k 1 add def pop pop}{pop pop pop pop pop pop}{}pathforall 
+k array
+/k 0 def 
+{{moveto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+{{lineto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+{ pop pop pop pop pop pop} 
+{} 
+pathforall 
+}bind def 
+/FractionalLine {
+2 index sub
+.00001 mul
+exch
+3 index sub
+.00001 mul
+4 -1 roll add
+3 1 roll
+add
+} bind def
+/calcLineLength {
+ exch
+ 4 -1 roll
+ sub
+ dup mul
+ 3 1 roll exch
+ sub
+ dup mul
+ add sqrt
+} bind def
+/InitTotalLineLength {
+ /oldY exch def
+ /oldX exch def
+ theDash aload pop currentLineLength add setdash
+} bind def
+/AccumeLineLength {
+ 3 copy pop
+ 2 copy
+ oldX oldY
+ 4 2 roll calcLineLength
+ /segmentLength exch def
+ /currentLineLength currentLineLength segmentLength add def
+ /oldY exch def
+ /oldX exch def
+} bind def
+/DecumeLastLineLength {
+ /currentLineLength currentLineLength segmentLength sub def
+} bind def
+/DrawFlattendSegment {
+ /pointCount 2 def
+ dup 0 lt { pop 0 } if
+ fpc
+ 3 1 roll
+ 2 index
+ 1 index
+ gt {
+ 2 copy get
+ dup length
+ dup 3 eq {
+ pop
+ dup 0 get
+ exch 1 get
+ 2 copy InitTotalLineLength  
+ m
+ } {
+ } ifelse
+ } {
+ pop 1 index
+ } ifelse
+ dup 1 add
+ 3 index
+ exch sub
+ dup 10 gt { pop 10} if
+ {
+ 1 add
+ 2 copy
+ get aload pop
+ AccumeLineLength
+ exec
+ } repeat
+ 3 1 roll pop pop
+ DecumeLastLineLength
+} bind def
+/IncFPC {
+ fpc add
+ /fpc exch def
+} bind def
+/DrawFlatPathArray {
+ fpc
+ 0 { 
+ dup 2 index
+ 1 sub
+ lt { 
+ flatPathArray exch
+ newpath
+ 1 sub DrawFlattendSegment
+ gsave
+ pathSegProc
+ grestore
+ newpath
+ }
+ {
+ pop pop
+ exit
+ } ifelse
+ } loop
+} bind def
+/RecordFirstSubSegment {
+ closepathArray 0 pathArray 0 get
+ put
+ closepathArray 1
+ pathArray 0 get aload pop pop
+ pathArray 1 get dup length 3 eq {
+ aload pop pop
+ } {
+ newpath
+ 0 0 moveto
+ aload pop exec
+ /segmentArray flattenpath MakeFlatPathArray def
+ segmentArray 1 get aload pop pop
+ } ifelse
+ FractionalLine {lineto} 3 array astore
+ put
+} bind def
+/AppendClosePath {
+ closepathArray 0 get 2 {lineto} put
+ flatPathArray fpc closepathArray 0 get put
+ 1 IncFPC
+ flatPathArray fpc closepathArray 1 get put
+ 1 IncFPC
+} bind def
+/RecordCurrentDash {
+ /theDash
+ currentdash 2 array astore def
+ /currentLineLength 0 def
+} bind def
+/PatternStroke {
+	0 setlinecap
+ RecordCurrentDash
+ /saveFlat currentflat def
+ .5 setflat
+ /pathArray MakePathArray def
+ /closepathArray 2 array def
+ /pathLength pathArray length def
+ /flatPathArray 513 array def
+ /currentLineLength 0 def
+ /fpc 0 def
+ pathArray pathLength 1 sub get
+ length 1 eq {
+ /usingClosepath true def
+ RecordFirstSubSegment
+ /pathLength pathLength 1 sub def
+ } {
+ /usingClosepath false def
+ } ifelse
+ 0 1 pathLength 1 sub {
+ pathArray exch get
+ dup length 3 eq {
+ fpc 1 add 512 ge {
+ DrawFlatPathArray
+ fpc 2 ge {
+ flatPathArray flatPathArray fpc 2 sub get 0 put
+ flatPathArray flatPathArray fpc 1 sub get 1 put
+ /fpc 2 def
+ }{
+ /fpc 0 def
+ } ifelse
+ } if
+ flatPathArray exch fpc exch put
+ 1 IncFPC
+ } {
+ dup length 7 eq {
+ newpath
+ /nToStrip 0 def
+ fpc 1 gt {
+ flatPathArray fpc 2 sub get aload pop pop m
+ flatPathArray fpc 1 sub get aload pop exec
+ /nToStrip 2 def
+ } {
+ fpc 1 eq {
+ flatPathArray fpc 1 sub get aload pop exec
+ /nToStrip 2 def
+ } if
+ } ifelse
+ aload pop exec
+ /segmentArray flattenpath MakeFlatPathArray def
+ /segmentArray nToStrip segmentArray StripFromFront def
+ segmentArray length fpc add 512 lt {
+ flatPathArray fpc segmentArray putinterval
+ segmentArray length IncFPC
+ } {
+ DrawFlatPathArray
+ fpc 1 gt {
+ flatPathArray flatPathArray fpc 2 sub get 0 exch put
+ flatPathArray flatPathArray fpc 1 sub get 1 exch put
+ /fpc 2 def
+ }{
+ /fpc 0 def
+ } ifelse
+ segmentArray length 512 lt {
+ flatPathArray fpc segmentArray putinterval
+ segmentArray length IncFPC
+ } {
+ segmentArray length
+ /exitLoop false def
+ 0 
+ {
+ 2 copy sub
+ dup 500 gt {
+ pop 500
+ } { 
+ /exitLoop true def
+ } ifelse 
+ segmentArray 2 index 2 index getinterval
+ flatPathArray fpc 3 -1 roll putinterval
+ dup IncFPC
+ add 
+ exitLoop {
+ exit 
+ } {
+ DrawFlatPathArray
+ fpc 1 gt {
+ flatPathArray flatPathArray fpc 2 sub get 0 exch put
+ flatPathArray flatPathArray fpc 1 sub get 1 exch put
+ /fpc 2 def
+ }{
+ /fpc 0 def
+ } ifelse
+ } ifelse
+ } loop
+ } ifelse
+ } ifelse
+ } if
+ } ifelse
+ } for
+ fpc 0 gt {
+ usingClosepath {
+ AppendClosePath
+ } if
+ DrawFlatPathArray
+ } if
+ saveFlat setflat
+} bind def
+
+%%EndProlog
+initmsaverestore
+/tctm matrix currentmatrix def
+tctm RoundMatrix setmatrix
+/patternMatrix mstore def
+10 setmiterlimit
+2 setlinecap
+newpath
+%
+%tLayer
+%
+%
+%tfBegGrp
+%
+%
+%tfBegGrp
+%
+%
+%tfBegGrp
+%
+%
+%tfBegGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 66.199 63.009 0.000 0.000 10.032 11.518
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 5.336] CP
+[0.267 8.467 0.550 9.925 0.851 9.712] CP
+[1.151 9.499 1.418 8.609 1.652 7.044] CP
+[1.886 5.478 2.270 3.913 2.804 2.348] CP
+[3.338 0.782 3.739 0.284 4.006 0.853] CP
+[4.273 1.423 4.507 2.383 4.707 3.735] CP
+[4.907 5.087 5.191 6.190 5.558 7.044] CP
+[5.926 7.898 6.276 7.755 6.610 6.617] CP
+[6.944 5.478 7.178 4.553 7.311 3.842] CP
+[7.445 3.130 7.812 3.415 8.413 4.696] CP
+[9.014 5.976 9.632 6.403 10.266 5.976] CP
+[10.900 5.550 11.318 5.407 11.518 5.550] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 68.334 74.628 0.000 0.000 8.965 13.321
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 3.400] CP
+[0.397 3.606 0.729 3.950 0.994 4.431] CP
+[1.259 4.912 1.466 5.341 1.615 5.719] CP
+[1.764 6.097 1.913 6.629 2.062 7.316] CP
+[2.211 8.003 2.402 8.450 2.634 8.656] CP
+[2.866 8.862 3.098 8.673 3.330 8.089] CP
+[3.562 7.505 3.744 6.887 3.877 6.234] CP
+[4.009 5.581 4.117 5.169 4.200 4.997] CP
+[4.283 4.826 4.374 4.414 4.473 3.761] CP
+[4.573 3.108 4.763 2.387 5.045 1.597] CP
+[5.326 0.807 5.542 0.343 5.691 0.206] CP
+[5.840 0.068 6.039 0.051 6.287 0.154] CP
+[6.536 0.257 6.702 0.429 6.784 0.669] CP
+[6.867 0.910 7.008 1.442 7.207 2.267] CP
+[7.406 3.091 7.596 3.744 7.779 4.225] CP
+[7.961 4.705 8.102 5.152 8.201 5.564] CP
+[8.301 5.976 8.417 5.959 8.549 5.513] CP
+[8.682 5.066 8.822 4.551 8.972 3.967] CP
+[9.121 3.383 9.303 2.971 9.518 2.730] CP
+[9.734 2.490 9.891 2.713 9.991 3.400] CP
+[10.090 4.087 10.181 4.671 10.264 5.152] CP
+[10.347 5.633 10.496 5.633 10.711 5.152] CP
+[10.927 4.671 11.117 4.122 11.283 3.503] CP
+[11.449 2.885 11.614 2.541 11.780 2.473] CP
+[11.946 2.404 12.087 2.627 12.203 3.143] CP
+[12.318 3.658 12.501 4.001 12.749 4.173] CP
+[12.998 4.345 13.188 4.156 13.321 3.606] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 67.617 88.063 0.000 0.000 8.738 17.993
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 4.829] CP
+[0.682 7.435 1.143 8.201 1.384 7.128] CP
+[1.624 6.055 1.865 5.097 2.106 4.254] CP
+[2.346 3.410 2.557 3.602 2.738 4.829] CP
+[2.918 6.055 3.049 6.821 3.129 7.128] CP
+[3.209 7.435 3.390 6.898 3.670 5.518] CP
+[3.951 4.139 4.152 2.874 4.272 1.724] CP
+[4.393 0.574 4.583 0.498 4.844 1.494] CP
+[5.105 2.491 5.436 3.832 5.837 5.518] CP
+[6.238 7.205 6.539 7.933 6.739 7.703] CP
+[6.940 7.473 7.121 6.898 7.281 5.978] CP
+[7.442 5.059 7.662 4.560 7.943 4.484] CP
+[8.224 4.407 8.485 4.560 8.725 4.944] CP
+[8.966 5.327 9.197 5.327 9.417 4.944] CP
+[9.638 4.560 9.849 4.445 10.049 4.599] CP
+[10.250 4.752 10.561 4.637 10.982 4.254] CP
+[11.403 3.870 11.754 3.717 12.035 3.794] CP
+[12.316 3.870 12.577 4.062 12.817 4.369] CP
+[13.058 4.675 13.289 5.020 13.510 5.403] CP
+[13.730 5.787 13.951 5.748 14.171 5.288] CP
+[14.392 4.829 14.643 4.484 14.924 4.254] CP
+[15.205 4.024 15.485 4.100 15.766 4.484] CP
+[16.047 4.867 16.298 4.944 16.518 4.714] CP
+[16.739 4.484 17.231 4.369 17.993 4.369] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 66.199 105.943 0.000 0.000 10.032 11.518
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 5.336] CP
+[0.267 8.467 0.550 9.925 0.851 9.712] CP
+[1.151 9.499 1.418 8.609 1.652 7.044] CP
+[1.886 5.478 2.270 3.913 2.804 2.348] CP
+[3.338 0.782 3.739 0.284 4.006 0.853] CP
+[4.273 1.423 4.507 2.383 4.707 3.735] CP
+[4.907 5.087 5.191 6.190 5.558 7.044] CP
+[5.926 7.898 6.276 7.755 6.610 6.617] CP
+[6.944 5.478 7.178 4.553 7.311 3.842] CP
+[7.445 3.130 7.812 3.415 8.413 4.696] CP
+[9.014 5.976 9.632 6.403 10.266 5.976] CP
+[10.900 5.550 11.318 5.407 11.518 5.550] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 68.334 117.562 0.000 0.000 8.965 13.321
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 3.400] CP
+[0.397 3.606 0.729 3.950 0.994 4.431] CP
+[1.259 4.912 1.466 5.341 1.615 5.719] CP
+[1.764 6.097 1.913 6.629 2.062 7.316] CP
+[2.211 8.003 2.402 8.450 2.634 8.656] CP
+[2.866 8.862 3.098 8.673 3.330 8.089] CP
+[3.562 7.505 3.744 6.887 3.877 6.234] CP
+[4.009 5.581 4.117 5.169 4.200 4.997] CP
+[4.283 4.826 4.374 4.414 4.473 3.761] CP
+[4.573 3.108 4.763 2.387 5.045 1.597] CP
+[5.326 0.807 5.542 0.343 5.691 0.206] CP
+[5.840 0.068 6.039 0.051 6.287 0.154] CP
+[6.536 0.257 6.702 0.429 6.784 0.669] CP
+[6.867 0.910 7.008 1.442 7.207 2.267] CP
+[7.406 3.091 7.596 3.744 7.779 4.225] CP
+[7.961 4.705 8.102 5.152 8.201 5.564] CP
+[8.301 5.976 8.416 5.959 8.549 5.513] CP
+[8.682 5.066 8.822 4.551 8.972 3.967] CP
+[9.121 3.383 9.303 2.971 9.518 2.730] CP
+[9.734 2.490 9.891 2.713 9.991 3.400] CP
+[10.090 4.087 10.181 4.671 10.264 5.152] CP
+[10.347 5.633 10.496 5.633 10.711 5.152] CP
+[10.927 4.671 11.117 4.122 11.283 3.503] CP
+[11.449 2.885 11.614 2.541 11.780 2.473] CP
+[11.946 2.404 12.087 2.627 12.202 3.143] CP
+[12.318 3.658 12.501 4.001 12.749 4.173] CP
+[12.998 4.345 13.188 4.156 13.321 3.606] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 67.617 130.997 0.000 0.000 8.738 17.993
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 4.829] CP
+[0.682 7.435 1.143 8.201 1.384 7.128] CP
+[1.624 6.055 1.865 5.097 2.106 4.254] CP
+[2.346 3.410 2.557 3.602 2.738 4.829] CP
+[2.918 6.055 3.049 6.821 3.129 7.128] CP
+[3.209 7.435 3.390 6.898 3.670 5.518] CP
+[3.951 4.139 4.152 2.874 4.272 1.724] CP
+[4.393 0.574 4.583 0.498 4.844 1.494] CP
+[5.105 2.491 5.436 3.832 5.837 5.518] CP
+[6.238 7.205 6.539 7.933 6.739 7.703] CP
+[6.940 7.473 7.121 6.898 7.281 5.978] CP
+[7.442 5.059 7.662 4.560 7.943 4.484] CP
+[8.224 4.407 8.485 4.560 8.725 4.944] CP
+[8.966 5.327 9.197 5.327 9.417 4.944] CP
+[9.638 4.560 9.849 4.445 10.049 4.599] CP
+[10.250 4.752 10.561 4.637 10.982 4.254] CP
+[11.403 3.870 11.754 3.717 12.035 3.794] CP
+[12.316 3.870 12.577 4.062 12.817 4.369] CP
+[13.058 4.675 13.289 5.020 13.509 5.403] CP
+[13.730 5.787 13.951 5.748 14.171 5.288] CP
+[14.392 4.829 14.643 4.484 14.924 4.254] CP
+[15.205 4.024 15.485 4.100 15.766 4.484] CP
+[16.047 4.867 16.298 4.944 16.518 4.714] CP
+[16.739 4.484 17.231 4.369 17.993 4.369] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%
+%tfBegGrp
+%
+%
+%tfBegGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 84.067 137.472 0.000 0.000 10.032 11.518
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[11.518 4.696] CP
+[11.251 1.565 10.967 0.106 10.667 0.320] CP
+[10.366 0.533 10.099 1.423 9.865 2.988] CP
+[9.632 4.553 9.248 6.119 8.714 7.684] CP
+[8.179 9.250 7.779 9.748 7.512 9.178] CP
+[7.244 8.609 7.011 7.649 6.810 6.297] CP
+[6.610 4.945 6.326 3.842 5.959 2.988] CP
+[5.592 2.134 5.241 2.276 4.907 3.415] CP
+[4.574 4.553 4.340 5.478 4.206 6.190] CP
+[4.073 6.901 3.705 6.617 3.104 5.336] CP
+[2.504 4.055 1.886 3.628 1.252 4.055] CP
+[0.617 4.482 0.200 4.625 0.000 4.482] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 83.000 124.050 0.000 0.000 8.965 13.321
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[13.321 5.564] CP
+[12.923 5.358 12.592 5.015 12.327 4.534] CP
+[12.062 4.053 11.855 3.623 11.705 3.246] CP
+[11.556 2.868 11.407 2.335 11.258 1.648] CP
+[11.109 0.961 10.918 0.515 10.686 0.309] CP
+[10.454 0.103 10.223 0.291 9.991 0.875] CP
+[9.759 1.459 9.576 2.078 9.444 2.730] CP
+[9.311 3.383 9.204 3.795 9.121 3.967] CP
+[9.038 4.139 8.947 4.551 8.847 5.204] CP
+[8.748 5.856 8.557 6.578 8.276 7.368] CP
+[7.994 8.158 7.779 8.621 7.629 8.759] CP
+[7.480 8.896 7.282 8.913 7.033 8.810] CP
+[6.784 8.707 6.619 8.535 6.536 8.295] CP
+[6.453 8.055 6.312 7.522 6.113 6.698] CP
+[5.915 5.873 5.724 5.221 5.542 4.740] CP
+[5.360 4.259 5.219 3.812 5.119 3.400] CP
+[5.020 2.988 4.904 3.005 4.771 3.452] CP
+[4.639 3.898 4.498 4.413 4.349 4.997] CP
+[4.200 5.581 4.017 5.994 3.802 6.234] CP
+[3.587 6.474 3.429 6.251 3.330 5.564] CP
+[3.230 4.877 3.139 4.293 3.056 3.812] CP
+[2.974 3.331 2.824 3.331 2.609 3.812] CP
+[2.394 4.293 2.203 4.843 2.037 5.461] CP
+[1.872 6.079 1.706 6.423 1.540 6.492] CP
+[1.375 6.560 1.234 6.337 1.118 5.822] CP
+[1.002 5.307 0.820 4.963 0.571 4.791] CP
+[0.323 4.620 0.132 4.809 0.000 5.358] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 83.944 105.943 0.000 0.000 8.738 17.993
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[17.993 3.909] CP
+[17.311 1.303 16.849 0.536 16.609 1.609] CP
+[16.368 2.682 16.127 3.640 15.887 4.484] CP
+[15.646 5.327 15.435 5.135 15.255 3.909] CP
+[15.074 2.682 14.944 1.916 14.864 1.609] CP
+[14.783 1.303 14.603 1.839 14.322 3.219] CP
+[14.041 4.599 13.840 5.863 13.720 7.013] CP
+[13.600 8.163 13.409 8.240 13.148 7.243] CP
+[12.888 6.247 12.557 4.905 12.156 3.219] CP
+[11.754 1.533 11.453 0.804 11.253 1.034] CP
+[11.052 1.264 10.872 1.839 10.711 2.759] CP
+[10.551 3.679 10.330 4.177 10.049 4.254] CP
+[9.768 4.330 9.508 4.177 9.267 3.794] CP
+[9.026 3.411 8.796 3.411 8.575 3.794] CP
+[8.354 4.177 8.144 4.292 7.943 4.139] CP
+[7.742 3.985 7.432 4.100 7.010 4.484] CP
+[6.589 4.867 6.238 5.020 5.957 4.944] CP
+[5.676 4.867 5.416 4.675 5.175 4.369] CP
+[4.934 4.062 4.703 3.717 4.483 3.334] CP
+[4.262 2.951 4.041 2.989 3.821 3.449] CP
+[3.600 3.909 3.349 4.254 3.069 4.484] CP
+[2.788 4.714 2.507 4.637 2.226 4.254] CP
+[1.945 3.870 1.695 3.794 1.474 4.024] CP
+[1.253 4.254 0.762 4.369 0.000 4.369] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 84.067 94.538 0.000 0.000 10.032 11.518
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[11.518 4.696] CP
+[11.251 1.565 10.967 0.106 10.667 0.320] CP
+[10.366 0.533 10.099 1.423 9.865 2.988] CP
+[9.632 4.553 9.248 6.119 8.714 7.684] CP
+[8.179 9.250 7.779 9.748 7.512 9.178] CP
+[7.244 8.609 7.011 7.649 6.810 6.297] CP
+[6.610 4.945 6.326 3.842 5.959 2.988] CP
+[5.592 2.134 5.241 2.276 4.907 3.415] CP
+[4.574 4.553 4.340 5.478 4.206 6.190] CP
+[4.073 6.901 3.705 6.617 3.105 5.336] CP
+[2.504 4.055 1.886 3.628 1.252 4.055] CP
+[0.617 4.482 0.200 4.625 0.000 4.482] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 83.000 81.116 0.000 0.000 8.965 13.321
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[13.321 5.564] CP
+[12.923 5.358 12.592 5.015 12.327 4.534] CP
+[12.062 4.053 11.855 3.623 11.705 3.246] CP
+[11.556 2.868 11.407 2.335 11.258 1.648] CP
+[11.109 0.961 10.918 0.515 10.686 0.309] CP
+[10.454 0.103 10.223 0.291 9.991 0.875] CP
+[9.759 1.459 9.576 2.078 9.444 2.730] CP
+[9.311 3.383 9.204 3.795 9.121 3.967] CP
+[9.038 4.139 8.947 4.551 8.847 5.204] CP
+[8.748 5.856 8.557 6.578 8.276 7.368] CP
+[7.994 8.158 7.779 8.621 7.629 8.759] CP
+[7.480 8.896 7.282 8.913 7.033 8.810] CP
+[6.784 8.707 6.619 8.535 6.536 8.295] CP
+[6.453 8.055 6.312 7.522 6.113 6.698] CP
+[5.915 5.873 5.724 5.221 5.542 4.740] CP
+[5.360 4.259 5.219 3.812 5.119 3.400] CP
+[5.020 2.988 4.904 3.005 4.771 3.452] CP
+[4.639 3.898 4.498 4.413 4.349 4.997] CP
+[4.200 5.581 4.017 5.994 3.802 6.234] CP
+[3.587 6.474 3.429 6.251 3.330 5.564] CP
+[3.230 4.877 3.139 4.293 3.056 3.812] CP
+[2.974 3.331 2.824 3.331 2.609 3.812] CP
+[2.394 4.293 2.203 4.843 2.037 5.461] CP
+[1.872 6.079 1.706 6.423 1.540 6.492] CP
+[1.375 6.560 1.234 6.337 1.118 5.822] CP
+[1.002 5.307 0.820 4.963 0.571 4.791] CP
+[0.323 4.620 0.132 4.809 0.000 5.358] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 83.944 63.009 0.000 0.000 8.738 17.993
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[17.993 3.909] CP
+[17.311 1.303 16.849 0.536 16.609 1.609] CP
+[16.368 2.682 16.127 3.640 15.887 4.484] CP
+[15.646 5.327 15.435 5.135 15.255 3.909] CP
+[15.074 2.682 14.944 1.916 14.863 1.609] CP
+[14.783 1.303 14.603 1.839 14.322 3.219] CP
+[14.041 4.599 13.840 5.863 13.720 7.013] CP
+[13.600 8.163 13.409 8.240 13.148 7.243] CP
+[12.888 6.247 12.557 4.905 12.155 3.219] CP
+[11.754 1.533 11.453 0.804 11.253 1.034] CP
+[11.052 1.264 10.872 1.839 10.711 2.759] CP
+[10.551 3.679 10.330 4.177 10.049 4.254] CP
+[9.768 4.330 9.508 4.177 9.267 3.794] CP
+[9.026 3.411 8.796 3.411 8.575 3.794] CP
+[8.354 4.177 8.144 4.292 7.943 4.139] CP
+[7.742 3.985 7.432 4.100 7.010 4.484] CP
+[6.589 4.867 6.238 5.020 5.957 4.944] CP
+[5.676 4.867 5.416 4.675 5.175 4.369] CP
+[4.934 4.062 4.703 3.717 4.483 3.334] CP
+[4.262 2.951 4.041 2.989 3.821 3.449] CP
+[3.600 3.909 3.349 4.254 3.069 4.484] CP
+[2.788 4.714 2.507 4.637 2.226 4.254] CP
+[1.945 3.870 1.695 3.794 1.474 4.024] CP
+[1.253 4.254 0.762 4.369 0.000 4.369] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {13.500 RR2} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 42.500 52.000 0.000 0.000 63.000 108.000 rect
+%@EndRect
+%
+%tfBegGrp
+%
+%
+%tfBegGrp
+%
+%
+%tfBegGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 52.567 63.009 0.000 0.000 10.032 11.518
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 4.696] CP
+[0.267 1.565 0.550 0.106 0.851 0.320] CP
+[1.151 0.533 1.418 1.423 1.652 2.988] CP
+[1.886 4.553 2.270 6.119 2.804 7.684] CP
+[3.338 9.250 3.739 9.748 4.006 9.178] CP
+[4.273 8.609 4.507 7.649 4.707 6.297] CP
+[4.907 4.945 5.191 3.842 5.558 2.988] CP
+[5.926 2.134 6.276 2.276 6.610 3.415] CP
+[6.944 4.553 7.178 5.478 7.311 6.190] CP
+[7.445 6.901 7.812 6.617 8.413 5.336] CP
+[9.014 4.055 9.632 3.628 10.266 4.055] CP
+[10.900 4.482 11.318 4.625 11.518 4.482] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 51.500 74.628 0.000 0.000 8.965 13.321
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 5.564] CP
+[0.397 5.358 0.729 5.015 0.994 4.534] CP
+[1.259 4.053 1.466 3.623 1.615 3.246] CP
+[1.764 2.868 1.913 2.335 2.062 1.648] CP
+[2.211 0.961 2.402 0.515 2.634 0.309] CP
+[2.866 0.103 3.098 0.291 3.330 0.875] CP
+[3.562 1.459 3.744 2.078 3.877 2.730] CP
+[4.009 3.383 4.117 3.795 4.200 3.967] CP
+[4.283 4.139 4.374 4.551 4.473 5.204] CP
+[4.573 5.856 4.763 6.578 5.045 7.368] CP
+[5.326 8.158 5.542 8.621 5.691 8.759] CP
+[5.840 8.896 6.039 8.913 6.287 8.810] CP
+[6.536 8.707 6.702 8.535 6.784 8.295] CP
+[6.867 8.055 7.008 7.522 7.207 6.698] CP
+[7.406 5.873 7.596 5.221 7.779 4.740] CP
+[7.961 4.259 8.102 3.812 8.201 3.400] CP
+[8.301 2.988 8.417 3.005 8.549 3.452] CP
+[8.682 3.898 8.822 4.413 8.972 4.997] CP
+[9.121 5.581 9.303 5.994 9.518 6.234] CP
+[9.734 6.474 9.891 6.251 9.991 5.564] CP
+[10.090 4.877 10.181 4.293 10.264 3.812] CP
+[10.347 3.331 10.496 3.331 10.711 3.812] CP
+[10.927 4.293 11.117 4.843 11.283 5.461] CP
+[11.449 6.079 11.614 6.423 11.780 6.492] CP
+[11.946 6.560 12.087 6.337 12.203 5.822] CP
+[12.318 5.307 12.501 4.963 12.749 4.791] CP
+[12.998 4.620 13.188 4.809 13.321 5.358] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 52.444 88.063 0.000 0.000 8.738 17.993
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 3.909] CP
+[0.682 1.303 1.143 0.536 1.384 1.609] CP
+[1.624 2.682 1.865 3.640 2.106 4.484] CP
+[2.346 5.327 2.557 5.135 2.738 3.909] CP
+[2.918 2.682 3.049 1.916 3.129 1.609] CP
+[3.209 1.303 3.390 1.839 3.670 3.219] CP
+[3.951 4.599 4.152 5.863 4.272 7.013] CP
+[4.393 8.163 4.583 8.240 4.844 7.243] CP
+[5.105 6.247 5.436 4.905 5.837 3.219] CP
+[6.238 1.533 6.539 0.804 6.739 1.034] CP
+[6.940 1.264 7.121 1.839 7.281 2.759] CP
+[7.442 3.679 7.662 4.177 7.943 4.254] CP
+[8.224 4.330 8.485 4.177 8.725 3.794] CP
+[8.966 3.411 9.197 3.411 9.417 3.794] CP
+[9.638 4.177 9.849 4.292 10.049 4.139] CP
+[10.250 3.985 10.561 4.100 10.982 4.484] CP
+[11.403 4.867 11.754 5.020 12.035 4.944] CP
+[12.316 4.867 12.577 4.675 12.817 4.369] CP
+[13.058 4.062 13.289 3.717 13.510 3.334] CP
+[13.730 2.951 13.951 2.989 14.171 3.449] CP
+[14.392 3.909 14.643 4.254 14.924 4.484] CP
+[15.205 4.714 15.485 4.637 15.766 4.254] CP
+[16.047 3.870 16.298 3.794 16.518 4.024] CP
+[16.739 4.254 17.231 4.369 17.993 4.369] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 52.567 105.943 0.000 0.000 10.032 11.518
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 4.696] CP
+[0.267 1.565 0.550 0.106 0.851 0.320] CP
+[1.151 0.533 1.418 1.423 1.652 2.988] CP
+[1.886 4.553 2.270 6.119 2.804 7.684] CP
+[3.338 9.250 3.739 9.748 4.006 9.178] CP
+[4.273 8.609 4.507 7.649 4.707 6.297] CP
+[4.907 4.945 5.191 3.842 5.558 2.988] CP
+[5.926 2.134 6.276 2.276 6.610 3.415] CP
+[6.944 4.553 7.178 5.478 7.311 6.190] CP
+[7.445 6.901 7.812 6.617 8.413 5.336] CP
+[9.014 4.055 9.632 3.628 10.266 4.055] CP
+[10.900 4.482 11.318 4.625 11.518 4.482] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 51.500 117.562 0.000 0.000 8.965 13.321
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 5.564] CP
+[0.397 5.358 0.729 5.015 0.994 4.534] CP
+[1.259 4.053 1.466 3.623 1.615 3.246] CP
+[1.764 2.868 1.913 2.335 2.062 1.648] CP
+[2.211 0.961 2.402 0.515 2.634 0.309] CP
+[2.866 0.103 3.098 0.291 3.330 0.875] CP
+[3.562 1.459 3.744 2.078 3.877 2.730] CP
+[4.009 3.383 4.117 3.795 4.200 3.967] CP
+[4.283 4.139 4.374 4.551 4.473 5.204] CP
+[4.573 5.856 4.763 6.578 5.045 7.368] CP
+[5.326 8.158 5.542 8.621 5.691 8.759] CP
+[5.840 8.896 6.039 8.913 6.287 8.810] CP
+[6.536 8.707 6.702 8.535 6.784 8.295] CP
+[6.867 8.055 7.008 7.522 7.207 6.698] CP
+[7.406 5.873 7.596 5.221 7.779 4.740] CP
+[7.961 4.259 8.102 3.812 8.201 3.400] CP
+[8.301 2.988 8.416 3.005 8.549 3.452] CP
+[8.682 3.898 8.822 4.413 8.972 4.997] CP
+[9.121 5.581 9.303 5.994 9.518 6.234] CP
+[9.734 6.474 9.891 6.251 9.991 5.564] CP
+[10.090 4.877 10.181 4.293 10.264 3.812] CP
+[10.347 3.331 10.496 3.331 10.711 3.812] CP
+[10.927 4.293 11.117 4.843 11.283 5.461] CP
+[11.449 6.079 11.614 6.423 11.780 6.492] CP
+[11.946 6.560 12.087 6.337 12.202 5.822] CP
+[12.318 5.307 12.501 4.963 12.749 4.791] CP
+[12.998 4.620 13.188 4.809 13.321 5.358] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginBezi
+/saveobj save def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 52.444 130.997 0.000 0.000 8.738 17.993
+pbox astore pop
+0 792 translate 1 -1 scale exch translate pop CTM currentmatrix pop
+/objectCord mstore def
+pbox bbox copy pop
+/CP {aload pop moveto /CP {aload length 2 eq {lineto}{curveto}ifelse} bind def} bind def
+[0.000 3.909] CP
+[0.682 1.303 1.143 0.536 1.384 1.609] CP
+[1.624 2.682 1.865 3.640 2.106 4.484] CP
+[2.346 5.327 2.557 5.135 2.738 3.909] CP
+[2.918 2.682 3.049 1.916 3.129 1.609] CP
+[3.209 1.303 3.390 1.839 3.670 3.219] CP
+[3.951 4.599 4.152 5.863 4.272 7.013] CP
+[4.393 8.163 4.583 8.240 4.844 7.243] CP
+[5.105 6.247 5.436 4.905 5.837 3.219] CP
+[6.238 1.533 6.539 0.804 6.739 1.034] CP
+[6.940 1.264 7.121 1.839 7.281 2.759] CP
+[7.442 3.679 7.662 4.177 7.943 4.254] CP
+[8.224 4.330 8.485 4.177 8.725 3.794] CP
+[8.966 3.411 9.197 3.411 9.417 3.794] CP
+[9.638 4.177 9.849 4.292 10.049 4.139] CP
+[10.250 3.985 10.561 4.100 10.982 4.484] CP
+[11.403 4.867 11.754 5.020 12.035 4.944] CP
+[12.316 4.867 12.577 4.675 12.817 4.369] CP
+[13.058 4.062 13.289 3.717 13.509 3.334] CP
+[13.730 2.951 13.951 2.989 14.171 3.449] CP
+[14.392 3.909 14.643 4.254 14.924 4.484] CP
+[15.205 4.714 15.485 4.637 15.766 4.254] CP
+[16.047 3.870 16.298 3.794 16.518 4.024] CP
+[16.739 4.254 17.231 4.369 17.993 4.369] CP
+/useClip true def
+PC PF
+LC SS
+saveobj restore
+%@EndBezi
+%
+%tfEndGrp
+%
+%
+%tfEndGrp
+%
+%@BeginText
+save
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 25.000 61.500 0.000 0.000 14.000 90.972 rect
+%@EndRect
+gsave
+106.986 32.000 T translate
+0.0 rotate
+1 1 scale
+12.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(U) -45.000 3.000 S
+(n) -36.333 3.000 S
+(l) -30.333 3.000 S
+(a) -27.000 3.000 S
+(b) -21.673 3.000 S
+(e) -15.673 3.000 S
+(l) -10.347 3.000 S
+(l) -7.013 3.000 S
+(e) -3.679 3.000 S
+(d) 1.646 3.000 S
+( ) 7.646 3.000 S
+(T) 10.646 3.000 S
+(o) 17.976 3.000 S
+(k) 23.976 3.000 S
+(e) 29.976 3.000 S
+(n) 35.302 3.000 S
+(s) 41.302 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 177.500 61.000 0.000 0.000 27.000 54.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 185.000 75.500 0.000 0.000 14.000 25.330 rect
+%@EndRect
+gsave
+88.165 192.000 T translate
+0.0 rotate
+1 1 scale
+12.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(H) -12.000 3.000 S
+(I) -3.333 3.000 S
+(n) 0.662 3.000 S
+(i) 6.662 3.000 S
+(t) 9.996 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 132.500 115.000 0.000 0.000 27.000 63.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 140.000 123.500 0.000 0.000 14.000 46.669 rect
+%@EndRect
+gsave
+146.834 147.000 T translate
+0.0 rotate
+1 1 scale
+12.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(H) -23.000 3.000 S
+(C) -14.333 3.000 S
+(o) -6.330 3.000 S
+(m) -0.330 3.000 S
+(p) 9.003 3.000 S
+(V) 15.003 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 240.500 61.000 0.000 0.000 27.000 54.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 248.000 72.500 0.000 0.000 14.000 30.000 rect
+%@EndRect
+gsave
+87.500 255.000 T translate
+0.0 rotate
+1 1 scale
+12.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(H) -15.000 3.000 S
+(R) -6.333 3.000 S
+(e) 1.669 3.000 S
+(s) 6.996 3.000 S
+(t) 11.666 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ 
+1.000 setlinewidth
+88.000 177.500 moveto
+/Triangular 14.099 7.049 false 270.019 DrawArrowHead
+} bind def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 87.999 175.500 88.000 105.500 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ 
+1.000 setlinewidth
+142.000 132.500 moveto
+/Triangular 14.099 7.049 false 251.583 DrawArrowHead
+} bind def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 141.367 130.602 133.000 105.500 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ 
+1.000 setlinewidth
+115.000 177.500 moveto
+/Triangular 14.099 7.049 false 326.332 DrawArrowHead
+} bind def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 116.664 176.390 142.000 159.500 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ 
+1.000 setlinewidth
+88.000 240.500 moveto
+/Triangular 14.099 7.049 false 270.019 DrawArrowHead
+} bind def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 87.999 238.500 88.000 204.500 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ 
+1.000 setlinewidth
+88.000 303.500 moveto
+/Triangular 14.099 7.049 false 270.019 DrawArrowHead
+} bind def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 87.999 301.500 88.000 267.500 Line
+%@EndLine
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 304.000 51.500 0.000 0.000 27.000 72.693 rect
+%@EndRect
+gsave
+87.846 317.500 T translate
+0.0 rotate
+1 1 scale
+12.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(W) -30.807 -4.000 S
+(h) -19.481 -4.000 S
+(o) -13.481 -4.000 S
+(l) -7.481 -4.000 S
+(e) -4.147 -4.000 S
+( ) 1.178 -4.000 S
+(W) 4.178 -4.000 S
+(o) 15.504 -4.000 S
+(r) 21.504 -4.000 S
+(d) 25.500 -4.000 S
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(H) -16.991 9.000 S
+(M) -8.325 9.000 S
+(M) 2.344 9.000 S
+(s) 13.014 9.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/PF {fill} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/SS { setlinewidth SD stroke} def
+1.000 216.000 39.000 9.000 39.000 Line
+%@EndLine
+restore
+%%Trailer
+end

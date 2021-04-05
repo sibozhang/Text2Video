@@ -1,0 +1,4998 @@
+%!PS-Adobe-2.0 EPSF-1.2
+%%Title: HTKFormat.eps
+%%Creator: CLARIS EPSF Export Filter V1.0
+%%CreationDate:12/6/94  2:47:27 p.m.
+%%BoundingBox: 14.750 588.250 468.750 765.750                                                          
+%%QDBoundingBox: 14.750 26.250 468.750 203.750                                                           
+%%DocumentFonts: Times-Roman
+%%+ Symbol
+%%DocumentProcessColors: Cyan Magenta Yellow Black
+%%ObjectsIncluded: tText=T tLine=T tRect=T tRRect=F tOval=F tArc=F tFree=F tPoly=F tBMap=F tNote=F tBez=F tPMap=F 
+%%AttributesIncluded: kBaWPattType=T kPixPattType=T kGradientType=F 
+%%EndComments
+/MAV 300 dict def
+MAV begin 
+/useClip true def 
+/top    0 def 
+/left   1 def 
+/bottom 2 def 
+/right  3 def 
+/CM     6 array def 
+/CTM    6 array def 
+/CTMR   6 array def 
+/MTC    6 array def 
+/blimit 1500 def 
+/bcnt   0 def 
+/rbox 8 array def 
+/segbox 8 array def 
+/bbox1 4 array def 
+/c1 3 array def 
+/c2 3 array def 
+/d 3 array def    
+/delta 3 array def 
+/mycurrentrgbcolor 3 array def 
+/ulx 0 def 
+/uly 1 def 
+/llx 2 def 
+/lly 3 def 
+/urx 4 def 
+/ury 5 def 
+/lrx 6 def 
+/lry 7 def 
+/sp [0 0] def 
+/ep [0 0] def 
+/bbox 4 array def 
+/pbox 4 array def 
+/scrnProc currentscreen 3 1 roll pop pop def
+/currentcolorscreen where {
+begin
+currentcolorscreen
+end
+3 1 roll pop pop 
+4 2 roll pop pop 
+5 -2 roll pop pop 
+6 -2 roll pop pop 
+/kProc exch def 
+/bProc exch def 
+/gProc exch def 
+/rProc exch def 
+} if 
+/Max {2 copy gt {pop}{exch pop} ifelse} bind def
+/cellPenW 72.0 /currentcolorscreen where
+{begin currentcolorscreen end pop pop
+10 1 roll pop pop 8 1 roll pop pop
+ 6 1 roll pop pop Max Max Max }
+{currentscreen pop pop} ifelse div 2.0 div def
+%%BeginProcSet : rect 
+/rect { 
+ /saveobj save def 
+ R PC PF LC SS 
+ saveobj restore 
+} bind def 
+%%EndProcSet 
+%%BeginProcSet : R 
+/R { 
+ newpath
+ pbox astore pop
+ 0 792 translate 1 -1 scale CTMR currentmatrix pop exch translate
+ /objectCord mstore def
+ pbox right get 2 div
+ dup pbox left get exch sub
+ pbox left 3 -1 roll put 
+ dup pbox right 3 -1 roll put
+ pbox bottom get 2 div 
+ dup pbox top get exch sub
+ pbox top 3 -1 roll put
+ dup pbox bottom 3 -1 roll put
+ translate 
+ CTM currentmatrix pop
+ 57.3 mul rotate
+ RT
+} bind def
+%%EndProcSet
+%%BeginProcSet : SaveScreenBW
+ /SaveScreenBW {
+ currentscreen
+ /scrnProc exch def
+ /scrnAngle exch def
+ /scrnFreq exch def
+  } bind def
+%%EndProcSet
+%%BeginProcSet : RestoreScreenBW
+ /RestoreScreenBW {
+ scrnFreq scrnAngle MAV /scrnProc get setscreen
+ } bind def
+%%EndProcSet
+%%BeginProcSet : SetFreqAngleBW
+ /SetFreqAngleBW {
+ currentscreen
+ 3 1 roll
+ pop pop
+ setscreen
+ } bind def
+%%EndProcSet
+%%BeginProcSet : SaveScreenColor 
+ /SaveScreenColor {
+ currentcolorscreen
+ /grayProc exch def
+ /grayAngle exch def
+ /grayFreq exch def
+ /bProc exch def
+ /bAngle exch def
+ /bFreq exch def
+ /gProc exch def
+ /gAngle exch def
+ /gFreq exch def
+ /rProc exch def
+ /rAngle exch def
+ /rFreq exch def
+  } bind def
+%%EndProcSet
+%%BeginProcSet : RestoreColorScreen
+ /RestoreColorScreen {
+ rFreq rAngle MAV /rProc get gFreq gAngle MAV /gProc get bFreq bAngle MAV /bProc get grayFreq grayAngle MAV /grayProc get setcolorscreen
+ } bind def
+%%EndProcSet
+%%BeginProcSet : SetFreqAngleColor
+ /SetFreqAngleColor { 
+ currentcolorscreen 
+ 3 1 roll pop pop
+ 4 2 roll pop pop
+ 5 -2 roll pop pop
+ 6 -2 roll pop pop
+ 4 1 roll 
+ 6 1 roll 
+ 8 1 roll 
+ 10 1 roll 
+ setcolorscreen 
+ } bind def 
+%%EndProcSet 
+/initmsaverestore { 
+userdict begin 
+/mdict 10 dict def 
+mdict begin 
+/mindex -1 def 
+/mstacksize 25 def 
+/mstack mstacksize array def 
+/incmindex { 
+/mindex mindex 1 add def 
+} bind def 
+/decmindex { 
+/mindex mindex 1 sub def 
+} bind def 
+/checkmindex { 
+mindex 0 lt { 
+(%ERROR: msave/mrestore stack underflow: Offending command 'mrestore'
+) print flush 
+stop 
+} 
+{ 
+mindex mstacksize ge { 
+(%ERROR: msave/mrestore stack overflow: Offending command 'msave'
+) print flush 
+stop 
+} if 
+} ifelse 
+} bind def 
+/mpush { 
+incmindex 
+checkmindex 
+mstack mindex 
+3 -1 roll put 
+} bind def 
+/mpop { 
+checkmindex 
+mstack mindex get 
+decmindex 
+} bind def 
+end 
+end 
+} bind def 
+/msave { 
+mdict begin 
+matrix currentmatrix mpush 
+end 
+} bind def 
+/mrestore { 
+mdict begin 
+mpop setmatrix 
+end 
+} bind def 
+/msavelevel { 
+mdict begin 
+mindex 1 add 
+end 
+} bind def 
+/mstore {
+matrix currentmatrix
+} bind def
+/AutoSizeY {
+0 0 pl
+dup 3 1 roll
+4 -1 roll  
+add
+pl exch pop
+exch sub
+} bind def
+/pl {  
+transform
+0.25 sub round 0.25 add exch
+0.25 sub round 0.25 add exch
+itransform
+} bind def
+/pll {
+transform
+round exch
+round exch
+itransform
+} bind def
+/pr { 
+dtransform
+round exch
+round exch
+idtransform
+} bind def
+/m { 
+pl  moveto
+} bind def
+/l { 
+pl lineto
+} bind def
+/c { 
+pl curveto
+} bind def
+/rm { 
+pr rmoveto
+} bind def
+/rl { 
+pr rlineto
+} bind def
+/ar { 
+5 -2 roll pl
+5 2 roll
+arc
+} bind def
+/an { 
+5 -2 roll pl
+5 2 roll
+arcn
+} bind def
+/MakePatternFont {
+/FontDict 20 dict def
+FontDict begin
+/FontName exch def
+/Encoding exch def
+/FontMatrix [1 0 0 1 0 0 ] def
+/FontType 3 def
+/FontBBox [ 0 0 1 1 ] def
+/PatternDict exch def
+/RenderPattern {
+patternDict exch get
+exec
+} bind def
+/BuildChar {
+exch begin
+1 0 0 0 1 1 setcachedevice
+Encoding exch get RenderPattern
+end
+} bind def
+FontName FontDict definefont pop
+end
+} bind def
+/SnapToPattenGrid
+	{
+	exch
+	dup 0 lt {
+		1 index sub
+	} if
+	1 index
+	div truncate
+	mul
+} bind def
+/FillPatternString {
+dup length
+1 sub
+0 1 3 -1 roll {
+2 index
+2 index
+3 -2 roll
+put
+} for
+pop pop
+} bind def
+/AutoSizeY {
+	0.0 exch dtransform
+	round
+	idtransform exch pop
+} bind def
+ /AutoSizeX {
+	0.0 dtransform
+	exch
+	round
+	exch
+	idtransform pop
+} bind def 
+/AutoCellSize {
+	AutoSizeY
+	exch
+	AutoSizeX
+	exch
+} bind def
+/CheckPath {
+	false
+	{ pop pop pop true exit}
+	{ pop pop pop true exit}
+	{ pop pop pop pop pop pop pop true exit}
+	{ pop true exit}
+	pathforall
+} bind def
+/PatternFill {					%		patternCharacter
+	/patternString 1 string def
+	/cm mstore def
+	patternMatrix setmatrix
+	1 1 AutoCellSize
+	dup 0 eq { pop 1} if
+	exch
+	dup 0 eq { pop 1} if
+	exch
+	/patternSize exch 24.0 mul def
+	/PatternSizeX exch 24.0 mul patternString length mul def
+	/flaterror 0 def
+	patternString FillPatternString
+	gsave
+		flaterror 1 add setflat
+		flattenpath
+		pathbbox
+	grestore
+	psy add flaterror add psy SnapToPattenGrid
+	exch psx add flaterror add psx SnapToPattenGrid
+	3 -1 roll flaterror sub psy SnapToPattenGrid
+	4 -1 roll flaterror sub psx SnapToPattenGrid
+	4 2 roll pll
+	4 2 roll pll
+	/llxsnap exch def
+	/llysnap exch def
+	/urxsnap exch def
+	/urysnap exch def
+	gsave
+		useClip true eq {clip}{eoclip} ifelse newpath
+		/PatternFont findfont [psx 0.0 0.0 psy 0.0 0.0] makefont setfont
+		llysnap patternSize urysnap {
+			llxsnap exch moveto
+			llxsnap PatternSizeX urxsnap {
+				pop
+				patternString show
+				%currentpoint am
+			} for
+		} bind for
+	grestore
+	cm setmatrix
+} bind def				%		End 'PatternFill'
+/DefaultPatternFont {
+	/cm mstore def
+	patternMatrix setmatrix
+	1 1 AutoCellSize
+	dup 0 eq { pop 1} if
+	exch
+	dup 0 eq { pop 1} if
+	exch
+	/psy exch iSizeY mul def
+	/psx exch iSizeX mul def
+	/patternDict 64 dict def
+	patternDict begin
+		/NotDef {} def
+		/LiteDiagLines {
+			iSizeX iSizeY false [iSizeX 0.0 0.0 iSizeY -1.0 mul  0.0 iSizeY]
+			{pat}
+			imagemask
+		} bind def
+	end
+	/CustEncoding 256 array def
+	0 255 1 {
+		CustEncoding exch /NotDef put
+	} bind for
+	CustEncoding 65 /LiteDiagLines put
+	patternDict CustEncoding /PatternFont MakePatternFont
+	/pathSegProc {
+		strokepath
+		CheckPath {
+			65 PatternFill newpath
+		} if
+	} bind def
+	cm setmatrix
+} bind def
+/XRound {
+	dup
+	3 -1 roll
+	exch mul round
+	exch div
+} bind def
+/RoundMatrix {
+	/i 0 def
+	dup {
+		100000.0 XRound
+		1 index
+		exch i exch put
+		/i i 1 add def
+	} forall
+} bind def
+/GetBoxesRatio {
+3 -1 roll sub
+7 1 roll
+exch sub
+6 1 roll
+3 -1 roll sub
+5 1 roll
+exch sub
+4 1 roll
+3 -1 roll div
+3 1 roll
+exch div
+exch
+} bind def
+%%BeginProcSet : Text Attributes Procs
+/T {792 exch sub} bind def
+/sx 0 def
+/sy 0 def
+/ex 0 def
+/ey 0 def
+/lw  0 def
+/siz 0 def
+/U {gsave 0 setlinecap
+/lw siz 0.078125 mul def  /ey exch neg def /ex exch def /sy exch neg def /sx exch def
+fontkind plain eq 
+ {
+  lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto stroke
+ }
+ {
+   currentdict /outlineFontSize known outlineFontSize 0 gt and
+     {
+       fontkind outline eq
+         {
+           /sy sy 0.0119444 siz mul sub def
+           /ey ey 0.0119444 siz mul sub def
+           gsave 
+           1 1 1 setrgbcolor lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto stroke
+           grestore
+           lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto
+           strokepath 0.0119444 siz mul setlinewidth stroke
+         } if
+       fontkind shadow eq fontkind outlineshadow eq or
+         {
+           /sy sy 0.0358332 siz mul sub def
+           /ey ey 0.0358332 siz mul sub def
+           lw setlinewidth
+           lw 2 div sx add sy
+           lw 2 div sub moveto
+           lw 2 div ex add ey
+           lw 2 div sub lineto stroke 
+           gsave
+           1 1 1 setrgbcolor lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto stroke
+           grestore
+           lw siz 0.0119444 mul sub setlinewidth sx sy moveto ex ey lineto
+           strokepath 0.0119444 siz mul setlinewidth stroke
+         } if
+      } if
+ } ifelse
+grestore} bind def
+/plain 1 def
+/outline 2 def
+/shadow 3 def
+/outlineshadow 4 def
+/fess {
+	currentdict /outlineFontSize known {
+		/outlineFontSize 2 index def
+	} if
+	findfont exch dup /siz exch def scalefont setfont
+} bind def
+/SHDW {gsave siz oldfontname fess siz 0.055 mul x add y siz 0.05 mul sub moveto c show grestore} def
+/NRML {gsave 1 1 1 setrgbcolor siz oldfontname fess x y moveto c show grestore siz /Outline fess  x y moveto c show} def
+/S {
+fontkind plain eq {neg moveto show} if
+fontkind outline eq {neg /y exch def /x exch def /c exch def NRML} if
+fontkind shadow eq {neg /y exch def /x exch def /c exch def SHDW NRML} if
+fontkind outlineshadow eq {neg /y exch def /x exch def /c exch def SHDW NRML} if
+} bind def
+/F {
+/fontkind exch def
+fontkind plain eq {fess} if
+fontkind outline eq {dup /oldfontname exch def exch dup /siz exch def exch OLF} if
+fontkind shadow eq {dup /oldfontname exch def exch dup /siz exch def exch OLF} if
+fontkind outlineshadow eq {dup /oldfontname exch def exch dup /siz exch def exch OLF} if
+} bind def
+/makeoutlinedict 15 dict def
+/makeoutlinefont
+ {
+  makeoutlinedict begin
+   /uniqueid exch def
+   /strokewidth exch def
+   /newfontname exch def
+   /basefontname exch def
+   /basefontdict basefontname findfont def
+   /numentries basefontdict maxlength 1 add def
+   basefontdict /UniqueID known not
+   {/numentries numentries 1 add def} if
+   /outfontdict numentries dict def
+   basefontdict
+   {
+     exch dup /FID ne {exch outfontdict 3 1 roll put} {pop pop} ifelse
+	  }forall
+   outfontdict /FontName newfontname put
+   outfontdict /PaintType 2 put
+   outfontdict /StrokeWidth strokewidth put
+   outfontdict /UniqueID uniqueid put
+   newfontname outfontdict definefont pop
+  end
+  }def
+/UID {
+ findfont dup /UniqueID known
+  {/UniqueID get 1 add}
+  {pop 1}
+  ifelse
+} def
+/OLF {
+dup
+/Outline
+1000 62 div
+4 -1 roll
+UID
+/outlineFontSize 5 index def
+makeoutlinefont
+/Outline findfont exch scalefont setfont
+} def
+/CopyEncoding {
+findfont
+/Encoding get
+dup length array
+/tarrayz exch def
+tarrayz 0
+3 -1 roll
+putinterval
+tarrayz
+} bind def
+/Re-encode {
+dup length array copy
+/eap 0 def
+exch {
+dup type /integertype eq {
+/eap exch def
+} {
+1 index
+exch
+eap exch
+put
+/eap eap 1 add def
+} ifelse
+} forall
+} bind def
+/EncodeFont	{
+findfont dup
+length dict
+begin
+{	1 index /FID ne
+{ def }
+{ pop pop } ifelse
+} forall
+/FontName exch def
+/Encoding exch def
+FontName currentdict
+end
+definefont pop
+} bind def
+%%EndProcSet
+%%BeginProcSet : clip2pathbbox
+/clip2pathbbox {
+	/magicNum linewidth 2 div 1 2 sqrt div mul def
+	pathbbox
+	/urymn exch magicNum add def
+	/urxmn exch magicNum add def
+	/llymn exch magicNum sub def
+	/llxmn exch magicNum sub def
+	newpath llxmn llymn moveto llxmn urymn lineto urxmn urymn lineto urxmn llymn lineto
+	closepath clip newpath
+} bind def
+%%EndProcSet 
+%% Line takes the following arguments:
+%% linewidth xEnd yEnd xStart yStart
+%%BeginProcSet : Line
+/Line {
+MAV /LC get length 0 ne
+{
+	gsave
+			newpath
+			MAV /ArrowType get length 0 eq
+			MAV /SD get length 0 eq and
+			{2 setlinecap /UseClip {clip2pathbbox} def }
+			{0 setlinecap /UseClip {} def } ifelse
+			0 792 translate
+			1 -1 scale
+			CTM currentmatrix pop
+			/yStart exch def /xStart exch def /yEnd exch def /xEnd exch def /linewidth exch def
+			MAV /ArrowType get length 0 eq xStart xEnd ne yStart yEnd ne and and
+			{xStart yStart moveto xEnd yEnd lineto UseClip xStart yStart moveto xEnd yEnd lineto}
+			{xStart yStart moveto xEnd yEnd lineto} ifelse
+			linewidth setlinewidth SD strokepath
+			CheckPath {LC PF ArrowType} if
+	grestore
+}
+{pop pop pop pop pop} ifelse
+} bind def
+/CompensateForStroke {
+	sin currentlinewidth mul
+	exch
+	cos currentlinewidth mul
+	dup 0 translate
+	4 -1 roll exch 2.0 mul sub
+	3 1 roll
+	2.0 mul sub
+} bind def
+/arrowdict 10 dict def
+arrowdict begin
+	/SwallowTail {
+		newpath
+		0.0 0.0 moveto
+		1.0 -.5 lineto
+		.666 0.0 lineto
+		1.0 .5 lineto
+		closepath
+	} bind def
+	/Triangular {
+		newpath
+		0.0 0.0 moveto
+		1.0 -.5 lineto
+		1.0 .5 lineto
+		closepath
+	} bind def
+	/OpenTri {
+		newpath
+		1.0 0.5 moveto
+		0.0 0.0 lineto
+		1.0 -0.5 lineto
+	} bind def
+	/ClosedTri {
+		newpath
+		1.0 0.5 moveto
+		0.0 0.0 lineto
+		1.0 -0.5 lineto
+		closepath
+	} bind def
+	/SlashBar {
+		newpath
+		0.5 -.5 moveto
+		-.5 0.5 lineto
+	} bind def
+	/Dot {
+		newpath
+		0.5 0.0 moveto
+		0 0 1 0 360 arc
+		closepath
+	} bind def
+	/ExtSlashBar {
+		newpath
+		1.0 -.5 moveto
+		0.0 0.5 lineto
+	} bind def
+end
+/ScaleArrowHead {
+	0 0 4 -2 roll
+	0 0 1 1
+	8 -4 roll GetBoxesRatio
+	scale
+} bind def
+/DrawArrowHead {
+	gsave
+	[] 0 setdash
+	currentpoint translate rotate
+	{
+		4 copy
+		gsave
+			initmatrix
+			100 200 translate
+			msave
+				ScaleArrowHead pop
+				arrowdict exch get exec
+			mrestore
+			strokepath
+			0 0 3 index 3 index
+			pathbbox 8 4 roll
+			GetBoxesRatio
+			4 2 roll
+		grestore
+		3 index 1.0 exch sub
+		6 -1 roll
+		{
+			2 index mul
+			0 translate
+		}{
+			pop
+		} ifelse
+		msave
+			ScaleArrowHead scale
+			arrowdict exch get exec
+		mrestore
+		strokepath
+	} {
+		msave
+		ScaleArrowHead
+		arrowdict exch get exec
+		mrestore
+	} ifelse
+		CheckPath {
+			LC PF
+		} if
+	grestore
+} bind def
+%%EndProcSet 
+%%BeginProcSet : SR 
+/SR { 
+ pbox left get pbox top get moveto 
+ pbox right get pbox top get lineto 
+ pbox right get pbox bottom get lineto 
+ pbox left get pbox bottom get lineto 
+ closepath
+} bind def 
+%%EndProcSet 
+/StripFromFront { 
+dup length
+2 index sub
+3 1 roll
+exch 3 -1 roll
+getinterval
+} bind def
+/MakePathArray { 
+ /k 0 def 
+ {/k k 1 add def pop pop}{/k k 1 add def pop pop}{/k k 1 add def pop pop pop pop pop pop}{/k k 1 add def }pathforall 
+ k array
+ /k 0 def 
+ {{moveto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+ {{lineto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+ {{curveto} 7 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+ {{closepath} 1 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+pathforall 
+}bind def 
+/MakeFlatPathArray { 
+/k 0 def 
+{/k k 1 add def pop pop}{/k k 1 add def pop pop}{pop pop pop pop pop pop}{}pathforall 
+k array
+/k 0 def 
+{{moveto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+{{lineto} 3 array astore 1 index k 3 -1 roll put /k k 1 add def} 
+{ pop pop pop pop pop pop} 
+{} 
+pathforall 
+}bind def 
+/FractionalLine {
+2 index sub
+.00001 mul
+exch
+3 index sub
+.00001 mul
+4 -1 roll add
+3 1 roll
+add
+} bind def
+/calcLineLength {
+ exch
+ 4 -1 roll
+ sub
+ dup mul
+ 3 1 roll exch
+ sub
+ dup mul
+ add sqrt
+} bind def
+/InitTotalLineLength {
+ /oldY exch def
+ /oldX exch def
+ theDash aload pop currentLineLength add setdash
+} bind def
+/AccumeLineLength {
+ 3 copy pop
+ 2 copy
+ oldX oldY
+ 4 2 roll calcLineLength
+ /segmentLength exch def
+ /currentLineLength currentLineLength segmentLength add def
+ /oldY exch def
+ /oldX exch def
+} bind def
+/DecumeLastLineLength {
+ /currentLineLength currentLineLength segmentLength sub def
+} bind def
+/DrawFlattendSegment {
+ /pointCount 2 def
+ dup 0 lt { pop 0 } if
+ fpc
+ 3 1 roll
+ 2 index
+ 1 index
+ gt {
+ 2 copy get
+ dup length
+ dup 3 eq {
+ pop
+ dup 0 get
+ exch 1 get
+ 2 copy InitTotalLineLength  
+ m
+ } {
+ } ifelse
+ } {
+ pop 1 index
+ } ifelse
+ dup 1 add
+ 3 index
+ exch sub
+ dup 10 gt { pop 10} if
+ {
+ 1 add
+ 2 copy
+ get aload pop
+ AccumeLineLength
+ exec
+ } repeat
+ 3 1 roll pop pop
+ DecumeLastLineLength
+} bind def
+/IncFPC {
+ fpc add
+ /fpc exch def
+} bind def
+/DrawFlatPathArray {
+ fpc
+ 0 { 
+ dup 2 index
+ 1 sub
+ lt { 
+ flatPathArray exch
+ newpath
+ 1 sub DrawFlattendSegment
+ gsave
+ pathSegProc
+ grestore
+ newpath
+ }
+ {
+ pop pop
+ exit
+ } ifelse
+ } loop
+} bind def
+/RecordFirstSubSegment {
+ closepathArray 0 pathArray 0 get
+ put
+ closepathArray 1
+ pathArray 0 get aload pop pop
+ pathArray 1 get dup length 3 eq {
+ aload pop pop
+ } {
+ newpath
+ 0 0 moveto
+ aload pop exec
+ /segmentArray flattenpath MakeFlatPathArray def
+ segmentArray 1 get aload pop pop
+ } ifelse
+ FractionalLine {lineto} 3 array astore
+ put
+} bind def
+/AppendClosePath {
+ closepathArray 0 get 2 {lineto} put
+ flatPathArray fpc closepathArray 0 get put
+ 1 IncFPC
+ flatPathArray fpc closepathArray 1 get put
+ 1 IncFPC
+} bind def
+/RecordCurrentDash {
+ /theDash
+ currentdash 2 array astore def
+ /currentLineLength 0 def
+} bind def
+/PatternStroke {
+	0 setlinecap
+ RecordCurrentDash
+ /saveFlat currentflat def
+ .5 setflat
+ /pathArray MakePathArray def
+ /closepathArray 2 array def
+ /pathLength pathArray length def
+ /flatPathArray 513 array def
+ /currentLineLength 0 def
+ /fpc 0 def
+ pathArray pathLength 1 sub get
+ length 1 eq {
+ /usingClosepath true def
+ RecordFirstSubSegment
+ /pathLength pathLength 1 sub def
+ } {
+ /usingClosepath false def
+ } ifelse
+ 0 1 pathLength 1 sub {
+ pathArray exch get
+ dup length 3 eq {
+ fpc 1 add 512 ge {
+ DrawFlatPathArray
+ fpc 2 ge {
+ flatPathArray flatPathArray fpc 2 sub get 0 put
+ flatPathArray flatPathArray fpc 1 sub get 1 put
+ /fpc 2 def
+ }{
+ /fpc 0 def
+ } ifelse
+ } if
+ flatPathArray exch fpc exch put
+ 1 IncFPC
+ } {
+ dup length 7 eq {
+ newpath
+ /nToStrip 0 def
+ fpc 1 gt {
+ flatPathArray fpc 2 sub get aload pop pop m
+ flatPathArray fpc 1 sub get aload pop exec
+ /nToStrip 2 def
+ } {
+ fpc 1 eq {
+ flatPathArray fpc 1 sub get aload pop exec
+ /nToStrip 2 def
+ } if
+ } ifelse
+ aload pop exec
+ /segmentArray flattenpath MakeFlatPathArray def
+ /segmentArray nToStrip segmentArray StripFromFront def
+ segmentArray length fpc add 512 lt {
+ flatPathArray fpc segmentArray putinterval
+ segmentArray length IncFPC
+ } {
+ DrawFlatPathArray
+ fpc 1 gt {
+ flatPathArray flatPathArray fpc 2 sub get 0 exch put
+ flatPathArray flatPathArray fpc 1 sub get 1 exch put
+ /fpc 2 def
+ }{
+ /fpc 0 def
+ } ifelse
+ segmentArray length 512 lt {
+ flatPathArray fpc segmentArray putinterval
+ segmentArray length IncFPC
+ } {
+ segmentArray length
+ /exitLoop false def
+ 0 
+ {
+ 2 copy sub
+ dup 500 gt {
+ pop 500
+ } { 
+ /exitLoop true def
+ } ifelse 
+ segmentArray 2 index 2 index getinterval
+ flatPathArray fpc 3 -1 roll putinterval
+ dup IncFPC
+ add 
+ exitLoop {
+ exit 
+ } {
+ DrawFlatPathArray
+ fpc 1 gt {
+ flatPathArray flatPathArray fpc 2 sub get 0 exch put
+ flatPathArray flatPathArray fpc 1 sub get 1 exch put
+ /fpc 2 def
+ }{
+ /fpc 0 def
+ } ifelse
+ } ifelse
+ } loop
+ } ifelse
+ } ifelse
+ } if
+ } ifelse
+ } for
+ fpc 0 gt {
+ usingClosepath {
+ AppendClosePath
+ } if
+ DrawFlatPathArray
+ } if
+ saveFlat setflat
+} bind def
+
+
+%%EndProlog
+initmsaverestore
+/tctm matrix currentmatrix def
+tctm RoundMatrix setmatrix
+/patternMatrix mstore def
+10 setmiterlimit
+2 setlinecap
+newpath
+%
+%tLayer
+%
+%
+%tfBegGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 48.250 90.250 0.000 0.000 18.000 108.000 rect
+%@EndRect
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 48.250 108.250 0.000 0.000 18.000 72.000 rect
+%@EndRect
+%
+%tfBegGrp
+%
+%@BeginText
+save
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 49.250 93.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+97.250 55.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 55.250 100.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+103.250 61.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(1) -2.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 49.250 111.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+115.250 55.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 55.250 118.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+121.250 61.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(2) -2.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 53.250 143.250 0.000 0.000 12.000 17.000 rect
+%@EndRect
+gsave
+151.750 59.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(¥) -8.250 3.000 S
+( ) -4.749 3.000 S
+(¥) -2.249 3.000 S
+( ) 1.251 3.000 S
+(¥) 3.751 3.000 S
+( ) 7.252 3.000 S
+( ) 9.752 3.000 S
+grestore
+%@EndText
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 49.250 182.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+186.250 55.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 55.250 189.250 0.000 0.000 12.000 9.000 rect
+%@EndRect
+gsave
+193.750 61.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(N) -4.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 126.250 66.250 126.250 48.250 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 75.250 90.250 0.000 0.000 18.000 126.000 rect
+%@EndRect
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 75.250 108.250 0.000 0.000 18.000 72.000 rect
+%@EndRect
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 76.250 93.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+97.250 82.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 82.250 100.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+103.250 88.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(1) -2.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 76.250 111.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+115.250 82.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 82.250 118.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+121.250 88.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(2) -2.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 76.250 182.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+186.250 82.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 82.250 189.250 0.000 0.000 12.000 9.000 rect
+%@EndRect
+gsave
+193.750 88.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(N) -4.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 126.250 93.250 126.250 75.250 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 75.250 198.250 0.000 0.000 18.000 18.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 77.250 204.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+208.250 83.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(E) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 102.250 90.250 0.000 0.000 18.000 144.000 rect
+%@EndRect
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 102.250 90.250 0.000 0.000 18.000 90.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 103.250 93.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+97.250 109.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 109.250 100.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+103.250 115.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(1) -2.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 103.250 111.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+115.250 109.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 109.250 118.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+121.250 115.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(2) -2.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 103.250 182.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+186.250 109.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 109.250 189.250 0.000 0.000 12.000 9.000 rect
+%@EndRect
+gsave
+193.750 115.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(N) -4.250 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 126.250 120.250 126.250 102.250 Line
+%@EndLine
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 51.250 15.250 0.000 0.000 12.000 34.000 rect
+%@EndRect
+gsave
+32.250 57.250 T translate
+0.0 rotate
+1 1 scale
+12.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(L) -16.250 4.000 S
+(P) -8.919 4.000 S
+(C) -2.246 4.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 77.250 15.250 0.000 0.000 12.000 58.583 rect
+%@EndRect
+gsave
+44.541 83.250 T translate
+0.0 rotate
+1 1 scale
+12.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(L) -29.250 4.000 S
+(P) -21.919 4.000 S
+(C) -15.246 4.000 S
+(_) -7.242 4.000 S
+(E) -1.242 4.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 103.250 15.250 0.000 0.000 12.000 60.166 rect
+%@EndRect
+gsave
+45.333 109.250 T translate
+0.0 rotate
+1 1 scale
+12.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(L) -29.250 4.000 S
+(P) -21.919 4.000 S
+(C) -15.246 4.000 S
+(_) -7.242 4.000 S
+(D) -1.242 4.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 130.250 15.250 0.000 0.000 12.000 80.750 rect
+%@EndRect
+gsave
+55.625 136.250 T translate
+0.0 rotate
+1 1 scale
+12.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(L) -40.250 4.000 S
+(P) -32.919 4.000 S
+(C) -26.246 4.000 S
+(_) -18.242 4.000 S
+(E) -12.242 4.000 S
+(_) -4.912 4.000 S
+(D) 1.087 4.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 159.250 15.250 0.000 0.000 12.000 104.500 rect
+%@EndRect
+gsave
+67.500 165.250 T translate
+0.0 rotate
+1 1 scale
+12.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(L) -52.250 4.000 S
+(P) -44.919 4.000 S
+(C) -38.246 4.000 S
+(_) -30.242 4.000 S
+(E) -24.242 4.000 S
+(_) -16.912 4.000 S
+(D) -10.912 4.000 S
+(_) -2.246 4.000 S
+(N) 3.753 4.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 102.250 216.250 0.000 0.000 18.000 90.000 rect
+%@EndRect
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 102.250 234.250 0.000 0.000 18.000 54.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 110.250 209.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+212.250 116.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(1) -2.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 110.250 226.750 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+229.750 116.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(2) -2.750 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 110.250 298.250 0.000 0.000 12.000 9.000 rect
+%@EndRect
+gsave
+302.750 116.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(N) -4.250 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 198.250 120.250 198.250 102.250 Line
+%@EndLine
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 103.750 199.750 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+206.250 109.750 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -5.750 3.000 S
+grestore
+restore
+save
+gsave
+206.250 109.750 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -0.808 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 103.250 217.250 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+223.750 109.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+223.750 109.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -1.308 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 103.250 289.250 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+295.750 109.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+295.750 109.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -1.308 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 129.250 90.250 0.000 0.000 18.000 144.000 rect
+%@EndRect
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 129.250 108.250 0.000 0.000 18.000 108.000 rect
+%@EndRect
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 130.250 93.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+97.250 136.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 136.250 100.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+103.250 142.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(1) -2.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 130.250 111.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+115.250 136.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 136.250 118.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+121.250 142.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(2) -2.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 130.250 182.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+186.250 136.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 136.250 189.250 0.000 0.000 12.000 9.000 rect
+%@EndRect
+gsave
+193.750 142.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(N) -4.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 126.250 147.250 126.250 129.250 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 129.250 198.250 0.000 0.000 18.000 18.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 131.250 204.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+208.250 137.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(E) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 129.250 216.250 0.000 0.000 18.000 126.000 rect
+%@EndRect
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 129.250 216.250 0.000 0.000 18.000 108.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 137.250 227.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+230.250 143.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(1) -2.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 137.250 244.750 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+247.750 143.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(2) -2.750 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 137.250 316.250 0.000 0.000 12.000 9.000 rect
+%@EndRect
+gsave
+320.750 143.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(N) -4.250 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 180.250 147.250 180.250 129.250 Line
+%@EndLine
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 130.750 217.750 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+224.250 136.750 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -5.750 3.000 S
+grestore
+restore
+save
+gsave
+224.250 136.750 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -0.808 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 130.250 235.250 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+241.750 136.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+241.750 136.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -1.308 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 130.250 307.250 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+313.750 136.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+313.750 136.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -1.308 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 129.250 306.250 0.000 0.000 18.000 18.000 rect
+%@EndRect
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 131.250 327.250 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+333.750 137.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+333.750 137.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(E) -1.308 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 156.250 198.250 0.000 0.000 18.000 126.000 rect
+%@EndRect
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 156.250 216.250 0.000 0.000 18.000 108.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 164.250 209.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+212.250 170.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(1) -2.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 164.250 226.750 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+229.750 170.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(2) -2.750 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 164.250 298.250 0.000 0.000 12.000 9.000 rect
+%@EndRect
+gsave
+302.750 170.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(N) -4.250 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 234.250 174.250 234.250 156.250 Line
+%@EndLine
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 157.750 199.750 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+206.250 163.750 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -5.750 3.000 S
+grestore
+restore
+save
+gsave
+206.250 163.750 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -0.808 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 157.250 217.250 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+223.750 163.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+223.750 163.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -1.308 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 157.250 289.250 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+295.750 163.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+295.750 163.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -1.308 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 156.250 288.250 0.000 0.000 18.000 18.000 rect
+%@EndRect
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 158.250 309.250 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+315.750 164.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+315.750 164.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(E) -1.308 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 156.250 90.250 0.000 0.000 18.000 144.000 rect
+%@EndRect
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 156.250 108.250 0.000 0.000 18.000 72.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 157.250 93.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+97.250 163.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 163.250 100.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+103.250 169.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(1) -2.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 157.250 111.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+115.250 163.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 163.250 118.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+121.250 169.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(2) -2.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 157.250 182.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+186.250 163.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 163.250 189.250 0.000 0.000 12.000 9.000 rect
+%@EndRect
+gsave
+193.750 169.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(N) -4.250 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 126.250 174.250 126.250 156.250 Line
+%@EndLine
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 78.250 144.750 0.000 0.000 12.000 17.000 rect
+%@EndRect
+gsave
+153.250 84.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(¥) -7.750 3.000 S
+( ) -4.249 3.000 S
+(¥) -1.749 3.000 S
+( ) 1.751 3.000 S
+(¥) 4.251 3.000 S
+( ) 7.752 3.000 S
+( ) 10.252 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 105.250 144.750 0.000 0.000 12.000 17.000 rect
+%@EndRect
+gsave
+153.250 111.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(¥) -7.750 3.000 S
+( ) -4.249 3.000 S
+(¥) -1.749 3.000 S
+( ) 1.751 3.000 S
+(¥) 4.251 3.000 S
+( ) 7.752 3.000 S
+( ) 10.252 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 105.250 252.750 0.000 0.000 12.000 17.000 rect
+%@EndRect
+gsave
+261.250 111.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(¥) -7.750 3.000 S
+( ) -4.249 3.000 S
+(¥) -1.749 3.000 S
+( ) 1.751 3.000 S
+(¥) 4.251 3.000 S
+( ) 7.752 3.000 S
+( ) 10.252 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 234.250 147.250 234.250 129.250 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 252.250 147.250 252.250 129.250 Line
+%@EndLine
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 132.250 144.750 0.000 0.000 12.000 17.000 rect
+%@EndRect
+gsave
+153.250 138.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(¥) -7.750 3.000 S
+( ) -4.249 3.000 S
+(¥) -1.749 3.000 S
+( ) 1.751 3.000 S
+(¥) 4.251 3.000 S
+( ) 7.752 3.000 S
+( ) 10.252 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 132.250 270.750 0.000 0.000 12.000 17.000 rect
+%@EndRect
+gsave
+279.250 138.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(¥) -7.750 3.000 S
+( ) -4.249 3.000 S
+(¥) -1.749 3.000 S
+( ) 1.751 3.000 S
+(¥) 4.251 3.000 S
+( ) 7.752 3.000 S
+( ) 10.252 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 159.250 144.750 0.000 0.000 12.000 17.000 rect
+%@EndRect
+gsave
+153.250 165.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(¥) -7.750 3.000 S
+( ) -4.249 3.000 S
+(¥) -1.749 3.000 S
+( ) 1.751 3.000 S
+(¥) 4.251 3.000 S
+( ) 7.752 3.000 S
+( ) 10.252 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 159.250 252.750 0.000 0.000 12.000 17.000 rect
+%@EndRect
+gsave
+261.250 165.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(¥) -7.750 3.000 S
+( ) -4.249 3.000 S
+(¥) -1.749 3.000 S
+( ) 1.751 3.000 S
+(¥) 4.251 3.000 S
+( ) 7.752 3.000 S
+( ) 10.252 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 184.250 15.250 0.000 0.000 12.000 66.000 rect
+%@EndRect
+gsave
+48.250 190.250 T translate
+0.0 rotate
+1 1 scale
+12.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(L) -32.250 4.000 S
+(P) -24.919 4.000 S
+(C) -18.246 4.000 S
+(_) -10.242 4.000 S
+(E) -4.242 4.000 S
+(_) 3.087 4.000 S
+(D) 9.087 4.000 S
+(_) 17.753 4.000 S
+(A) 23.753 4.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 183.250 90.250 0.000 0.000 18.000 144.000 rect
+%@EndRect
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 183.250 108.250 0.000 0.000 18.000 108.000 rect
+%@EndRect
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 184.250 93.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+97.250 190.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 190.250 100.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+103.250 196.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(1) -2.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 184.250 111.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+115.250 190.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 190.250 118.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+121.250 196.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(2) -2.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 184.250 182.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+186.250 190.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 190.250 189.250 0.000 0.000 12.000 9.000 rect
+%@EndRect
+gsave
+193.750 196.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(N) -4.250 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 126.250 201.250 126.250 183.250 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 183.250 198.250 0.000 0.000 18.000 18.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 185.250 204.250 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+208.250 191.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(E) -3.250 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 180.250 201.250 180.250 183.250 Line
+%@EndLine
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 186.250 144.750 0.000 0.000 12.000 17.000 rect
+%@EndRect
+gsave
+153.250 192.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(¥) -7.750 3.000 S
+( ) -4.249 3.000 S
+(¥) -1.749 3.000 S
+( ) 1.751 3.000 S
+(¥) 4.251 3.000 S
+( ) 7.752 3.000 S
+( ) 10.252 3.000 S
+grestore
+%@EndText
+%
+%tfBegGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 183.250 216.250 0.000 0.000 18.000 126.000 rect
+%@EndRect
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 183.250 216.250 0.000 0.000 18.000 108.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 191.250 227.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+230.250 197.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(1) -2.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 191.250 244.750 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+247.750 197.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(2) -2.750 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 191.250 316.250 0.000 0.000 12.000 9.000 rect
+%@EndRect
+gsave
+320.750 197.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(N) -4.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 184.750 217.750 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+224.250 190.750 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -5.750 3.000 S
+grestore
+restore
+save
+gsave
+224.250 190.750 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -0.808 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 184.250 235.250 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+241.750 190.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+241.750 190.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -1.308 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 184.250 307.250 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+313.750 190.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+313.750 190.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -1.308 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 183.250 306.250 0.000 0.000 18.000 18.000 rect
+%@EndRect
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 185.250 327.250 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+333.750 191.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+333.750 191.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(E) -1.308 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 234.250 201.250 234.250 183.250 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 252.250 201.250 252.250 183.250 Line
+%@EndLine
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 186.250 270.750 0.000 0.000 12.000 17.000 rect
+%@EndRect
+gsave
+279.250 192.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(¥) -7.750 3.000 S
+( ) -4.249 3.000 S
+(¥) -1.749 3.000 S
+( ) 1.751 3.000 S
+(¥) 4.251 3.000 S
+( ) 7.752 3.000 S
+( ) 10.252 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%
+%tfBegGrp
+%
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 26.750 237.750 0.000 0.000 12.000 8.000 rect
+%@EndRect
+gsave
+241.750 32.750 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -3.750 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 32.750 244.750 0.000 0.000 12.000 4.000 rect
+%@EndRect
+gsave
+246.750 38.750 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(i) -1.750 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 28.750 256.750 0.000 0.000 12.000 75.000 rect
+%@EndRect
+gsave
+294.250 34.750 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(B) -36.750 3.000 S
+(a) -30.080 3.000 S
+(s) -25.641 3.000 S
+(i) -21.750 3.000 S
+(c) -18.971 3.000 S
+( ) -14.533 3.000 S
+(C) -12.033 3.000 S
+(o) -5.363 3.000 S
+(e) -0.363 3.000 S
+(f) 4.075 3.000 S
+(f) 7.405 3.000 S
+(i) 10.735 3.000 S
+(c) 13.513 3.000 S
+(i) 17.952 3.000 S
+(e) 20.730 3.000 S
+(n) 25.168 3.000 S
+(t) 30.168 3.000 S
+(s) 32.947 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 43.750 238.750 0.000 0.000 12.000 68.000 rect
+%@EndRect
+gsave
+272.750 49.750 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(E) -33.750 3.000 S
+( ) -27.641 3.000 S
+( ) -25.141 3.000 S
+( ) -22.641 3.000 S
+( ) -20.141 3.000 S
+( ) -17.641 3.000 S
+(L) -15.141 3.000 S
+(o) -9.033 3.000 S
+(g) -4.033 3.000 S
+( ) 0.966 3.000 S
+(E) 3.466 3.000 S
+(n) 9.575 3.000 S
+(e) 14.575 3.000 S
+(r) 19.013 3.000 S
+(g) 22.343 3.000 S
+(y) 27.343 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 59.750 272.250 0.000 0.000 12.000 72.000 rect
+%@EndRect
+gsave
+308.250 65.750 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(D) -35.250 3.000 S
+(e) -28.028 3.000 S
+(l) -23.589 3.000 S
+(t) -20.811 3.000 S
+(a) -18.033 3.000 S
+( ) -13.594 3.000 S
+(c) -11.094 3.000 S
+(o) -6.656 3.000 S
+(e) -1.656 3.000 S
+(f) 2.782 3.000 S
+(f) 6.112 3.000 S
+(i) 9.442 3.000 S
+(c) 12.220 3.000 S
+(i) 16.659 3.000 S
+(e) 19.437 3.000 S
+(n) 23.875 3.000 S
+(t) 28.875 3.000 S
+(s) 31.654 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 60.250 255.750 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+262.250 66.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -5.750 3.000 S
+grestore
+restore
+save
+gsave
+262.250 66.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(E) -0.808 3.000 S
+grestore
+%@EndText
+%
+%tfBegGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 65.250 246.750 0.000 0.000 12.000 4.000 rect
+%@EndRect
+gsave
+248.750 71.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(i) -1.750 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 60.250 235.750 0.000 0.000 12.000 13.000 rect
+%@EndRect
+gsave
+242.250 66.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(d) -5.750 3.000 S
+grestore
+restore
+save
+gsave
+242.250 66.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -0.808 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 61.250 250.750 0.000 0.000 12.000 4.000 rect
+%@EndRect
+gsave
+252.750 67.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(,) -1.750 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 77.750 272.250 0.000 0.000 12.000 102.000 rect
+%@EndRect
+gsave
+323.250 83.750 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(A) -50.250 3.000 S
+(c) -43.028 3.000 S
+(c) -38.589 3.000 S
+(e) -34.151 3.000 S
+(l) -29.712 3.000 S
+(e) -26.934 3.000 S
+(r) -22.496 3.000 S
+(a) -19.166 3.000 S
+(t) -14.727 3.000 S
+(i) -11.949 3.000 S
+(o) -9.170 3.000 S
+(n) -4.170 3.000 S
+( ) 0.829 3.000 S
+(c) 3.329 3.000 S
+(o) 7.767 3.000 S
+(e) 12.767 3.000 S
+(f) 17.206 3.000 S
+(f) 20.536 3.000 S
+(i) 23.866 3.000 S
+(c) 26.644 3.000 S
+(i) 31.083 3.000 S
+(e) 33.861 3.000 S
+(n) 38.299 3.000 S
+(t) 43.299 3.000 S
+(s) 46.078 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 78.250 255.750 0.000 0.000 12.000 14.000 rect
+%@EndRect
+gsave
+262.750 84.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(D) -6.750 3.000 S
+grestore
+restore
+save
+gsave
+262.750 84.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(E) -0.631 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 83.250 246.750 0.000 0.000 12.000 4.000 rect
+%@EndRect
+gsave
+248.750 89.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(i) -1.750 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 78.250 235.750 0.000 0.000 12.000 14.000 rect
+%@EndRect
+gsave
+242.750 84.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(D) -6.750 3.000 S
+grestore
+restore
+save
+gsave
+242.750 84.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -0.631 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 79.250 250.750 0.000 0.000 12.000 4.000 rect
+%@EndRect
+gsave
+252.750 85.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(,) -1.750 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 183.250 342.250 0.000 0.000 18.000 126.000 rect
+%@EndRect
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 0.000 setcmykcolor end} {1.000 1.000 1.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+1.000 0 183.250 342.250 0.000 0.000 18.000 108.000 rect
+%@EndRect
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 191.250 353.250 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+356.250 197.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(1) -2.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 191.250 370.750 0.000 0.000 12.000 6.000 rect
+%@EndRect
+gsave
+373.750 197.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(2) -2.750 3.000 S
+grestore
+%@EndText
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 191.250 442.250 0.000 0.000 12.000 9.000 rect
+%@EndRect
+gsave
+446.750 197.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(N) -4.250 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 184.750 343.750 0.000 0.000 12.000 14.000 rect
+%@EndRect
+gsave
+350.750 190.750 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(D) -6.750 3.000 S
+grestore
+restore
+save
+gsave
+350.750 190.750 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -0.631 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 184.250 361.250 0.000 0.000 12.000 14.000 rect
+%@EndRect
+gsave
+368.250 190.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(D) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+368.250 190.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -0.131 3.000 S
+grestore
+%@EndText
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 184.250 433.250 0.000 0.000 12.000 14.000 rect
+%@EndRect
+gsave
+440.250 190.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(D) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+440.250 190.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(C) -0.131 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginRect
+/RT {SR} def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {} def
+/PC {} def
+1.000 0 183.250 432.250 0.000 0.000 18.000 18.000 rect
+%@EndRect
+%@BeginText
+restore
+save
+%%IncludeFont: Symbol
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 185.250 453.250 0.000 0.000 12.000 14.000 rect
+%@EndRect
+gsave
+460.250 191.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (Symbol) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(D) -6.250 3.000 S
+grestore
+restore
+save
+gsave
+460.250 191.250 T translate
+0.0 rotate
+1 1 scale
+%%IncludeFont: Times-Roman
+[ 39/quotesingle 96/grave 128/Adieresis/Aring/Ccedilla/Eacute/Ntilde/Odieresis
+/Udieresis/aacute/agrave/acircumflex/adieresis/atilde/aring/ccedilla/eacute
+/egrave/ecircumflex/edieresis/iacute/igrave/icircumflex/idieresis/ntilde
+/oacute/ograve/ocircumflex/odieresis/otilde/uacute/ugrave/ucircumflex
+/udieresis/dagger/degree/cent/sterling/section/bullet/paragraph/germandbls
+/registered/copyright/trademark/acute/dieresis/.notdef/AE/Oslash
+/.notdef/plusminus/.notdef/.notdef/yen/mu/.notdef/.notdef
+/.notdef/.notdef/.notdef/ordfeminine/ordmasculine/.notdef/ae/oslash
+/questiondown/exclamdown/logicalnot/.notdef/florin/.notdef/.notdef
+/guillemotleft/guillemotright/ellipsis/.notdef/Agrave/Atilde/Otilde/OE/oe
+/endash/emdash/quotedblleft/quotedblright/quoteleft/quoteright/divide
+/.notdef/ydieresis/Ydieresis/fraction/currency/guilsinglleft/guilsinglright
+/fi/fl/daggerdbl/periodcentered/quotesinglbase/quotedblbase/perthousand
+/Acircumflex/Ecircumflex/Aacute/Edieresis/Egrave/Iacute/Icircumflex
+/Idieresis/Igrave/Oacute/Ocircumflex/.notdef/Ograve/Uacute/Ucircumflex
+/Ugrave/dotlessi/circumflex/tilde/macron/breve/dotaccent/ring/cedilla
+/hungarumlaut/ogonek/caron]
+StandardEncoding Re-encode /_Times-Roman /Times-Roman EncodeFont
+
+10.000 (_Times-Roman) plain F
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(E) -0.131 3.000 S
+grestore
+%@EndText
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 360.250 201.250 360.250 183.250 Line
+%@EndLine
+%@BeginRuler
+%@  9.0000000000000000000e+0 viewScale
+%@  1.1111111111111110490e-1 realScale
+%@ 8 realDivs
+%@ 0000 rulerFormat
+%@EndRuler
+%@BeginLine
+/ArrowType{ } def
+/SD {} def
+/SS {setlinewidth SD stroke} def
+/LC { /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+} def
+/PF {gsave fill grestore} def
+/SS {setlinewidth SD stroke} def
+1.000 378.250 201.250 378.250 183.250 Line
+%@EndLine
+%@BeginText
+%@BeginRect
+/RT {SR} def
+/LC {} def
+/SS {pop} def
+/PF {} def
+/PC {} def
+0.000 0 186.250 396.750 0.000 0.000 12.000 17.000 rect
+%@EndRect
+gsave
+405.250 192.250 T translate
+0.0 rotate
+1 1 scale
+10.000 (_Times-Roman) fess
+ /setcmykcolor where
+ {begin 0.000 0.000 0.000 1.000 setcmykcolor end} {0.000 0.000 0.000 setrgbcolor} ifelse 
+
+(¥) -7.750 3.000 S
+( ) -4.249 3.000 S
+(¥) -1.749 3.000 S
+( ) 1.751 3.000 S
+(¥) 4.251 3.000 S
+( ) 7.752 3.000 S
+( ) 10.252 3.000 S
+grestore
+%@EndText
+%
+%tfEndGrp
+%
+restore
+%%Trailer
+end

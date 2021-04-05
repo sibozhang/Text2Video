@@ -1,0 +1,47 @@
+%
+% This file by Gareth Moore 12/2/02
+%
+
+\newpage
+\mysect{LNewMap}{LNewMap}
+
+\mysubsect{Function}{Function2}
+
+\index{ladapt@\htool{LNewMap}|(}
+This tool will create an empty word map suitable for use with
+\htool{LGPrep}. 
+
+\mysubsect{Use}{LNewMap-Use}
+
+\htool{LNewMap} is invoked by the command line
+\begin{verbatim}
+   LNewMap [options] name mapfn
+\end{verbatim}
+A new word map is created with the file name `mapfn', with its
+constituent {\tt Name} header set to the text passed in `name'.
+It also creates default {\tt SeqNo}, {\tt Entries}, {\tt EscMode} and {\tt Fields}
+headers in the file.  The contents of the {\tt EscMode} header may be
+altered from the default of {\tt RAW} using the {\tt -e} option, whilst
+the {\tt Fields} header contains {\tt ID} but may be added to using the {\tt
+-f} option.
+
+The allowable options to \htool{LNewMap} are therefore
+\begin{optlist}
+  \ttitem{-e esc} Change the contents of the {\tt EscMode} header to
+      {\tt esc}. Default is {\tt RAW}.
+
+  \ttitem{-f fld} Add the field {\tt fld} to the {\tt Fields} header.
+
+\end{optlist}
+\stdopts{LNewMap}
+
+\mysubsect{Tracing}{LNewMap-Tracing}
+
+\htool{LNewMap} supports the following trace options where each trace flag is 
+given using an octal base
+\begin{optlist}
+  \ttitem{00001}  basic progress reporting
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the \texttt{TRACE}
+configuration variable.
+\index{ladapt@\htool{LNewMap}|)}

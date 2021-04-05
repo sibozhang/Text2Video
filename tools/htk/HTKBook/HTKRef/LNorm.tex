@@ -1,0 +1,63 @@
+%
+% Gareth Moore  27/03/02
+%
+
+\newpage
+\mysect{LNorm}{LNorm}
+
+\mysubsect{Function}{LNorm-Function}
+
+\index{hlmcopy@\htool{LNorm}|(}
+The basic function of this tool is to renormalise language models,
+optionally pruning the vocabulary at the same time or applying cutoffs
+or weighted discounts.
+
+\mysubsect{Use}{LNorm-Use}
+
+\htool{LNorm} is invoked by the command line
+\begin{verbatim}
+   LNorm [options] inLMFile outLMFile
+\end{verbatim}
+This reads in the language model {\tt inLMFile} and writes a new
+language model to {\tt outLMFile}, applying editing operations
+controlled by the following options.  In many respects it is similar
+to \htool{HLMCopy}, but unlike \htool{HLMCopy} it will always
+renormalise the resulting model.
+
+\begin{optlist}
+
+  \ttitem{-c n c} Set the pruning threshold for $n$-grams to $c$. 
+	Pruning can be applied to the bigram and higher
+	components of a model ($n$>1). The pruning procedure will keep only 
+	$n$-grams which have been observed more than $c$ times. Note
+	that this option is only applicable to count-based language 
+        models.
+
+  \ttitem{-d f}  Set weighted discount pruning for \texttt{n}-gram
+        to \texttt{c} for Seymore-Rosenfeld pruning. Note that this
+        option is only applicable to count-based language models.
+  
+  \ttitem{-f s} Set the output language model format to {\tt s}.
+        Possible options are {\tt TEXT} for the standard ARPA-MIT
+	LM format, {\tt BIN} for Entropic {\em binary} format and 
+        {\tt ULTRA} for Entropic {\em ultra} format.
+        
+  \ttitem{-n n} Save target model as $n$-gram.
+
+  \ttitem{-w f} Read a word-list defining the output vocabulary from
+	{\tt f}. This will be used to select the vocabulary for 
+	the output language model.
+
+\end{optlist}
+\stdopts{LNorm}
+
+\mysubsect{Tracing}{LNorm-Tracing}
+
+\htool{LNorm} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hlmcopy@\htool{LNorm}|)}

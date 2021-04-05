@@ -1,0 +1,96 @@
+#
+# remember to run VCVARS32.BAT
+# makefile for single-threaded HTK tools, MSVC
+#
+
+.SUFFIXES:	.exe
+
+.c.obj:
+	$(CC) /nologo /c $(CFLAGS) $<
+
+.obj.exe:
+	$(CL) $(SYSLF) /OUT:$(HBIN)\$@ $< $(libs)
+
+CC=cl
+CL=link
+CPU=win32
+
+HBIN  = ..\bin.win32
+
+# use the following for full optimisation
+SYSCF = /ML /W0 /GX /O2 /G5 /Ob2 /D "NDEBUG" /D "WIN32" /D "_CONSOLE"
+
+# use the following for debugging
+#SYSCF = /ML /W1 /Gm /GX /Zi /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS"
+
+# use the following for non-debug link
+SYSLF = /nologo /subsystem:console /incremental:no
+
+# use the following for debug link
+#SYSLF = /DEBUG /DEBUGTYPE:BOTH /nologo /subsystem:console /incremental:no
+
+# the following is for HTK tools linked with HTKLib
+HTKCF = /I "..\HTKLib" /I "." /D "PHNALG"
+
+htklib = ..\HTKLib\HTKLib.$(CPU).lib 
+
+CFLAGS = $(SYSCF) $(HTKCF)
+
+syslib = winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib \
+	advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib
+
+libs = $(syslib) $(htklib) 
+
+tools = HMMIRest.exe HSLab.exe HInit.exe HRest.exe HERest.exe HVite.exe HResults.exe \
+	HList.exe HCopy.exe HLEd.exe HDMan.exe HHEd.exe HParse.exe \
+	HBuild.exe HSmooth.exe HCompV.exe HQuant.exe HSGen.exe HLStats.exe \
+	HLRescore.exe
+
+HSLab.exe:	HSLab.obj
+
+HInit.exe:	HInit.obj
+
+HHEd.exe:	HHEd.obj
+
+HLStats.exe:	HLStats.obj
+
+HSGen.exe:	HSGen.obj
+
+HQuant.exe:	HQuant.obj
+
+HCompV.exe:	HCompV.obj
+
+HSmooth.exe:	HSmooth.obj
+
+HBuild.exe:	HBuild.obj
+
+HParse.exe:	HParse.obj
+
+HDMan.exe:	HDMan.obj
+
+HLEd.exe:	HLEd.obj
+
+HCopy.exe:	HCopy.obj
+
+HList.exe:	HList.obj
+
+HResults.exe:	HResults.obj
+
+HVite.exe:	HVite.obj
+
+HERest.exe:	HERest.obj
+
+HRest.exe:	HRest.obj
+
+HLRescore.exe:	HLRescore.obj
+
+HMMIRest.exe:	HMMIRest.obj
+
+all:	$(tools)
+	echo done
+
+clean:
+	del *.obj *.exe
+
+cleanup:
+	del *.obj

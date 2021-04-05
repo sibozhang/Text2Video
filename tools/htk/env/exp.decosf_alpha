@@ -1,0 +1,6 @@
+export CPU=decosf_alpha
+export HTKCF='-O2 -DDEC_AUDIO'
+export HTKCC='cc'
+export HTKLF='-lmme'
+export SHRLF='-shared'
+export LIBEXT='so'

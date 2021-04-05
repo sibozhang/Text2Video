@@ -1,0 +1,265 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young and Julian Odell - 24/11/97
+%
+
+\newpage
+\mysect{HVite}{HVite}
+
+\mysubsect{Function}{HVite-Function}
+
+\index{hvite@\htool{HVite}|(}
+\htool{HVite} is a general-purpose Viterbi word recogniser.  It will 
+match a speech file against a network of HMMs and output a transcription 
+for each.  When performing N-best recognition a word level lattice 
+containing multiple hypotheses can also be produced.
+
+Either a word level lattice or a label file is read in and then
+expanded using the supplied dictionary to create a model based 
+network.  This allows arbitrary finite state word networks and
+simple forced alignment to be specified.
+
+This expansion can be used to create context independent, word internal
+context dependent and cross word context dependent networks.  The way
+in which the expansion is performed is determined automatically from
+the dictionary and HMMList.  When all labels appearing in the
+dictionary are defined in the HMMList no expansion of model names is 
+performed.  Otherwise if all the labels in the dictionary can be 
+satisfied by models dependent only upon word internal context these
+will be used else cross word context expansion will be performed.
+These defaults can be overridden by \htool{HNet} configuration parameters.
+
+\htool{HVite} supports shared parameters and appropriately pre-computes 
+output probabilities. 
+For increased processing speed, \htool{HVite} can optionally perform a beam
+search controlled by a user specified threshold (see \texttt{-t} option).
+When fully tied mixture models are used, observation pruning is also provided
+(see the  \texttt{-c} option).
+Speaker adaptation is also supported by \htool{HVite} both in terms of 
+recognition using an adapted model set or a TMF (see the \texttt{-k} option),  
+and in the estimation of a transform by unsupervised adaptation using 
+linear transformation  in an incremental mode (see the \texttt{-j} option) or 
+in a batch mode (\texttt{-K} option).
+
+\mysubsect{Use}{HVite-Use}
+
+\htool{HVite} is invoked via the command line
+\begin{verbatim}
+   HVite [options] dictFile hmmList testFiles ...
+\end{verbatim}
+HVite will then either load a single network file and match this
+against each of the test files \texttt{-w netFile}, or create a
+new network for each test file either from the corresponding 
+label file \texttt{-a} or from a word lattice \texttt{-w}.
+When a new network is created for each test file the path name
+of the label (or lattice) file to load is determined from the
+test file name and the \texttt{-L} and \texttt{-X} options
+described below.
+
+If no \texttt{testFiles} are specified the \texttt{-w s} option must
+be specified and recognition will be performed from direct audio.
+
+The \texttt{hmmList} should contain a list of the models required to
+construct the network from the word level representation.
+
+The recogniser output is written in the form of a label file whose
+path name is determined from the test file name and the \texttt{-l} and 
+\texttt{-x} options described below. The list of test files can be stored 
+in a script file if required.
+
+When performing N-best recognition (see \texttt{-n N} option described
+below) the output label file can contain multiple alternatives
+\texttt{-n N M} and a lattice file containing multiple hypotheses can
+be produced.
+
+The detailed operation of \htool{HVite} is controlled by the following
+command line options
+\begin{optlist}
+
+  \ttitem{-a} Perform alignment.  \htool{HVite} will load a label file and
+        create an alignment network for each test file.
+
+  \ttitem{-b s} Use \texttt{s} as the sentence boundary during alignment.
+  
+  \ttitem{-c f} Set the tied-mixture observation pruning threshold to \texttt{f}.
+        When all mixtures of all models are tied to create a full
+        tied-mixture system, the calculation of output probabilities
+        is treated as a special case.  Only those mixture 
+        component probabilities which fall within \texttt{f} of
+        the maximum mixture component probability are used in calculating
+        the state output probabilities (default 10.0).
+
+  \ttitem{-d dir} This specifies the directory to search for the
+        HMM definition files corresponding to the labels used in
+        the recognition network.
+  \ttitem{-e} When using direct audio input, output transcriptions
+        are not normally saved.  When this option is set, each
+        output transcription is written to a file called \texttt{PnS}
+        where \texttt{n} is an integer which increments with each output
+        file, \texttt{P} and \texttt{S} are strings which are by default
+        empty but can be set using the configuration variables
+        \texttt{RECOUTPREFIX} and \texttt{RECOUTSUFFIX}.
+
+\ttitem{-f} During recognition keep track of full state alignment. The output
+        label file will contain multiple levels. The first level will be the 
+        state number and the second will be the word name (not the output symbol).
+
+  \ttitem{-g} When using direct audio input, this option enables audio
+        replay of each input utterance after it has been recognised.
+
+  \ttitem{-h mask} Set the mask for determining which transform names are 
+	to be used for the input transforms. 
+
+  \ttitem{-i s} Output transcriptions to MLF \texttt{s}.
+
+  \ttitem{-j i} Perform incremental MLLR adaptation every i utterances      
+
+  \ttitem{-k} Use an input transform (default off).
+
+  \ttitem{-l dir} This specifies the directory to store the  output label 
+        files.  If this option is not used then \htool{HVite} will store 
+        the label files in the same directory as the data.
+      When output is directed to an MLF, this option can be used to
+      add a path to each output file name.  In particular, setting the option
+      \verb+-l '*'+ will cause a label file named \texttt{xxx} to be prefixed
+      by the pattern \verb+"*/xxx"+ in the output MLF file.  This is useful
+      for generating MLFs which are independent of the location of the 
+      corresponding data files.
+
+  \ttitem{-m} During recognition keep track of model boundaries. The output
+        label file will contain multiple levels. The first level will be the 
+        model number and the second will be the word name (not the output 
+        symbol).
+
+
+  \ttitem{-n i [N]} Use \texttt{i} tokens in each state to perform
+        N-best recognition.  The number of alternative output
+        hypotheses \texttt{N} defaults to 1.
+
+  \ttitem{-o s} Choose how the output labels should be formatted.
+        \texttt{s} is a string with certain letters (from \texttt{NSCTWM})
+        indicating binary flags that control formatting options.
+        \texttt{N} normalise acoustic scores by dividing by the duration
+        (in frames) of the segment.
+        \texttt{S} remove scores from output label.  By default 
+        scores will be set to the total likelihood of the segment.
+        \texttt{C} Set the transcription labels to start and end on
+        frame centres. By default start times are set to the start
+        time of the frame and end times are set to the end time of 
+        the frame.
+        \texttt{T} Do not include times in output label files.
+        \texttt{W} Do not include words in output label files
+        when performing state or model alignment.
+        \texttt{M} Do not include model names in output label
+        files when performing state and model alignment.
+
+  \ttitem{-p f}  Set the word insertion log probability to \texttt{f} 
+        (default 0.0).
+
+  \ttitem{-q s} Choose how the output lattice should be formatted.
+         \texttt{s} is a string with certain letters (from \texttt{ABtvaldmn})
+         indicating binary flags that control formatting options.
+         \texttt{A} attach word labels to arcs rather than nodes.
+         \texttt{B} output lattices in binary for speed.
+         \texttt{t} output node times.
+         \texttt{v} output pronunciation information.
+         \texttt{a} output acoustic likelihoods.
+         \texttt{l} output language model likelihoods.
+         \texttt{d} output word alignments (if available).
+         \texttt{m} output within word alignment durations.
+         \texttt{n} output within word alignment likelihoods.
+
+  \ttitem{-r f} Set the dictionary pronunciation probability scale 
+        factor to \texttt{f}. (default value 1.0).
+
+  \ttitem{-s f} Set the grammar scale factor to \texttt{f}.
+        This factor post-multiplies the language model likelihoods
+        from the word lattices.  (default value 1.0).
+   
+  \ttitem{-t f [i l]} Enable beam searching such that any model whose 
+        maximum log probability token falls more than \texttt{f} below
+        the maximum for all models is deactivated.  Setting \texttt{f}
+        to 0.0 disables the beam search mechanism (default value
+        \texttt{0.0}). In alignment mode two extra parameters
+        \texttt{i} and \texttt{l} can be specified. If the alignment
+        fails at the initial pruning threshold \texttt{f}, then the
+        threshold will by increased by \texttt{i} and the alignment
+        will be retried. This procedure is repeated until the
+        alignment succeeds or the threshold limit \texttt{l} is
+        reached.        
+
+  \ttitem{-u i} Set the maximum number of active models to \texttt{i}.
+        Setting \texttt{i} to \texttt{0} disables this limit (default 0).
+
+  \ttitem{-v f} Enable word end pruning.  Do not propagate tokens from
+        word end nodes that fall more than \texttt{f} below the maximum 
+        word end likelihood.  (default \texttt{0.0}).
+
+  \ttitem{-w [s]} Perform recognition from word level networks.  If
+        \texttt{s} is included then use it to define the network used
+        for every file.
+
+  \ttitem{-x ext}  This sets the extension to use for HMM definition
+      files to \texttt{ext}.
+
+  \ttitem{-y ext}  This sets the extension for output label files to
+        \texttt{ext} (default \texttt{rec}).
+
+  \ttitem{-z ext}  Enable output of lattices (if performing NBest
+        recognition) with extension \texttt{ext} (default off).
+
+  \ttitem{-L dir} This specifies the directory to find input label (when
+        \texttt{-a} is specified) or network files (when \texttt{-w} is
+        specified).
+
+  \ttitem{-X s} Set the extension for the input label or network files 
+        to be \texttt{s}  (default value \texttt{lab}).
+
+\stdoptE
+\stdoptG
+\stdoptH
+\stdoptI
+\stdoptJ
+\stdoptK
+\stdoptP
+
+\end{optlist}
+\stdopts{HVite}
+
+\mysubsect{Tracing}{HVite-Tracing}
+
+\htool{HVite} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{0001} enable basic progress reporting.  
+   \ttitem{0002} list observations.
+   \ttitem{0004} frame-by-frame best token.
+   \ttitem{0010} show memory usage at start and finish.
+   \ttitem{0020} show memory usage after each utterance.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the \texttt{TRACE} 
+configuration variable.
+\index{hvite@\htool{HVite}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

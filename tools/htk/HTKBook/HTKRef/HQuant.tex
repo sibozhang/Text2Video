@@ -1,0 +1,205 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young 11/11/95
+%
+
+\newpage
+\mysect{HQuant}{HQuant}
+
+\mysubsect{Function}{HQuant-Function}
+
+\index{hquant@\htool{HQuant}|(}
+This program will construct a \HTK\ format VQ table consisting of one or
+more codebooks, each corresponding to an independent data stream.  
+A codebook is a collection of indexed reference vectors that are intended to
+represent the structure of the training data. Ideally, every compact
+cluster of points in the training data is represented by one reference
+vector.  VQ
+tables are used directly when building systems based on Discrete
+Probability HMMs.  In this case, the continuous-valued speech vectors
+in each stream are replaced by the index of the closest reference
+vector in each corresponding codebook.
+Codebooks can also be used to attach VQ indices to
+continuous observations.  A typical use of this is to preselect
+Gaussians in probability computations.  More information on the
+use of VQ tables is given in section~\ref{s:vquant}.
+
+Codebook construction consists of finding clusters in the training data,
+assigning a unique reference vector (the cluster centroid) to each,
+and storing the resultant reference vectors and associated codebook data
+in a VQ table. \htool{HQuant} uses a top-down clustering process whereby
+clusters are iteratively split until the desired number of clusters are
+found. The optimal codebook size (number of reference vectors) depends
+on the structure and amount of the training data, but a value of 256 is
+commonly used.
+
+\htool{HQuant} can construct both linear (i.e.\ flat) and tree-structured
+(i.e.\ binary) codebooks.  Linear codebooks can have lower quantisation
+errors but tree-structured codebooks have $\log_2 N$ access times
+compared to $N$ for the linear case.  The distance metric can either be
+Euclidean, diagonal covariance Mahalanobis or full covariance
+Mahalanobis.
+
+\mysubsect{VQ Codebook Format}{HQuant-VQ Codebook Format}
+
+Externally, a VQ table is stored in a text file consisting of a header
+followed by a sequence of entries representing each tree node.  One tree
+is built for each stream and linear codebooks are represented by a tree
+in which there are only right branches.
+
+The header consists of a magic number followed by the covariance kind,
+the number of following nodes, the number of streams and the width
+of each stream.
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>  header =\> magic type covkind numNodes numS swidth1 swidth2  \ldots
+\end{tabbing}
+}
+\noindent
+where {\sf magic} is a magic number which is usually the
+code for the parameter kind of the data.  The {\sf type}
+defines the type of codebook
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>  type =\> linear (0) , binary tree-structured (1)
+\end{tabbing}
+}
+\noindent
+The covariance kind determines the type of distance metric to be
+used
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>  covkind =\> diagonal covariance (1), full covariance (2), euclidean (5)
+\end{tabbing}
+}
+\noindent
+Within the file, these covariances are stored in inverse form.
+
+Each node entry has the following form
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \=  \kill
+\>  node-entry =\> stream vqidx nodeId leftId rightId \\
+\> \> mean-vector \\
+\> \> [inverse-covariance-matrix $|$ inverse-variance-vector]
+\end{tabbing}
+}
+\noindent
+{\sf Stream} is the stream index for this entry. {\sf Vqidx}
+is the VQ index corresponding to this entry.  This is the number that
+appears in vector quantised speech files.  In tree-structured code-books,
+it is zero for non-terminal nodes. Every node has a unique
+integer identifier (distinct from the VQ index) given by {\sf nodeId}.
+The left and right daughter of the current node are given by
+{\sf leftId} and {\sf rightId}.  In a linear codebook, the left identifier
+is always zero.
+
+Some examples of VQ tables are given in Chapter~\ref{c:discmods}.
+
+\mysubsect{Use}{HQuant-Use}
+
+\htool{HQuant} is invoked via the command line
+
+\begin{verbatim}
+   HQuant [options] vqFile trainFiles ...
+\end{verbatim}
+where \texttt{vqFile} is the name of the output VQ table file.
+The effect of this command
+is to read in training data from each \texttt{trainFile}, cluster the
+data and write the final cluster centres into the VQ table file.
+
+The list of training files can be stored in a script file if required.
+Furthermore, the data used for training the codebook
+can be limited to that corresponding to a specified label.  This can be
+used, for example, to train phone specific codebooks.  When constructing
+a linear codebook, the maximum number of iterations per cluster can be
+limited by setting the configuration variable \texttt{MAXCLUSTITER}.
+The minimum number of samples in any one cluster can be set using the
+ configuration variable \texttt{MINCLUSTSIZE}.
+
+The detailed operation of \htool{HQuant} is controlled by the following
+command line options
+\begin{optlist}
+   \ttitem{-d} Use a diagonal-covariance Mahalanobis distance metric for
+ clustering (default is to use a Euclidean distance metric).
+
+   \ttitem{-f} Use a full-covariance Mahalanobis distance metric for
+ clustering (default is to use a Euclidean distance metric).
+
+   \ttitem{-g} Output the global covariance to a codebook.  Normally,
+     covariances are computed individually for each cluster using
+     the data in that cluster.  This option computes a global covariance
+     across all the clusters.
+
+  \ttitem{-l s} The string {\tt s} must be the name of a
+      segment label.  When this option is used, \htool{HQuant} searches
+      through all of the training files and uses only the speech
+      frames from segments with the given label.  When this option is not 
+      used, \htool{HQuant} uses all of the data in each training file.
+
+  \ttitem{-n S N} Set size of codebook for stream \texttt{S} 
+       to \texttt{N} (default 256).
+   If tree-structured codebooks are required then \texttt{N} 
+   must be a power of 2.
+  
+  \ttitem{-s N} Set number of streams to \texttt{N} (default 1).
+    Unless the \texttt{-w} option is used, the width of each stream
+    is set automatically depending on the size and parameter kind of the 
+    training data.
+
+  \ttitem{-t}  Create tree-structured codebooks (default linear).
+  
+  \ttitem{-w S N} Set width of stream \texttt{S} to \texttt{N}.
+  This option overrides the default decomposition that \HTK\ normally
+  uses to divide a parameter file into streams.  If this option is used,
+  it must be repeated for each individual stream.
+  
+\stdoptF
+\stdoptG
+\stdoptI
+\stdoptL
+\stdoptX
+\end{optlist}
+\stdopts{HQuant}
+\mysubsect{Tracing}{HQuant-Tracing}
+
+\htool{HQuant} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting.
+   \ttitem{00002} dump global mean and covariance
+   \ttitem{00004} trace data loading.
+   \ttitem{00010} list label segments.
+   \ttitem{00020} dump clusters.
+   \ttitem{00040} dump VQ table.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+
+\index{hquant@\htool{HQuant}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

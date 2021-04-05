@@ -1,0 +1,253 @@
+
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young and Julian Odell - 24/11/97
+%
+\newpage
+\mysect{HDecode}{HDecode}
+
+{\bf\large
+WARNING: The HTK Large Vocabulary
+Decoder \htool{HDecode} has
+been specifically written for speech recognition tasks
+using cross-word triphone models. Known restrictions are:
+\begin{itemize}
+\item only works for cross-word triphones;
+\item supports N-gram language models upto tri-grams;
+\item \texttt{sil} and \texttt{sp} models are reserved as silence
+models and are, by default, automatically added to the end of all
+pronunciation variants of each word in the recognition dictionary;
+\item  \texttt{sil} must be used as the pronunciation for the sentence start
+  and sentence end tokens;
+\item \texttt{sil} and \texttt{sp} models cannot occur in the dictionary,
+  except for the dictionary entry of the sentence start
+  and sentence end tokens;
+\item word lattices generated with \htool{HDecode} must be made {\em
+deterministic} using \htool{HLRescore} to remove duplicate paths
+prior to being used for acoustic model rescoring
+with \htool{HDecode} or \htool{HVite}.
+\end{itemize}
+}
+
+\mysubsect{Function}{HDecode-Function}
+
+\index{hdecode@\htool{HDecode}|(}
+
+\htool{HDecode} is a decoder specifically written for large vocabulary
+speech recognition. In contrast to the other tools in HTK there are a number
+of limitations to its use. See the warnings above.
+
+Similar to \htool{HVite}, the best transcription hypothesis will be generated
+in the Master Label File (MLF) format. Optionally, multiple hypotheses can
+also be generated as a word lattice in the form of the HTK Standard Lattice
+File (SLF) format. In the \htool{HDecode} tutorial section, a range of
+different options of using \htool{HDecode} and detailed examples are given.
+
+There are two main modes that \htool{HDecode} can be run in. The first is
+\emph{full decoding} where an $n$-gram language model is used for recognition.
+The current version of \htool{HDecode} supports using word based uni-gram,
+bi-gram or tri-gram language models. Higher order $n$-gram models, or if the
+size of the language model is very large, should be applied by rescoring
+lattices generated using simpler language models. See the \htool{HDecode}
+tutorial section and \htool{HLRescore} reference page for example of lattice
+expansion by applying additional language models. The second mode that
+\htool{HDecode} can be run in is \emph{lattice rescoring}. Here, for example,
+a different acoustic model can be used to rescore lattices.
+
+The acoustic and language model scores can be adjusted using the
+\texttt{-a} and \texttt{-s} options respectively. 
+In the case where the supplied dictionary
+contains pronunciation probability information, the corresponding scale
+factor can be adjusted using the \texttt{-r} option. The \texttt{-q} option
+can be used to control the type of information to be included in the
+generated lattices. 
+
+\htool{HDecode}, when compiled with the \texttt{MODALIGN} setting,
+can also be used to align the HMM models to a given word level lattice
+(also known as model marking the lattice). When using the default
+\texttt{Makefile} supplied with \htool{HDecode}, this binary will be
+made and stored in \htool{HDecode.mod}. 
+
+When using \htool{HDecode}, the run-time can be adjusted by changing the main
+and relative token pruning beam widths (see the \texttt{-t} option), word end
+beam width (see the \texttt{-v} option), the maximum model pruning (see the
+\texttt{-u} option). The number of tokens used per state (see the \texttt{-n}
+option) can also significantly affect both the decoding time and the size of
+lattices generated.
+
+Decoding with adapted acoustic models is supported by \htool{HDecode}. The use
+of an adaptation transformation is enabled using the \texttt{-m} option.  The
+path, name and extension of the transformation matrices are specified using
+the \texttt{-J} and the file names are derived from the name of the speech
+file using a \emph{mask} (see the \texttt{-h} option).  Incremental adaptation
+and transform estimation, are not currently supported by \htool{HDecode}.
+
+\htool{HDecode} also allows probability calculation to be carried out in
+blocks at the same time. The block size (in frames) can be specified using
+the \texttt{-k} option. However, when CMLLR adaptation is used, probabilities
+have to be calculated one frame at a time (i.e. using \texttt{-k 1})\footnote{
+This is due to the different observation caching mechanisms used in
+\htool{HDecode} and the \htool{HAdapt} module}.
+
+\htool{HDecode} performs recognition by expanding a phone model network with
+language model and pronunciation model information dynamically applied. The
+lattices generated are word lattices, though generated using triphone
+acoustic models. This is similar to a projection operation of a phone level
+finite state network on to word level, but identical word paths that
+correspond to different phone alignments are kept distinct.  Note that these
+duplicated word paths are not permitted when using either \htool{HDecode} or
+\htool{HVite} for acoustic model lattice rescoring or alignment.  Input word
+lattices are expected to be deterministic in both cases.  The impact of using
+non-deterministic lattices for the two HTK decoders are different in nature
+due to internal design differences, but in both cases the merging step to
+remove the duplicates is very important prior to lattice rescoring or
+alignment.  See \htool{HDecode} tutorial page and \htool{HLRescore} reference
+page for information on how to produce deterministic word lattices.
+
+
+\mysubsect{Use}{HDecode-Use}
+
+\htool{HDecode} is invoked via the command line
+\begin{verbatim}
+   HDecode [options] dictFile hmmList testFiles ...
+\end{verbatim}
+
+The detailed operation of \htool{HDecode} is controlled by the following
+command line options
+\begin{optlist}
+
+  \ttitem{-a f} Set acoustic scale factor to \texttt{f} (default value 1.0).
+
+  \ttitem{-d dir} This specifies the directory to search for the
+        HMM definition files corresponding to the labels used in
+        the recognition network.
+
+  \ttitem{-h mask} Set the mask for determining which transform names are 
+	to be used for the input transforms. 
+
+  \ttitem{-i s} Output transcriptions to MLF \texttt{s}.
+
+  \ttitem{-k i} Set frame block size in output probability calculation for
+  diagonal covariance systems.
+
+  \ttitem{-l dir} This specifies the directory to store the output
+        label or lattice files.  If this option is not used then \htool{HDecode} will store 
+        the output MLF files in the current directory, and lattices
+        under the same directory as the data. 
+        When recognition output is directed to an MLF, this option can
+        be used to add a path to each output file name in the same was as \htool{HVite}.
+
+  \ttitem{-m  } Use an input transform. (default is off)
+
+  \ttitem{-n i} Use \texttt{i} tokens in each set during token
+  propagation. (default is 32 tokens per state) 
+
+  \ttitem{-o s} Choose how the output labels should be formatted.
+        \texttt{s} is a string with certain letters (from \texttt{NSCTWMX}) 
+        indicating binary flags that control formatting options. 
+        \texttt{N} normalise acoustic scores by dividing by the duration
+        (in frames) of the segment.
+        \texttt{S} remove scores from output label.  By default 
+        scores will be set to the total likelihood of the segment.
+        \texttt{C} Set the transcription labels to start and end on
+        frame centres. By default start times are set to the start
+        time of the frame and end times are set to the end time of 
+        the frame.
+        \texttt{T} Do not include times in output label files.
+        \texttt{W} Do not include words in output label files
+        when performing state or model alignment.
+        \texttt{M} Do not include model names in output label
+        files when performing state and model alignment.
+        \texttt{X} Strip the triphone context.
+
+  \ttitem{-p f}  Set the word insertion log probability to \texttt{f} 
+        (default 0.0).
+
+  \ttitem{-q s} Choose how the output lattice should be formatted.
+         \texttt{s} is a string with certain letters (from \texttt{ABtvaldmnr})
+         indicating binary flags that control formatting options.
+         \texttt{A} attach word labels to arcs rather than nodes.
+         \texttt{B} output lattices in binary for speed.
+         \texttt{t} output node times.
+         \texttt{v} output pronunciation information.
+         \texttt{a} output acoustic likelihoods.
+         \texttt{l} output language model likelihoods.
+         \texttt{d} output word alignments (if available).
+         \texttt{m} output within word alignment durations.
+         \texttt{n} output within word alignment likelihoods.
+         \texttt{r} output pronunciation probabilities.
+
+  \ttitem{-r f} Set the dictionary pronunciation probability scale 
+        factor to \texttt{f}. (default value 1.0).
+
+  \ttitem{-s f} Set the grammar scale factor to \texttt{f} (default value 1.0).
+ 
+  \ttitem{-t f [g]} Enable beam searching such that any model whose 
+        maximum log probability token falls more than
+        \texttt{f} below the maximum among all models is deactivated. 
+        An extra parameter \texttt{g} can be specified as the relative 
+        token beam width.
+
+  \ttitem{-u i} Set the maximum number of active models to \texttt{i}.
+        Setting \texttt{i} to \texttt{0} disables this limit (default 0).
+
+  \ttitem{-v f [g]} Enable word end pruning. Do not propagate tokens from
+        word end nodes that fall more than \texttt{f} below the maximum 
+        word end likelihood.  (default \texttt{0.0}). 
+        An extra parameter \texttt{g} can be specified to give
+        additional pruning at both the start and end of a word.
+
+  \ttitem{-w s} Load language model from \texttt{s}.
+
+  \ttitem{-x ext}  This sets the extension to use for HMM definition
+      files to \texttt{ext}.
+
+  \ttitem{-y ext}  This sets the extension for output label files to
+        \texttt{ext} (default \texttt{rec}).
+
+  \ttitem{-z ext}  Enable output of lattices with extension \texttt{ext}
+                   (default off).
+
+  \ttitem{-L dir} This specifies the directory to find input lattices. 
+
+%   \ttitem{-R s}  Load 1-best alignment label file from \texttt{-s}.
+
+  \ttitem{-X ext} Set the extension for the input lattice files 
+        to be \texttt{ext}  (default value \texttt{lat}).
+
+\stdoptF
+\stdoptG
+\stdoptH
+\stdoptJ
+\stdoptP
+
+\end{optlist}
+\stdopts{HDecode}
+
+\mysubsect{Tracing}{HDecode-Tracing}
+
+\htool{HDecode} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{0001} enable basic progress reporting.  
+   \ttitem{0002} list observations.
+   \ttitem{0004} show adaptation process.
+   \ttitem{0010} show memory usage at start and finish.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the \texttt{TRACE} 
+configuration variable.
+\index{hvite@@\htool{HDecode}|)}
+
+

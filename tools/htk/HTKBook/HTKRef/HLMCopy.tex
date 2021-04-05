@@ -1,0 +1,97 @@
+%
+% HTKBook - Julian Odell    14/08/97
+%
+% Updated - Gareth Moore    15/01/02
+%
+
+\newpage
+\mysect{HLMCopy}{HLMCopy}
+
+\mysubsect{Function}{HLMCopy-Function}
+
+\index{hlmcopy@\htool{HLMCopy}|(}
+The basic function of this tool is to copy language models. During this
+operation the target model can be optionally adjusted to a specific vocabulary,
+reduced in size by applying pruning parameters to the different $n$-gram
+components and written out in a different file format. Previously unseen words
+can be added to the language model with unigram entries supplied in a unigram
+probability file. 
+At the same time, the tool can be used to extract word pronunciations from a
+number of source dictionaries and output a target dictionary for a specified word
+list. \htool{HLMCopy} is a key utility enabling the user to construct custom 
+dictionaries and language models tailored to a particular recognition task.
+
+\mysubsect{Use}{HLMCopy-Use}
+
+\htool{HLMCopy} is invoked by the command line
+\begin{verbatim}
+   HLMCopy [options] inLMFile outLMFile
+\end{verbatim}
+This copies the language model {\tt inLMFile} to {\tt outLMFile} optionally
+applying editing operations controlled by the following options.
+\begin{optlist}
+
+  \ttitem{-c n c} Set the pruning threshold for $n$-grams to $c$. 
+	Pruning can be applied to the bigram and higher
+	components of a model ($n$>1). The pruning procedure will keep only 
+	$n$-grams which have been observed more than $c$ times. Note
+	that this option is only applicable to count-based language 
+        models.
+
+  \ttitem{-d f} Use dictionary {\tt f} as a source of pronunciations
+        for the output dictionary. A set of dictionaries can be
+        specified, in order of priority, with multiple {\tt -d}
+        options.
+  
+  \ttitem{-f s} Set the output language model format to {\tt s}.
+        Possible options are {\tt TEXT} for the standard ARPA-MIT
+	LM format, {\tt BIN} for Entropic {\em binary} format and 
+        {\tt ULTRA} for Entropic {\em ultra} format.
+        
+  \ttitem{-n n} Save target model as $n$-gram.
+
+  \ttitem{-m} Allow multiple identical pronunciations for a single
+	word.  Normally identical pronunciations are deleted.  This
+	option may be required when a single word/pronunciation has
+	several different output symbols.
+
+  \ttitem{-o} Allow pronunciations for a single word to be selected
+	from multiple dictionaries.  Normally the dictionaries are
+	prioritised by the order they appear on the command line with
+	only entries in the first dictionary containing a
+	pronunciation for a particular word being copied to the output
+	dictionary.
+
+  \ttitem{-u f} Use unigrams from file {\tt f} as replacements for the
+	ones in the language model itself.  Any words appearing in the
+	output language model which have entries in the unigram file
+	(which is formatted as {\tt LOG10PROB WORD}) use the
+	likelihood ({\tt log10(prob)}) from the unigram file rather
+	than from the language model.  This allows simple language
+	model adaptation as well as allowing unigram probabilities to
+	be assigned words in the output vocabulary that do not appear
+	in the input language model.  In some instances you may wish
+	to use \htool{LNorm} to renormalise the model after using {\tt
+	-u}.
+
+  \ttitem{-v f}  Write a dictionary covering the output vocabulary to
+	file {\tt f}.  If any required words cannot be found in the
+	set of input dictionaries an error will be generated.
+
+  \ttitem{-w f} Read a word-list defining the output vocabulary from
+	{\tt f}. This will be used to select the vocabulary for both
+	the output language model and output dictionary.
+
+\end{optlist}
+\stdopts{HLMCopy}
+
+\mysubsect{Tracing}{HLMCopy-Tracing}
+
+\htool{HLMCopy} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hlmcopy@\htool{HLMCopy}|)}

@@ -1,0 +1,823 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young 1/12/97
+%
+
+\mychap{Transcriptions and Label Files}{labels}
+
+\sidepic{Tool.labs}{80}{}
+Many of the operations performed by \HTK\ which involve speech data
+files assume that the speech is divided into segments and each segment
+has a name or \textit{label}.  The set of labels associated with a
+speech file constitute a \textit{transcription} and each transcription is
+stored in a separate \textit{label file}.  Typically, the name of the
+label file will be the same as the corresponding speech file but with
+a different extension.  For convenience, label files are often stored
+in a separate directory and all \HTK\ tools have an option to specify
+this.  When very large numbers of files are being processing, label
+file access can be greatly facilitated by using\index{master label files}
+\textit{Master Label Files (MLFs)}.  MLFs may be regarded as index\index{MLF}
+files holding pointers to the actual label files which can either be
+embedded in the same index file or stored anywhere else in the file system.
+Thus, MLFs allow large sets of files to be stored in a single file, they
+allow a single transcription to be shared by many logical label files
+and they allow arbitrary file redirection.\index{label files}
+
+The \HTK\ interface to label files is provided by the module \htool{HLabel}
+which implements the MLF facility and support for a number of external
+label file formats. 
+All of the facilities supplied by \htool{HLabel}, including the
+supported label file formats, are described in this chapter.
+In addition, \HTK\ provides a tool called \htool{HLEd} for simple 
+batch editing of label files and this is also described.
+Before proceeding to the details, however, the general structure of
+label files will be reviewed.
+
+\mysect{Label File Structure}{labstruct}
+
+Most transcriptions are single-alternative and single-level, that is
+to say, the associated speech file is described by a single sequence
+of labelled segments.  Most standard label formats are of this kind.
+Sometimes, however, it is useful to have several levels of labels associated
+with the same basic segment sequence.   For example, in training a HMM
+system it is useful to have both the word level transcriptions and the
+phone level transcriptions \textit{side-by-side}.  \index{labels!side-by-side}
+
+Orthogonal to the requirement for multiple levels of description,
+a transcription may also need to include multiple alternative
+descriptions of the same speech file.  For example, the output
+of a speech recogniser may be in the form of an \textit{N-best} list
+where each word sequence in the list represents one possible interpretation
+of the input.\index{labels!multiple level}
+
+As an example, Fig.~\href{f:labegs} shows a speech file and three
+different ways in which it might be labelled.  In part (a), just a simple
+orthography is given and this single-level single-alternative type of
+transcription is the  commonest case. Part (b) shows a 2-level
+transcription  where the basic level consists of a sequence of phones but
+a higher level of word labels are also provided.  Notice that there is a
+distinction between the basic level and the higher levels, since only the
+basic level has explicit boundary locations marked for every segment. 
+The higher levels do not have explicit boundary information since this
+can always be inferred from the basic level boundaries. Finally, part (c)
+shows the case where knowledge of the contents of the speech file is
+uncertain and three possible word sequences are given.
+
+\HTK\ label files support multiple-alternative and multiple-level
+transcriptions.  In addition to start and end times on the basic level, a
+label at  any level may also have a score associated with it.  When a
+transcription is loaded, all but one specific alternative can be discarded by
+setting the configuration variable \texttt{TRANSALT}\index{transalt@\texttt{TRANSALT}} to the required
+alternative \texttt{N}, where the first (i.e. normal) alternative is numbered
+1.  Similarly, all but a specified level can be discarded by setting the
+configuration variable 
+\texttt{TRANSLEV}\index{translev@\texttt{TRANSLEV}} to 
+the required level number where again the first (i.e.
+normal) level is numbered 1.
+
+All non-\HTK\ formats are limited to
+single-level single-alternative transcriptions.
+
+
+\mysect{Label File Formats}{labform}
+
+As with speech data files, \HTK\ not only defines its own format for
+label files but also supports a number of external formats.  Defining
+an external format is similar to the case for speech data files except
+that the relevant configuration variables for specifying a format
+other than \HTK\ are called \texttt{SOURCELABEL}\index{sourcelabel@\texttt{SOURCELABEL}} and \texttt{TARGETLABEL}.
+The source label format can also be specified using the 
+\texttt{-G}\index{standard options!aaag@\texttt{-G}} command
+line option.  As with using the 
+\texttt{-F}\index{standard options!aaaf@\texttt{-F}} command
+line option for speech data files, the \texttt{-G} option overrides any
+setting of \texttt{SOURCELABEL}\index{labels!external formats}
+
+\subsection{HTK Label Files}
+
+The \HTK\ label format is text based.  As noted above, a single label
+file can contain multiple-alternatives and multiple-levels.
+
+Each line of a \HTK\ label file contains\index{label files!HTK format}
+the actual label optionally preceded by start and end times, and
+optionally followed by a match score.  
+\begin{verbatim}
+    [start  [end] ] name [score] { auxname [auxscore] } [comment]
+\end{verbatim}
+where \texttt{start} denotes the start time of the labelled segment
+in 100ns units, \texttt{end}
+denotes the end time in 100ns units,  \texttt{name} is the name
+of the segment and \texttt{score} is a floating point confidence score.
+All fields except the name are optional.  If \texttt{end} is omitted then
+it is set equal to -1 and ignored.  This case would occur with data which had
+been labelled frame synchronously.  If \texttt{start} and \texttt{end} are both
+missing then both are set to -1 and the label file is treated as a 
+simple symbolic transcription.  The
+optional score would typically be a log probability generated by a 
+recognition tool.  When omitted the score is set to 0.0.
+
+The following example corresponds to the transcription shown
+in part (a) of Fig.~\ref{f:labegs}
+\begin{verbatim}
+    0000000 3600000 ice
+    3600000 8200000 cream
+\end{verbatim}
+Multiple levels are described by adding further names alongside
+the basic name.  The lowest level (shortest segments) should be
+given first since only the lowest level has start and end times.
+The label file corresponding to the transcription illustrated in
+part (b) of Fig.~\ref{f:labegs} would be as follows.
+\begin{verbatim}
+    0000000 2200000 ay     ice
+    2200000 3600000 s
+    3600000 4300000 k      cream
+    4300000 5000000 r
+    5000000 7400000 iy
+    7400000 8200000 m
+\end{verbatim}
+Finally, multiple alternatives are written as a sequence of separate
+label lists separated by three slashes (///).
+The label file corresponding to the transcription illustrated in
+part (c) of Fig.~\ref{f:labegs} would therefore be as follows.
+\begin{verbatim}
+    0000000 2200000 I
+    2200000 8200000 scream
+    ///
+    0000000 3600000 ice
+    3600000 8200000 cream
+    ///
+    0000000 3600000 eyes
+    3600000 8200000 cream
+\end{verbatim}
+
+Actual label names can be any sequence of characters.
+However, the \texttt{-} and \texttt{+} characters are reserved for identifying
+the left and right context\index{labels!context markers}, 
+respectively, in a context-dependent phone
+label.  For example, the label \texttt{N-aa+V} might be used to denote
+the phone \texttt{aa} when preceded by a nasal and followed by a vowel.
+These context-dependency conventions are used in the label editor \htool{HLEd},
+and are understood by all \HTK\ tools.
+
+\subsection{ESPS Label Files}
+
+An \ESPSwaves\  label file is a text file with one label stored per
+line. Each label indicates a segment boundary. \index{label files!ESPS format}
+A complete description
+of the \ESPSwaves\  label format is given in the \ESPSwaves\ 
+manual pages {\bf xwaves (1-ESPS)} and {\bf xlabel (1-ESPS)}.
+Only details required for use with \HTK\ are given here. 
+
+The label data follows
+a header which ends with a line containing only
+a \texttt{\#}.  The header contents are generally ignored by \htool{HLabel}.
+The labels follow the header in the form
+\begin{verbatim}
+   time  ccode  name 
+\end{verbatim}
+where \texttt{time} is a floating point number which denotes the boundary
+location  in seconds,
+\texttt{ccode} is an integer color map entry used by \ESPSwaves\  in drawing
+segment boundaries and \texttt{name} is the name of the segment boundary. A
+typical value for \texttt{ccode} is \texttt{121}.
+
+While each \HTK\ label can contain both a start and an end time which
+indicate
+the boundaries of a labeled segment, \ESPSwaves\ labels
+contain a single time in seconds which (by convention) refers 
+to the end of the labeled segment.  The starting time
+of the segment is taken to be the end of the previous
+segment and \texttt{0} initially.
+
+\ESPSwaves\  label files may have several boundary names per line.
+However, \htool{HLabel} only reads \ESPSwaves\ label files with a single name
+per boundary.  Multiple-alternative and/or multiple-level \HTK\ label
+data structures cannot be saved using  \ESPSwaves\ format label files.
+
+\subsection{TIMIT Label Files}
+
+\index{label files!TIMIT format}
+TIMIT label files are identical to single-alternative single-level HTK
+label files without scores except that the start and end times are
+given as sample numbers rather than absolute times.  TIMIT label files
+are used on both the prototype and final versions of the TIMIT CD ROM.
+
+\subsection{SCRIBE Label Files}
+
+\index{label files!SCRIBE format}
+The SCRIBE label file format is a subset of the European SAM label file format.
+SAM label files are text files and each line begins with a label identifying
+the type of information stored on that line.  The \HTK\ SCRIBE format recognises
+just three label types
+\begin{tabbing}
+++ \= +++++++ \= \kill
+\> LBA \>-- acoustic label \\
+\> LBB \>-- broad class label \\
+\> UTS \>-- utterance 
+\end{tabbing}
+For each of these, the rest of the line is divided into comma separated
+fields.  The LBA and LBB types have 4 fields: start sample, centre sample, end sample
+and label.  \HTK\ expects the centre sample to be blank.  The UTS type has 3 fields:
+start sample, end sample and label.  UTS labels may be multi-word since they can
+refer to a complete utterance.  In order to make such labels usable within \HTK\ tools,
+between word blanks are converted to underscore characters.  The 
+\texttt{EX}\index{ex@\texttt{EX} command} command
+in the \HTK\ label editor \htool{HLEd} can then be used to split such
+a compound label into individual word labels if required.
+
+
+\mysect{Master Label Files}{mlfs}
+
+\subsection{General Principles of MLFs}
+
+\index{master label files}
+Logically, the organisation of data and label files is very simple.
+Every data file has a label file of the same name (but
+different extension) which is either stored in the same directory as
+the data file or in some other specified directory.
+
+\sidefig{labegs}{60}{Example Transcriptions}{2}{}
+This scheme is sufficient for most needs and commendably simple.
+However, there are many cases where either it makes unnecessarily
+inefficient use of the operating system or it seriously inconveniences
+the user.  For example, to use a training tool with
+isolated word data may require the generation of hundreds or thousands of
+label files each having just one label entry.  Even where individual
+label files are appropriate (as in the phonetically transcribed TIMIT
+database), each label file must be
+stored in the same directory as the data file it transcribes, or all label files
+must be stored in the same directory.  One cannot, for example, have a
+different directory of label files for each TIMIT dialect region and
+then run the \HTK\ training tool \htool{HERest} on the whole database.
+
+All of these problems can be solved by the use of Master Label Files
+(MLFs).  Every \HTK\ tool which uses label files has a 
+\texttt{-I}\index{standard options!aaai@\texttt{-I}} option
+which can be used to specify the name of an MLF file.  When an MLF has been
+loaded, the normal rules for locating a label file apply except that
+the MLF is searched first.  If the required label file \texttt{f} is found via
+the MLF then that is loaded, otherwise the file \texttt{f} is opened as normal.
+If \texttt{f} does not exist, then an error is reported.
+The \texttt{-I} option may be repeated on the command line to open
+several MLF files simultaneously.  In this case, each is searched in turn
+before trying to open the required file.
+
+MLFs can do two things.  Firstly, they can contain 
+embedded label definitions\index{master label files!embedded label definitions} 
+so that many or all of the needed label definitions can be
+stored in the same file.  Secondly, they can contain the names of
+sub-directories to search for label files.  In effect, they allow
+multiple search paths\index{master label files!multiple search paths} 
+to be defined.  Both of these two types of
+definition can be mixed in a single MLF.
+
+MLFs are quite complex to understand and use.  However, they add
+considerable power and flexibility to \HTK\ which combined with the
+\texttt{-S}\index{standard options!aaas@\texttt{-S}} and 
+\texttt{-L}\index{standard options!aaal@\texttt{-L}} 
+options mean that virtually any organisation of
+data and label files can be accommodated. 
+
+\subsection{Syntax and Semantics}
+
+An MLF consists of one or more individual definitions.  Blank lines in
+an MLF are ignored but otherwise the line structure is significant.
+The first line must contain just \texttt{\#!MLF!\#} to identify it as an MLF file.
+This is not necessary for use with the \texttt{-I} option but some 
+\HTK\ tools need to be able to distinguish an MLF from a normal label file.
+The following syntax\index{master label files!syntax} of MLF files is described using an 
+extended BNF notation in which
+alternatives are separated by a vertical bar $|$, parentheses (\ ) denote
+factoring, brackets [\ ] denote options, and braces \{\ \} denote zero or more
+repetitions. 
+
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \= ++ \= +++++++++++++++++ \= +++ \=  \kill
+\>    MLF  =  \> ``\#!MLF!\#'' \\
+\>\>  MLFDef \{ MLFDef \}
+\end{tabbing}
+}
+
+Each definition is either a transcription for immediate loading or a
+subdirectory to search.
+
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \= ++ \= +++++++++++++++++ \= +++ \=  \kill
+\>    MLFDef  = \> ImmediateTranscription $|$ SubDirDef
+\end{tabbing}
+}
+
+An immediate transcription consists of a pattern on a line
+by itself immediately followed
+by a transcription which as far as the MLF is concerned is arbitrary
+text.  It is read using whatever label file ``driver'' routines are
+installed in \htool{HLabel}.  It is terminated by a period written on a line
+of its own.
+
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \= ++ \= +++++++++++++++++ \= +++ \=  \kill
+\>   ImmediateTranscription = \\
+\>\>                    Pattern \\
+\>\>                    Transcription \\
+\>\>``.'' 
+\end{tabbing}
+}
+A subdirectory definition  simply gives the name of a subdirectory
+to search.  If the required label file is found in that subdirectory
+then the label file is loaded, otherwise the next matching subdirectory
+definition is checked.
+
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \= ++ \= +++++++++++++++++ \= +++ \=  \kill
+\>   SubDirDef = \> Pattern SearchMode String \\
+\>   SearchMode = \> ``\verb+->+'' $|$ ``\verb+=>+''
+\end{tabbing}
+}
+\noindent
+The two types of search mode are described below. A pattern is just a 
+string
+{\sf
+\begin{tabbing}
+++++ \= ++++++++ \= ++ \= +++++++++++++++++ \= +++ \=  \kill
+\>    Pattern = \> String
+\end{tabbing}
+}
+\noindent
+except that the characters `\texttt{?}' and `\texttt{*}' embedded in the string act
+as wildcards\index{master label files!wildcards} such that `\texttt{?}' matches any single character and
+`\texttt{*}' matches 0 or more characters.
+A string is any sequence of characters enclosed in double quotes.
+
+\subsection{MLF Search}
+
+The names of label files in \HTK\ are invariably reconstructed from an
+existing data file name and this means that the
+file names used to access label files can be partial or full path names in which
+the path has been constructed either from the path of the corresponding
+data file or by direct specification via the {\tt -L} option.  These
+path names are retained in the MLF search\index{master label files!search} which proceeds as follows.
+The given label file specification \texttt{../d3/d2/d1/name} is matched
+against each pattern in the MLF.  If a pattern matches, then either the
+named subdirectory is searched or an immediate definition is loaded.
+Pattern matching continues in this way until a definition is found.  If
+no pattern matches\index{master label files!pattern matching} then an attempt is made to open \texttt{../d3/d2/d1/name}
+directly.  If this fails an error is reported.
+
+The search of a sub-directory\index{master label files!sub-directory search} proceeds as follows.  In simple search
+mode indicated by  \texttt{->}, the file \texttt{name} must occur directly in the
+sub-directory.  In full search mode indicated by \texttt{=>}, the files
+\texttt{name, d1/name, d2/d1/name}, etc. are searched for in that order.
+This full search allows a hierarchy of label files to be constructed
+which mirrors a hierarchy of data files (see Example 4 below).
+   
+Hashing is performed when the label file specification is either
+a full path name or in the form \texttt{*/file} so in these cases
+the search is very fast. Any other use of metacharacters invokes
+a linear search with a full and relatively slow pattern match at each step.
+Note that all tools which generate label files have a \texttt{-l}
+option which is used to define the output directory in which to store
+individual label files.  When outputting master label files,  the \texttt{-l}
+option can be used to define the path in the output label file specifications.
+In particular, setting the option \texttt{-l '*'} causes
+the form \texttt{*/file} to be generated.\index{master label files!patterns}
+
+\subsection{MLF Examples}
+
+\index{master label files!examples}
+\begin{enumerate}
+\item
+Suppose a data set consisted of two training data files with
+corresponding label files:
+\newline
+\texttt{a.lab} contains 
+\begin{verbatim}
+       000000  590000  sil
+       600000 2090000  a
+      2100000 4500000  sil
+\end{verbatim}
+\texttt{b.lab} contains 
+\begin{verbatim}
+       000000  990000  sil
+      1000000 3090000  b
+      3100000 4200000  sil
+\end{verbatim}
+Then the above two individual label files could be replaced by a single MLF
+\begin{verbatim}
+      #!MLF!#
+      "*/a.lab"
+       000000  590000  sil
+       600000 2090000  a
+      2100000 4500000  sil
+      .                      
+      "*/b.lab"
+       000000  990000  sil
+      1000000 3090000  b
+      3100000 4200000  sil
+      .                      
+\end{verbatim}
+
+\item
+A digit data base contains training tokens \texttt{one.1.wav, one.2.wav, one.3.wav, ...,
+two.1.wav, two.2.wav, two.3.wav, ...}, etc.  Label files are required containing
+just the name of the model so that \HTK\ tools such as \htool{HERest} can be used.
+If MLFs are not used, individual label files are needed.  For example,
+the individual label files \texttt{one.1.lab, one.2.lab, one.3.lab, ....} would be
+needed
+to identify instances of ``one'' even though each file contains the same entry, just
+\begin{verbatim}
+      one
+\end{verbatim}
+Using an MLF containing
+\begin{verbatim}
+      #!MLF!#
+      "*/one.*.lab"
+      one
+      .
+      "*/two.*.lab"
+      two
+      .
+      "*/three.*.lab"
+      three
+      .
+      <etc.>
+\end{verbatim}
+avoids the need for many duplicate label files.
+
+\item
+A training database \texttt{/db} contains directories \texttt{dr1, dr2, ..., dr8}.
+Each directory contains a subdirectory called \texttt{labs} holding the
+label files for the data files in that directory.  The following
+MLF would allow them to be found
+\begin{verbatim}
+      #!MLF!#
+      "*" -> "/db/dr1/labs"
+      "*" -> "/db/dr2/labs"
+      ...
+      "*" -> "/db/dr7/labs"
+      "*" -> "/db/dr8/labs"
+\end{verbatim}      
+Each attempt to open a label file will result in a linear search
+through \texttt{dr1} to \texttt{dr8} to find that file.  If the sub-directory name
+is embedded into the label file name, then this searching can
+be avoided.  For example, if the label files in directory \texttt{drx} had
+the form \texttt{drx\_xxxx.lab}, then the MLF would be written as
+\begin{verbatim}
+      #!MLF!#
+      "*/dr1_*" -> "/db/dr1/labs"
+      "*/dr2_*" -> "/db/dr2/labs"
+      ...
+      "*/dr7_*" -> "/db/dr7/labs"
+      "*/dr8_*" -> "/db/dr8/labs"
+\end{verbatim}   
+
+\item
+A training database is organised as a hierarchy where 
+\texttt{/disk1/db/dr1/sp2/u3.wav} is the data file for the third
+repetition from speaker 2 in dialect region \texttt{dr1}
+(see Figure~\ref{f:dbhier}).  
+
+\centrefig{dbhier}{80}{Database Hierarchy: Data [Left]; Labels [Right].} 
+
+Suppose
+that a similar hierarchy of label files was constructed on
+\texttt{disk3}.
+These label files could be found by any \HTK\ tool by using an
+MLF containing just
+\begin{verbatim}
+      #!MLF!#
+      "*" => "/disk3"
+\end{verbatim}      
+If for some reason all of the \texttt{drN} directories were
+renamed \texttt{ldrN} in the label hierarchy, then this could be
+handled by an MLF file containing
+\begin{verbatim}
+      #!MLF!#
+      "*/dr1/*" => "/disk3/ldr1"
+      "*/dr2/*" => "/disk3/ldr2"
+      "*/dr3/*" => "/disk3/ldr3"
+               etc.
+\end{verbatim}      
+\end{enumerate}
+These few examples should illustrate the flexibility and power of MLF files.
+It should noted, however, that when generating label names automatically from data file names, HTK sometimes discards path details. For example, during recognition, if the data files /disk1/dr2/sx43.wav and /disk2/dr4/sx43.wav are being recognised, and a single directory is specified for the output label files, then recognition results for both files will be written to a file called sx43.lab, and the latter occurrence will overwrite the former.
+
+
+\mysect{Editing Label Files}{edlab}
+
+\HTK\ training tools typically expect the labels used in 
+transcription files to correspond\index{labels!editing}
+directly to the names of the HMMs chosen to build an application.  Hence,
+the label files supplied with a speech database will often need 
+modifying.  For example, the original transcriptions attached to a database
+might be at a fine level of acoustic detail.  Groups of labels corresponding 
+to a sequence of acoustic events (e.g. \texttt{pcl p'}) might need converting
+to some simpler form (e.g. \texttt{p}) which is more suitable for being
+represented by a HMM.  As a second example, current high performance speech
+recognisers use a large number of context dependent models to allow more
+accurate acoustic modelling.  For this case, the labels in the transcription
+must be converted to show the required contexts explicitly.
+
+\HTK\ supplies a tool called \htool{HLEd} for rapidly and efficiently converting
+label files. The \htool{HLEd} command invocation specifies the names of the files
+to be converted and the name of a script file holding the actual
+\htool{HLEd}\index{hled@\htool{HLEd}} commands.  For example, the command
+\begin{verbatim}
+    HLEd edfile.led l1 l2 l3
+\end{verbatim}
+would apply the edit commands stored in the file \texttt{edfile.led}
+to each of the label files \texttt{l1}, \texttt{l2} and \texttt{l3}. More commonly
+the new label files are stored in a new directory to avoid overwriting
+the originals.  This is done by using the 
+\texttt{-l} option.  For example,
+\begin{verbatim}
+    HLEd -l newlabs edfile.led l1 l2 l3
+\end{verbatim}
+would have the same effect as previously except that the new
+label files would be stored in the directory \texttt{newlabs}.
+
+Each edit command stored in an edit file\index{edit file} is identified by
+a mnemonic consisting of two letters\footnote{
+Some command names have single 
+letter\index{edit commands!single letter} alternatives for compatibility with
+earlier versions of \HTK.}
+and must be stored on a separate
+line.  The supplied edit commands can be divided into two groups.
+The first group consist of commands which perform selective 
+changes to specific labels and the second group contains commands
+which perform global transformations.  
+The reference section defines all of these
+commands.  Here a few examples will be given to illustrate the
+use of \htool{HLEd}.
+
+As a first example, when using the 
+TIMIT database\index{TIMIT database},  
+the original 61 phoneme symbol set is often mapped
+into a simpler 48 phoneme symbol set.  The aim of this mapping
+is to delete all glottal stops, replace all closures preceding a voiced stop 
+by a generic
+voiced closure (\texttt{vcl}), all closures preceding an unvoiced stop 
+by a generic
+unvoiced closure (\texttt{cl}) and the different types of silence to
+a single generic silence (\texttt{sil}).  A \htool{HLEd} script to
+do this might be
+\begin{verbatim}
+    # Map 61 Phone Timit Set -> 48 Phones
+    SO
+    DE q
+    RE cl pcl tcl kcl qcl
+    RE vcl bcl dcl gcl
+    RE sil h# #h pau
+\end{verbatim}
+The first line is a comment indicated by the initial hash character.
+The command on the second line is the {\it Sort} command 
+\texttt{SO}\index{so@\texttt{SO} command}.\index{labels!sorting}
+This is an example of a global command.
+Its effect is to sort all the labels into time order.
+Normally the labels in a transcription will already be in time order
+but some speech editors simply output labels in the order that the
+transcriber marked them.  Since this would confuse the re-estimation
+tools, it is good practice to explicitly sort all label files in this
+way.
+
+The command on the third line is the {\it Delete} command 
+\texttt{DE}\index{de@\texttt{DE} command}.  
+This is
+a selective command.  Its\index{labels!deleting}
+effect is to delete all of the labels
+listed on the rest of the command line, wherever they occur.
+In this case, there is
+just one label listed for deletion, the
+glottal stop  \texttt{q}.
+Hence, the overall effect of this command will be to delete all occurrences
+of the \texttt{q} label in the edited label files.
+
+The remaining commands in this example script are {\it Replace} commands
+\texttt{RE}.  The effect of a Replace command is to substitute the first
+label following the \texttt{RE}\index{re@\texttt{RE} command} for every occurrence of the remaining labels
+on that line.\index{labels!replacing}  Thus, for example, the 
+command on the third line causes all occurrences of the labels \texttt{pcl},
+\texttt{tcl}, \texttt{kcl} or \texttt{qcl} to be replaced by the label \texttt{cl}.
+
+To illustrate the overall effect of the above \htool{HLEd} command script on
+a complete label file, the following \texttt{TIMIT} format label file
+\begin{verbatim}
+     0000 2241 h#
+     2241 2715 w
+     2715 4360 ow
+     4360 5478 bcl
+     5478 5643 b
+     5643 6360 iy
+     6360 7269 tcl
+     7269 8313 t
+     8313 11400 ay
+    11400 12950 dcl
+    12950 14360 dh
+    14360 14640 h#
+\end{verbatim}
+would be converted by the above script to the following
+\begin{verbatim}
+          0 1400625 sil 
+    1400625 1696875 w 
+    1696875 2725000 ow 
+    2725000 3423750 vcl 
+    3423750 3526875 b 
+    3526875 3975000 iy 
+    3975000 4543125 cl 
+    4543125 5195625 t 
+    5195625 7125000 ay 
+    7125000 8093750 vcl 
+    8093750 8975000 dh 
+    8975000 9150000 sil 
+\end{verbatim}
+Notice that label boundaries in TIMIT format are given in terms of sample
+numbers (16kHz sample rate), whereas the edited output file is in 
+\HTK\ format in which all times are in absolute 100ns units.  
+
+As well as the Replace command, there is
+also a {\it Merge} command \texttt{ME}\index{me@\texttt{ME} command}.  This command is used 
+to replace a sequence of labels by a single label.  \index{labels!merging}
+For example, the following commands would merge the closure and release
+labels in the previous TIMIT transcription into single labels
+\begin{verbatim}
+    ME b bcl b
+    ME d dcl dh
+    ME t tcl t
+\end{verbatim}
+As shown by this example, the label used for the merged sequence can be
+the same as occurs in the original but some care is needed since
+\htool{HLEd} commands are normally applied in sequence.   Thus, a command
+on line $n$ is applied to the label sequence that remains after the
+commands on lines 1 to $n-1$ have been applied.
+
+There is one exception to the above rule of sequential edit command
+application.  The {\it Change} command \index{labels!changing}
+\texttt{CH}\index{ch@\texttt{CH} command} provides for context
+sensitive replacement.  However, when a sequence of Change commands occur
+in a script, the sequence is applied as a block so that the contexts
+which apply for each command are those that existed just prior to the
+block being executed. The Change command takes 4 arguments \texttt{X A Y
+B} such that every occurrence of label \texttt{Y} in the context of
+\texttt{A \_ B} is changed to the label \texttt{X}.  The contexts
+\texttt{A} and \texttt{B} refer to sets of labels and  are defined by
+separate \textit{Define Context} commands \texttt{DC}\index{dc@\texttt{DC} command}.   
+The \texttt{CH} and
+\texttt{DC} commands are primarily used for creating context sensitive
+labels.  For example, suppose that a set of context-dependent phoneme
+models are needed for TIMIT.  Rather than treat all possible contexts
+separately and build separate triphones for each  (see below), the
+possible contexts  will be grouped into just 5 broad classes: C
+(consonant), V (vowel), N (nasal), L (liquid) and S (silence). The goal
+then is to translate a label sequence such as \texttt{sil b ah t iy n ...}
+into \texttt{sil+C S-b+V C-ah+C V-t+V C-iy+N V-n+ ...} where the
+\texttt{-} and \texttt{+} symbols within a label are recognised by 
+\HTK\ as defining the left and right context, respectively. To perform this
+transformation, it is necessary to firstly use \texttt{DC} commands to
+define the 5 contexts, that is
+\begin{verbatim}
+    DC V iy ah ae eh ix ... 
+    DC C t k d k g dh ... 
+    DC L l r w j ...
+    DC N n m ng ...
+    DC S h# #h epi ...
+\end{verbatim}
+Having defined the required contexts, a change command must be
+written for each context dependent triphone, that is
+\begin{verbatim}
+    CH V-ah+V V ah V
+    CH V-ah+C V ah C
+    CH V-ah+N V ah N
+    CH V-ah+L V ah L
+     ...
+     etc
+\end{verbatim}
+This script will, of course, be rather long (25 $\times$ number of
+phonemes) but it can easily be generated automatically 
+by a simple program or shell script.
+
+The previous example shows how to transform a set of phonemes into a
+context dependent set in which the contexts are user-defined.
+\index{labels!context dependent} For
+convenience, \htool{HLEd} provides a set of global transformation commands
+for converting phonemic transcriptions to conventional left or right
+biphones, or full triphones.  For example, a script containing the single
+{\it Triphone Conversion} command \texttt{TC}\index{tc@\texttt{TC} command} will convert phoneme 
+files to regular
+triphones.  As an illustration, applying the \texttt{TC} command to a file
+containing the sequence \texttt{sil b ah t iy n ...} would  give the
+transformed sequence 
+\texttt{sil+b sil-b+ah b-ah+t ah-t+iy t-iy+n iy-n+ ...}. Notice that the
+first and last phonemes in the sequence  cannot be transformed in the
+normal way.  Hence, the left-most and right-most contexts of these
+start and end phonemes can be specified
+explicitly as arguments to the \texttt{TC} commands if required.  For
+example, the command \texttt{TC \# \#} would give the sequence
+\texttt{\#-sil+b sil-b+ah b-ah+t ah-t+iy t-iy+n iy-n+ ... +\#}.  
+Also, the contexts at pauses and word boundaries can be blocked
+using the
+\texttt{WB} command.   For example, if \texttt{WB sp} was executed, the
+effect of a subsequent \texttt{TC} command on the sequence 
+\texttt{sil b ah t sp iy n ...} would be to give the sequence 
+\texttt{sil+b sil-b+ah b-ah+t ah-t sp iy+n iy-n+ ...}, 
+where \texttt{sp} represents a short pause. Conversely, the \texttt{NB} 
+command can be used to ignore a label as far as context is concerned.  For example,
+if  \texttt{NB sp} was executed, the
+effect of a subsequent \texttt{TC} command on the sequence 
+\texttt{sil b ah t sp iy n ...} would be to give the sequence 
+\texttt{sil+b sil-b+ah b-ah+t ah-t+iy sp t-iy+n iy-n+ ...}.
+
+When processing \HTK\ format label files with multiple levels, only the 
+level 1 (i.e. left-most) labels are affected.\index{labels!moving level}  To process a higher
+level, the \textit{Move Level} command \texttt{ML}\index{ml@\texttt{ML} command} should be used.
+For example, in the script
+\begin{verbatim}
+    ML 2
+    RE one 1
+    RE two 2
+    ...
+\end{verbatim}
+the Replace commands are applied to level 2 which is the first level
+above the basic level.  The command \texttt{ML 1} returns to the 
+base level.  A complete level can be deleted by the 
+\textit{Delete Level} command \texttt{DL}.  This command can
+be given a numeric argument to delete a specific level or
+with no argument, the current level is deleted.
+Multiple levels can also be split into single level alternatives
+by using the \textit{Split Level} command \texttt{SL}.
+
+When processing \HTK\ format files with multiple alternatives,
+each alternative is processed as though it were a separate file.
+
+Remember also that in addition to the explicit \htool{HLEd} commands,
+levels and alternatives can be filtered on input by setting the
+configuration variables \texttt{TRANSLEV}\index{translev@\texttt{TRANSLEV}} and 
+\texttt{TRANSALT}\index{transalt@\texttt{TRANSALT}} 
+(see section~\ref{s:labstruct}).
+
+Finally, it should be noted that most \HTK\ tools require 
+all HMMs used in a system to be defined in\index{HMM lists}
+a {\it HMM List}.  \htool{HLEd} can be made to automatically generate such
+a list as a by-product of editing the label files by using the 
+\texttt{-n} option.  For example, the following command would apply
+the script \texttt{timit.led} to all files in the directory \texttt{tlabs},
+write the converted files to the directory \texttt{hlabs}
+and also write out a list of all new labels in the edited
+files to \texttt{tlist}.
+\begin{verbatim}
+    HLEd -n tlist -l hlabs -G TIMIT timit.led tlabs/*
+\end{verbatim}
+Notice here that the \texttt{-G} option is used to inform \htool{HLEd} 
+that the format of the source files is \texttt{TIMIT}. This could also
+be indicated by setting the configuration variable 
+\texttt{SOURCELABEL}\index{sourcelabel@\texttt{SOURCELABEL}}.
+
+\mysect{Summary}{labelsum}
+
+Table~\href{t:labelcparms} 
+lists all of the
+configuration parameters  recognised by \htool{HLabel}
+along with a brief description.  A missing module name means 
+that it is recognised by
+more than one module. 
+
+\begin{center}
+\begin{tabular}{|p{1.4cm}|p{3.0cm}|p{6.4cm}|} \hline
+Module & Name  & Description  \\ \hline
+\htool{HLabel} & \texttt{LABELSQUOTE}  & Specify label quote character \\
+\htool{HLabel} & \texttt{SOURCELABEL}    & Source label format \\
+\htool{HLabel} & \texttt{SOURCERATE}    & Sample period for SCRIBE format \\
+\htool{HLabel} & \texttt{STRIPTRIPHONES} & Remove triphone contexts on input \\
+\htool{HLabel} & \texttt{TARGETLABEL}    &  Target label format\\
+\htool{HLabel} & \texttt{TRANSALT}  & Filter alternatives on input \\
+\htool{HLabel} & \texttt{TRANSLEV}  & Filter levels on input \\
+\htool{HLabel} & \texttt{V1COMPAT}  & Version 1.5 compatibility mode \\
+               & \texttt{TRACE}           & trace control (default=0) \\ \hline
+\end{tabular}
+\tabcap{labelcparms}{Configuration Parameters used with Labels}
+\end{center}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "htkbook"
+%%% End: 

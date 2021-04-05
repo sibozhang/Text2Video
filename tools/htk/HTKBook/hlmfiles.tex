@@ -1,0 +1,995 @@
+%
+% !HVER!hlmfiles.tex [SJY 05/04/97]
+%
+% Updated (and corrected and significantly extended) GLM 25/01/02 - 19/02/02
+%
+
+\mychap{Language Modelling Reference}{hlmfiles}
+
+\sidepic{LTool}{120}{
+As noted in the introduction, building a language model with the \HTK\
+tools is a two stage process. In the first stage, the $n$-gram data is
+accumulated and in the second stage, language models are estimated
+from this data.  The $n$-gram data consists of a set of gram files and
+their associated word map.  Each gram file contains a list of $n$-grams
+and their counts.  Each $n$-gram is represented by a sequence of $n$
+integer word indices and the word map relates each of these indices to
+the actual orthographic word form.  As a special case, a word map
+containing just words and no indices acts as a simple \textit{word
+list}. }
+
+In many cases, a class map is also required.  Class maps give a name
+to a subset of words and associate an index with that name.  Once
+defined, a class name can be used like a regular word and, in
+particular, it can be listed in a word map.  In their most general
+form, class maps are used to build class-based language models.
+However, they are also needed for most word-based language models
+because they allow a class to be defined for \textit{unknown} words.
+
+This chapter includes descriptions of three basic types of data file: gram
+file, word map file, and class map file.  As shown in the figure, each
+file type is supported by a specific \HTK\ module which provides the
+required input and output and the other related operations.
+
+Also described in this chapter is a fourth type of data file called a
+\textit{frequency-of-frequency} or \textit{FoF} file.  A FoF file
+contains a count of the number of times an $n$-gram occurred just once,
+twice, three times, etc.  It is used with Turing-Good discounting
+(although \htool{LBuild} can generate FoF counts on the fly) but it
+can also be used to estimate the number of $n$-grams which will be
+included in the final language models.
+
+The various language model formats, for both word and class-based
+models, are also described in detail.
+
+Trace levels for each language modelling library
+modules are also described -- see the tool documentation for details
+of tool level tracing options.  Finally, run-time and compile-time
+settings are documented.
+
+
+\mysect{Words and Classes}{wsandcs}
+
+In the \HTK\ language modelling tools, words and classes are
+represented internally by integer indices in the range 0 to $2^{24} -
+1$ (16777215).  This range is chosen to fit exactly into 3 8-bit bytes
+thereby allowing efficient compaction of large lists of $n$-gram counts
+within gram files.
+
+These integer indices will be referred to subsequently as
+\textit{ids}.  Class ids are limited to the range 0 to $2^{16}-1$ and
+word ids fill the remaining range of $2^{16}$ to $2^{24} - 1$.  Thus,
+any id with a zero most significant byte is a \textit{class id} and
+all other ids are
+\textit{word ids}.\index{class id}\index{word id}
+
+In the context of word maps, the term \textit{word} may refer to
+either an orthographic word or the name of a class.  Thus, in its most
+general form, a word map can contain the ids of both orthographic
+words from a source text and class names defined in one or more class
+maps.
+
+The mapping of orthographic words to ids is relatively permanent and
+normally takes place when building gram files (using \htool{LGPrep}).
+Each time a new word is encountered, it is allocated a unique id.
+Once allocated, a word id should never be changed. Class ids, on the
+other hand, are more dynamic since their definition depends on the
+language model being built.  Finally, composite word maps can be
+derived from a collection of word and class maps using the tool
+\htool{LSubset}.  These derived word maps are typically used to define a
+working subset of the name space and this subset can contain both word
+and class ids.
+
+\mysect{Data File Headers}{dfhdrs}
+
+All the data files have headers containing information about the
+file and the associated environment.  The header is variable-size
+being terminated by a data symbol (e.g.\ \verb+\Words\+ \verb+\Grams\+
+\verb+\FoFs\+, etc) followed by the start of the actual data.
+
+Each header field is written on a separate line in the
+form\index{headers}
+\begin{verbatim}
+ <Field> = <value>
+\end{verbatim}
+where \texttt{<Field>} is the name of the field and \texttt{<value>}
+is its value.  The field name is case insensitive and zero or more
+spaces can surround the \texttt{=} sign.  The \texttt{<value>} starts
+with the first printing character and ends at the last printing
+character on the line.  \HTK\ style escaping is never used in \HLM\
+headers.
+
+Fields may be given in any order.  Field names which are unrecognised
+by \HTK\ are ignored.  Further field names may be introduced in
+future, but these are guaranteed not to start with the letter ``U''.
+
+(NB. The above format rules do not apply to the files described in section
+\ref{s:HLMclasslmfileformats} -- see that section for more details)
+
+
+\mysect{Word Map Files}{wmaps}
+
+A word map file is a text file consisting of a header and a list of
+word entries.  The header\index{word map!header} contains the
+following
+\begin{enumerate}
+
+\item a name consisting of any printable character string 
+      (\texttt{Name=sss}).
+
+\item the number of word entries (\texttt{Entries=nnn})
+
+\item a sequence number (\texttt{SeqNo=nnn})
+
+\item whether or not word ids \texttt{ID}s and word frequency counts 
+      \texttt{WFC}s are included (\texttt{Fields=ID} or
+      \texttt{Fields=ID,WFC}).  When the \texttt{Fields} field is
+      missing, the word map contains only word names and it
+      degenerates to the special case of a word list.
+
+\item escaping mode (\texttt{EscMode=HTK} or \texttt{EscMode=RAW}). 
+      The default is \texttt{HTK}.
+
+\item the language (\texttt{Language=xxx})
+
+\item word map source, a text string used with derived word maps
+      to describe the source from which the subset was derived.
+      (\texttt{Source=...}).
+
+\end{enumerate}
+The first two of these fields must always be included, and for word
+maps, the \texttt{Fields} field must also be included.  The remaining
+fields are optional.  More header fields may be defined later and the
+user is free to insert others.
+
+The word entries begin with the keyword \verb+\Words\+.  Each word is
+on a separate line with the format\index{word map!entries}
+\begin{verbatim}
+    word [id [count]]
+\end{verbatim}
+where the id and count are optional. Proper word maps always have an
+\texttt{id}.  When the \texttt{count} is included, it denotes the
+number of times that the word has been encountered during the
+processing of text data.
+
+For example, a typical word map file might be
+\begin{verbatim}
+    Name=US_Business_News
+    SeqNo=13
+    Entries=133986
+    Fields=ID,WFC
+    Language=American
+    EscMode=RAW
+    \Words\
+    <s>    65536 34850
+    CAN'T  65537 2087
+    THE    65538 12004
+    DOLLAR 65539 169
+    IS     65540 4593
+    ....
+\end{verbatim}
+In this example,\index{word map!example of} the word map is called
+``US\_Business\_News'' and it has been updated 13 times since it was
+originally created.  It contains a total of 133986 entries and word
+frequency counts are included.  The language is ``American'' and there
+is no escaping used (e.g.\ can't is written \verb+CAN'T+ rather than
+the standard \HTK\ escaped form of \verb+CAN\'T+).
+
+As noted above, when the \texttt{Fields} field is missing, the word
+map contains only the words and serves the purpose of a simple word
+list.  For example, a typical word list might be defined as follows
+\begin{verbatim}
+    Name=US_Business_News
+    Entries=10000
+    \Words\
+    A
+    ABLE
+    ABOUT
+    ...
+    ZOO  
+\end{verbatim}
+Word lists are used to define subsets of the words in a word map.
+Whenever a tool requires a word list, a simple list of words
+can be input instead of the above.  For example, the previous list
+could be input as
+\begin{verbatim}
+    A
+    ABLE
+    ABOUT
+    ...
+    ZOO  
+\end{verbatim}
+In this case, the default is to assume that all input words are
+escaped.  If raw mode input is required, the configuration variable
+\texttt{INWMAPRAW} should be set true (see
+section~\ref{s:htkstrings}).\index{vocabulary list}
+
+As explained in section~\ref{s:htkstrings}, by default \HTK\ tools
+output word maps in HTK escaped form.  However, this can be overridden
+by setting the \htool{LWMap} configuration variable
+\texttt{OUTWMAPRAW} to true.
+
+\mysect{Class Map Files}{cmaps}
+
+A class map file defines one or more word classes.  It has a header
+similar to that of a word map file, containing values for
+\texttt{Name}, \texttt{Entries}, \texttt{EscMode} and \texttt{Language}.  
+In this case, the number of entries refers to the number of classes
+defined.  \index{class map!header}
+
+The class definitions are introduced by the keyword \verb+\Classes\+.
+Each class definition has a single line sub-header consisting of a
+name, an id number, the number of class members (or non-members) and a
+keyword which must be \texttt{IN} or \texttt{NOTIN}.  In the latter
+case, the class consists of all words \textit{except} those listed
+i.e. the class is defined by its complement. \index{class
+map!complements}
+
+The following is a simple example  of a class map file.
+\begin{verbatim}
+    Name=Simple_Classes
+    Entries=97
+    EscMode=HTK
+    Language=British
+    \Classes\
+    ARTICLES 1 3 IN
+      A
+      AN
+      THE
+    COLOURS 2 4 IN
+      RED
+      BLUE
+      GREEN
+      YELLOW
+    SHAPES 3 6 IN
+      SQUARE
+      CIRCLE
+      ...
+    etc
+\end{verbatim}
+This class map file defines 97 distinct classes, the first of which is
+a class called \texttt{ARTICLES} (id=1) with 3 members: (a, an, the).
+
+For simple word-based language models, the class map file is used to
+define the class of unknown words.  This is usually just the
+complement of the vocabulary list.  For example, a typical class map
+file defining the \textit{unknown} class \texttt{!!UNKID} might
+be\index{unknown class} \index{class map!defining unknown}
+\begin{verbatim}
+    Name=Vocab_65k_V2.3
+    Entries=1
+    Language=American
+    EscMode=NONE
+    \Classes\
+    !!UNKID 1 65426 NOTIN
+      A
+      ABATE
+      ABLE
+      ABORT
+      ABOUND
+      ...
+\end{verbatim}
+Since this case is so common, the tools also allow a plain
+vocabulary list to be supplied in place of a proper class map file.
+For example, supplying a class map file containing just
+\begin{verbatim}
+    A
+    ABATE
+    ABLE
+    ABORT
+    ABOUND
+    ...
+\end{verbatim}
+would have an equivalent effect to the previous example provided that
+the \htool{LCMap} configuration variables \texttt{UNKNOWNID} and
+\texttt{UNKNOWNNAME} have been set in order to define the id and name
+to be used for the unknown class.  In the example given, including the
+following two lines in the configuration file would have the desired
+effect
+\begin{verbatim}
+    LCMAP: UNKNOWNID = 1
+    LCMAP: UNKNOWNNAME = !!UNKID
+\end{verbatim}
+Notice that the similarity with the special case of word lists
+described in section~\ref{s:wmaps}.  A plain word list can therefore
+be used to define both a vocabulary subset and the unknown class.  In
+a conventional language model, these are, of course, the same thing.
+
+In a similar fashion to word maps, the input of a headerless class map
+can be set to raw mode by setting the \htool{LCMap} configuration
+variable \texttt{INCMAPRAW} and all class maps can be output in raw
+mode \index{class map!as vocabulary list} by setting the configuration
+variable
+\texttt{OUTCMAPRAW} to true.\index{vocabulary list}
+
+\mysect{Gram Files}{gramfs}
+
+Statistical language models are estimated by counting the number of
+events in a sample source text.  These event counts are stored in
+\textit{gram} files.  Provided that they share a common word map, gram
+files can be grouped together in arbitrary ways to form the raw data
+pool from which a language model can be constructed.  For example, a
+text source containing 100m words could be processed and stored as two
+gram files. A few months later, a 3rd gram file could be generated
+from a newly acquired text source.  This new gram file could then be
+added to the original two files to build a new language model.  The
+original source text is not needed and the gram files need not be
+changed. \index{gram files!format}
+
+A gram file consists of a header\index{ngram!files} followed by a
+sorted list of $n$-gram counts.\index{gram files!header} The header
+contains the following items, each written on a separate line
+\begin{enumerate}
+
+\item $n$-gram size ie 2 for bigrams, 3 for trigrams, etc. (\texttt{Ngram=N})
+
+\item Word map.  Name of word map to be used with this gram 
+      file. (\texttt{WMap=wmapname})
+
+\item First gram.  The first $n$-gram in the file (\texttt{gram1 = w1 w2 w3 ...})
+
+\item Sequence number.  If given then the actual word map must have a sequence
+      number which is greater than or equal to this.
+      (\texttt{SeqNo=nnn)}
+
+\item Last gram. The last $n$-gram in the file (\texttt{gramN = w1 w2 w3 ...})
+
+\item Number of distinct $n$-grams in file.  (\texttt{Entries = N}) 
+
+\item Word map check.  This is an optional field containing a word and its id.
+      It can be included as a double check that the correct word map
+      is being used to interpret this gram file.  The given word is
+      looked up in the word map and if the corresponding id does not
+      match, an error is reported.  (\texttt{WMCheck = word id})
+
+\item Text source.  This is an optional text string describing the text source 
+      which was used to generate the gram file (\texttt{Source=...}).
+
+\end{enumerate}
+For example, a typical gram file header might be
+\begin{verbatim}
+    Ngram = 3
+    WMap = US_Business_News
+    Entries = 50345980
+    WMCheck = XEROX 340987
+    Gram1 = AN ABLE ART
+    GramN = ZEALOUS ZOO OWNERS
+    Source = WSJ Aug 94 to Dec 94
+\end{verbatim}
+
+The $n$-grams themselves begin immediately following the line containing
+the keyword \verb+\Grams\+\footnote{That is, the first byte of the
+binary data immediately follows the newline character}.  They are
+listed in lexicographic sort order such that for the $n$-gram $\{w_1 w_2
+\ldots w_N\}$, $w_1$ varies the least rapidly and $w_N$ varies the
+most rapidly.  Each $n$-gram consists of a sequence of $N$ 3-byte word
+ids followed by a single 1-byte count.  If the $n$-gram occurred more
+than 255 times, then it is repeated with the counts being interpreted
+to the base 256.  For example, if a gram file contains the
+sequence\index{gram files!count encoding}
+\begin{verbatim}
+    w1 w2 ... wN c1
+    w1 w2 ... wN c2
+    w1 w2 ... wN c3
+\end{verbatim}
+corresponding to the $n$-gram $\{w_1 w_2 \ldots w_N\}$, the corresponding
+count is\index{ngram!count encoding}\index{count encoding}
+\[
+   c_1 + c_2*256 + c_3*256^2
+\]
+
+When a group of gram files are used as input to a tool, they
+must be organised so that the tool receives $n$-grams as a single stream
+in sort order i.e.\ as far as the tool is concerned, the net effect
+must be as if there is just a single gram file.  Of course,\index{gram
+file!input} a sufficient approach would be to open all input gram
+files in parallel and then scan them as needed to extract the required
+sorted $n$-gram sequence.  However, if two $n$-gram files were organised
+such that the last $n$-gram in one file was ordered before the first
+$n$-gram of the second file, it would be much more efficient to open and
+read the files in sequence. Files such as these are said to be
+\texttt{sequenced} and in general, \HTK\ tools are supplied with a mix
+of sequenced and non-sequenced files.  To optimise input in this
+general case, all \HTK\ tools which input gram files start by scanning
+the header fields\index{sequenced gram files} \texttt{gram1} and 
+\texttt{gramN}. This information allows a sequence table to be
+constructed which determines the order in which the constituent gram
+file must be opened and closed.  This sequence table is designed to
+minimise the number of individual gram files which must be kept open
+in parallel. \index{gram file!sequencing}
+
+This gram file sequencing is invisible to the \HTK\ user, but it
+is important to be aware of it.  When a large number of gram files are
+accumulated to form a frequently used database, it may be worth
+copying the gram files using \htool{LGCopy}.  This will have the effect of
+transforming the gram files into a fully sequenced set thus ensuring
+that subsequent reading of the data is maximally efficient.
+
+\mysect{Frequency-of-frequency (FoF) Files}{FoFs}
+
+A FoF file contains a list of the number of times that an $n$-gram
+occurred just once, twice, three times, \ldots, n times.  Its format
+is similar to a word map file.  The header contains the following
+information\index{frequency-of-frequency}\index{FoF files}
+\begin{enumerate}
+\item $n$-gram size ie 2 for bigrams, 3 for trigrams, etc. (\texttt{Ngram=N})
+\item the number of frequencies counted (i.e.\ the number of rows in the
+      FoF table (\texttt{Entries=nnn})
+\item Text source.  This is an optional text string describing the text source 
+which was used to generate the gram files used to compute this
+FoF file. (\texttt{Source=...}).
+\end{enumerate}
+More header fields may be defined later and the user is free to insert
+others.\index{FoF file!header}
+
+The data part starts with the keyword \verb+\FoFs\+.  Each 
+contains a list of the unigrams, bigrams, \ldots, $n$-grams occurring exactly
+\texttt{k} times, where \texttt{k} is the number of the row of the
+table -- the first row shows the number of $n$-grams occurring exactly
+1 time, for example.\index{FoF file!counts}
+
+As an example, the following is a FoF file computed from a set of trigram gram
+files.
+\begin{verbatim}
+    Ngram = 3
+    Entries = 100
+    Source = WSJ Aug 94 to Dec 94
+    \FoFs\
+         1020  23458  78654
+          904  19864  56089
+    ...
+\end{verbatim}
+
+FoF files are generated by the tool \texttt{LFoF}.  This tool will
+also output a list containing an estimate of the number of $n$-grams that
+will occur in a language model for a given cut-off -- set the
+configuration parameter {\tt LPCALC: TRACE = 3}.\index{lFoF@\htool{LFoF}}
+
+
+\mysect{Word LM file formats}{HLMlmfileformats}
+\index{ARPA-MIT LM format}
+\index{LM file formats!binary}
+\index{LM file formats!ultra}
+\index{LM file formats!ARPA-MIT format}
+\index{files!language models}
+Language models can be stored on disk in three different file formats
+- {\em text}, {\em binary} and {\em ultra}. The text format is the
+standard ARPA-MIT formad used to distribute pre-computed language
+models.  The binary format is a proprietary file format which is
+optimised for flexibility and memory usage.  All tools will output
+models in this format unless instructed otherwise.  The {\em ultra} LM
+format is a further development of the binary LM format optimised for
+fast loading times and small memory footprint. At the same time,
+models stored in this format cannot be pruned further in terms of size
+and vocabulary.
+
+\mysubsect{The ARPA-MIT LM format}{HLMarpamitlm}
+\index{ARPA-MIT LM format}
+This format for storing $n$-gram back-off language models is defined
+as follows
+\begin{verbatim}
+  <LM_definition> = [ { <comment> } ] 
+                    \data\ 
+                    <header> 
+                    <body> 
+                    \end\
+        <comment> = { <word> }
+\end{verbatim}
+An ARPA-style language model file comes in two parts - the header and
+the $n$-gram definitions. The header contains a description of the
+contents of the file.
+\begin{verbatim}
+         <header> = { ngram <int>=<int> }
+\end{verbatim}
+The first {\tt <int>} gives the $n$-gram order and the second {\tt
+<int>} gives the number of $n$-gram entries stored.
+
+For example, a trigram language model consists of three sections - the
+unigram, bigram and trigram sections respectively. The corresponding
+entry in the header indicates the number of entries for that
+section. This can be used to aid the loading-in procedure. The body
+part contains all sections of the language model and is defined as
+follows:
+\begin{verbatim}
+           <body>  = { <lmpart1> } <lmpart2>
+         <lmpart1> = \<int>-grams: 
+                     { <ngramdef1> }
+         <lmpart2> = \<int>-grams: 
+                     { <ngramdef2> }
+       <ngramdef1> = <float> { <word> } <float>
+       <ngramdef2> = <float> { <word> } 
+\end{verbatim}
+Each $n$-gram definition starts with a probability value stored as
+$\log_{10}$ followed by a sequence of $n$ words describing the actual
+$n$-gram. In all sections excepts the last one this is followed by a
+back-off weight which is also stored as $\log_{10}$. The following
+example shows an extract from a trigram language model stored in the
+ARPA-text format.
+
+\begin{verbatim}
+\data\
+ngram 1=19979
+ngram 2=4987955
+ngram 3=6136155
+
+\1-grams:
+-1.6682  A      -2.2371
+-5.5975  A'S    -0.2818
+-2.8755  A.     -1.1409
+-4.3297  A.'S   -0.5886
+-5.1432  A.S    -0.4862
+...
+
+\2-grams:
+-3.4627  A  BABY    -0.2884
+-4.8091  A  BABY'S  -0.1659
+-5.4763  A  BACH    -0.4722
+-3.6622  A  BACK    -0.8814
+...
+
+\3-grams:
+-4.3813  !SENT_START    A       CAMBRIDGE
+-4.4782  !SENT_START    A       CAMEL
+-4.0196  !SENT_START    A       CAMERA
+-4.9004  !SENT_START    A       CAMP
+-3.4319  !SENT_START    A       CAMPAIGN
+...
+\end\
+\end{verbatim}
+
+\mysubsect{The modified ARPA-MIT format}{HLMmodifiedarpamitlm}
+The efficient loading of the language model file requires prior
+information as to memory requirements. Such information is partially
+available from the header of the file which shows how many entries
+will be found in each section of the model. From the back-off nature
+of the language model it is clear that the back-off weight associated
+with an $n$-gram $(w_1, w_2, \ldots, w_{n-1})$ is only useful when
+$p(w_n | w_1, word_2, \ldots, w_{n-1})$ is an explicitly entry in the
+file or computed via backing-off to the corresponding
+$(n-1)$-grams. In other words, the presence of a back-off weight
+associated with the $n$-gram $w_1, w_2, \ldots, w_{n-1}$ can be used
+to indicate the existence of explicit $n$-grams $w_1, w_2, \ldots,
+w_n$. The use of such information can greatly reduce the storage
+requirements of the language model since the back-off weight requires
+extra storage. For example, considering the statistics shown in table
+\ref{fg_stats}, such selective memory allocation can result in dramatic 
+savings.
+\begin{table}
+  \center
+  \begin{tabular}{|l|r|r|} \hline
+	{Component} & {\# with back-off weights} & {Total}       \\ \hline
+	{unigram}   & 65,467       & 65,467        \\ \hline
+	{bigram}    & 2,074,422    & 6,224,660     \\ \hline
+        {trigram}   & 4,485,738    & 9,745,297     \\ \hline
+        {fourgram}  & 0            & 9,946,193     \\ \hline
+  \end{tabular}
+  \caption{Component statistics for a 65k word fourgram language model with 
+  cut-offs: bigram 1, trigram 2, fourgram 2.} 
+  \label{fg_stats}
+\end{table} 
+This information is accommodated by modifying the syntax and semantics
+of the rule
+\begin{verbatim}
+       <ngramdef1> = <float> { <word> } [ <float> ]
+\end{verbatim}
+whereby a back-off weight associated with $n$-gram $(w_1, w_2,\ldots,
+w_{n-1})$ indicates the existence of $n$-grams $(w_1, w_2, \ldots,
+w_n)$. This version will be referred to as the modified ARPA-text
+format.
+  
+\mysubsect{The binary LM format}{HLMbinarylmformat}
+\index{LM file formats!binary}
+This format is the binary version of modified ARPA-text format. It was
+designed to be a compact, self-contained format which aids the fast
+loading of large language model files. The format is similar to the
+original ARPA-text format with the following modification
+\begin{verbatim}
+         <header> = { (ngram <int>=<int>) | (ngram <int>~<int>) } 
+\end{verbatim}
+The first alternative in the rule describes a section stored as text,
+the second one describes a section stored in binary. The unigram
+section of a language model file is always stored as text.
+\begin{verbatim}
+       <ngramdef> = <txtgram> | <bingram>
+        <txtgram> = <float> { <word> } [ <float> ]
+        <bingram> = <f_type> <f_size> <f_float> { <f_word> } [ <f_float> ]
+\end{verbatim}
+In the above definition, {\tt <f\_type>} is a 1-byte flags field, {\tt
+<f\_size>} is a 1-byte unsigned number indicating the total size in
+bytes of the remaining fields, {\tt <f\_float>} is a 4-bytes field for
+the $n$-gram probability, {\tt <f\_word>} is a numeric word id, and
+the last {\tt <f\_float>} is the back-off weight. The numeric word
+identifier is an unsigned integer assigned to each word in the order
+of occurrence of the words in the unigram section. The minimum size of
+this field is 2-bytes as used in vocabulary lists with up to 65,5355
+words. If this number is exceeded the field size is automatically
+extended to accommodate all words.  The size of the fields used to
+store the probability and back-off weight are typically 4 bytes,
+however this may vary on different computer architectures.  The least
+significant bit of the flags field indicates the presence/absence of a
+back-off weight with corresponding values 1/0. The remaining bits of
+the flags field are not used at present.
+
+
+
+\mysect{Class LM file formats}{HLMclasslmfileformats}
+\index{files!language models}
+\index{Class language models}
+Class language models replace the word language model described in
+section \ref{s:HLMlmfileformats} with an identical component which
+models class $n$-grams instead of word $n$-grams.  They add to this a
+second component which includes the deterministic word-to-class
+mapping with associated word-given-class probabilities, expressed
+either as counts (which are normalised to probabilities on loading) or
+as explicit natural log probabilities.  These two components are then
+either combined into a single file or are pointed to with a special
+link file.
+
+
+\mysubsect{Class counts format}{HLMclasscountslmformat}
+\index{LM file formats!class counts}
+The format of a word-given-class counts file, as generated using the
+\texttt{-q} option from \htool{Cluster}, is as follows:\\
+\texttt{Word|Class counts}\\
+\textit{[blank line]}\\
+\texttt{Derived from: <file>}\\
+\texttt{Number of classes: <int>}\\
+\texttt{Number of words: <int>}\\
+\texttt{Iterations: <int>}\\
+\textit{[blank line]}\\
+\texttt{Word    Class name   Count}\\
+followed by one line for each word in the model of the form:\\
+\texttt{<word> CLASS<int> <int>}\\
+
+The fields are mostly self-explanatory.  The {\tt Iterations:} header
+is for information only and records how many iterations had been
+performed to produce the classmap contained within the file, and the
+{\tt Derived from:} header is similarly also for display purposes
+only.  Any number of headers may be present; the header section is
+terminated by finding a line beginning with the four characters making
+up {\tt Word}. The colon-terminated headers may be in any order.
+
+{\tt CLASS<int>} must be the name of a class in the classmap
+(technically actually the wordmap) used to build the class-given-class
+history $n$-gram component of the language model -- the file built by
+\htool{LBuild}.  In the current implementation these class names are
+restricted to being of the form {\tt CLASS<int>}, although a
+modification to the code in \htool{LModel.c} would allow this
+restriction to be removed.  Each line after the header specifies the
+count of each word and the class it is in, so for example\\
+\texttt{THE CLASS73 1859}\\
+would specify that the word {\tt THE} was in class {\tt CLASS73} and
+occurred 1859 times.
+
+
+\mysubsect{The class probabilities format}{HLMclassprobslmformat}
+\index{LM file formats!class probabilities}
+The format of a word-given-class probabilities file, as generated using the
+\texttt{-p} option from \htool{Cluster}, is very similar to that of
+the counts file described in the previous sub-section, and is as follows:\\
+\texttt{Word|Class probabilities}\\
+\textit{[blank line]}\\
+\texttt{Derived from: <file>}\\
+\texttt{Number of classes: <int>}\\
+\texttt{Number of words: <int>}\\
+\texttt{Iterations: <int>}\\
+\textit{[blank line]}\\
+\texttt{Word    Class name   Probability (log)}\\
+followed by one line for each word in the model of the form:\\
+\texttt{<word> CLASS<int> <float>}\\
+
+As in the previous section, the fields are mostly self-explanatory.
+The {\tt Iterations:} header is for information only and records how
+many iterations had been performed to produce the classmap contained
+within the file, and the {\tt Derived from:} header is similarly also
+for display purposes only.  Any number of headers may be present; the
+header section is terminated by finding a line beginning with the four
+characters making up {\tt Word}. The colon-terminated headers may be
+in any order.
+
+{\tt CLASS<int>} must be the name of a
+class in the classmap (technically actually the wordmap) used to build
+the class-given-class history $n$-gram component of the language model
+-- the file built by \htool{LBuild}.  In the current implementation
+these class names are restricted to being of the form {\tt
+CLASS<int>}, although a modification to the code in \htool{LModel.c}
+would allow this restriction to be removed.  Each {\tt <float>}
+specifies the natural logarithm of the probability of the word given
+the class, or -99.9900 if the probability of the word is less than
+$1.0\times10^{-20}$.
+
+
+\mysubsect{The class LM three file format}{HLMclasslmformat}
+\index{LM file formats!class}
+A special class language model file, generated by \htool{LLink},
+links together either the word-given-class probability or count files
+described above (either can be used to give the same results) with a
+class-given-class history $n$-gram file constructed using
+\htool{LBuild}.  It is a simple text file which specifies the filename
+of the two relevant components:
+
+\noindent\texttt{Class-based LM}\\
+\texttt{Word|Class counts: <file>} $\;$or$\;$ \texttt{Word|Class probabilities: <file>}\\
+\texttt{Class|Class grams: <file>}\\
+The second line must state {\tt counts} or {\tt probabilities} as
+appropriate for the relevant file.
+
+
+\mysubsect{The class LM single file format}{HLMclassSinglmformat}
+\index{LM file formats!class}
+An alternative to the class language model file described in section
+\ref{s:HLMclasslmformat} is the composite single-file class language
+model file, produced by {\htool{LLink} \tt -s} -- this does {\it not}
+require the two component files to be present since it integrates them
+into a single file.  The format of this resulting file is as follows:
+
+\begin{verbatim}
+  CLASS MODEL
+  Word|Class <string: counts/probs>
+
+  Derived from: <file>
+  Number of classes: <int>
+  Number of words: <int>
+  Iterations: <int>
+
+  Class n-gram counts follow; word|class component is at end of file.
+\end{verbatim}
+The second line must state either {\tt counts} or {\tt probabilities} as
+appropriate for the relevant component file used when constructing
+this composite file.  The fields are mostly self-explanatory.  The
+{\tt Iterations:} header is for information only and records how many
+iterations had been performed to produce the classmap contained within
+the file, and the {\tt Derived from:} header is similarly also for
+display purposes only.  Any number of headers may be present; the
+header section is terminated by finding a line beginning with the five
+characters making up {\tt Class}.  The colon-terminated headers may be
+in any order.
+
+The class-given-classes $n$-gram component of the model then follows
+immediately in any of the formats supported by word $n$-gram language
+models -- ie. those described in section \ref{s:HLMlmfileformats}.  No
+blank lines are expected between the header shown above and the
+included model, although they may be supported by the embedded model.
+
+Immediately following the class-given-classes $n$-gram component
+follows the body of the word-given-class probabilities or counts file
+as described in sections \ref{s:HLMclasscountslmformat} and
+\ref{s:HLMclassprobslmformat} above.  That is, the remainder of the
+file consists of lines of the form:
+\begin{verbatim}
+  <word> CLASS<int> <float/int>
+\end{verbatim}
+One line is expected for each word as specified in the header at the
+top of the file.  Integer word counts should be provided in the final
+field for each word in the case of a counts file, or word-given-class
+probabilities if a probabilities file -- as specified by the second
+line of the overall file.  In the latter case each {\tt <float>}
+specifies the natural logarithm of the probability of the word given
+the class, or -99.9900 if the probability of the word is less than
+$1.0\times10^{-20}$.
+
+{\tt CLASS<int>} must be the name of a
+class in the classmap (technically actually the wordmap) used to build
+the class-given-class history $n$-gram component of the language model
+-- the file built by \htool{LBuild}.  In the current implementation
+these class names are restricted to being of the form {\tt
+CLASS<int>}, although a modification to the code in \htool{LModel.c}
+would allow this restriction to be removed.
+
+
+\mysect{Language modelling tracing}{HLMlibtracing}\index{tracing}
+Each of the \HTK\ language modelling tools provides its own trace
+facilities, as documented with the relevant tool in chapter
+\ref{c:toolref}.  The standard libraries also provide their own trace
+settings, which can be set in a passed configuration file.  Each of
+the supported trace levels is documented below with the octal value
+necessary to enable it.
+
+\mysubsect{LCMap}{LCMapTrace}
+\begin{itemize}
+\item 0001       Top level tracing
+\item 0002       Class map loading
+\end{itemize}
+
+\mysubsect{LGBase}{LGBaseTrace}
+\begin{itemize}
+\item 0001       Top level tracing
+\item 0002       Trace $n$-gram squashing
+\item 0004       Trace $n$-gram buffer sorting
+\item 0010       Display $n$-gram input set tree
+\item 0020       Display maximum parallel input streams
+\item 0040       Trace parallel input streaming
+\item 0100       Display information on FoF input/output
+\end{itemize}
+
+\mysubsect{LModel}{LModelTrace}
+\begin{itemize}
+\item 0001       Top level tracing
+\item 0002       Trace loading of language models
+\item 0004       Trace saving of language models
+\item 0010       Trace word mappings
+\item 0020       Trace $n$-gram lookup
+\end{itemize}
+
+\mysubsect{LPCalc}{LPCalcTrace}
+\begin{itemize}
+\item 0001       Top level tracing
+\item 0002       FoF table tracing
+\end{itemize}
+
+\mysubsect{LPMerge}{LPMergeTrace}
+\begin{itemize}
+\item 0001       Top level tracing
+\end{itemize}
+
+\mysubsect{LUtil}{LUtilTrace}
+\begin{itemize}
+\item 0001       Top level tracing
+\item 0002       Show header processing
+\item 0004       Hash table tracing
+\end{itemize}
+
+\mysubsect{LWMap}{LWMapTrace}
+\begin{itemize}
+\item 0001       Top level tracing
+\item 0002       Trace word map loading
+\item 0004       Trace word map sorting
+\end{itemize}
+
+
+\mysect{Run-time configuration parameters}{HLMconfigParms}\index{configuration parameters!operating
+environment}
+Section \ref{s:openvsum} lists the major standard \HTK\ configuration
+parameter options whilst the rest of chapter \ref{c:openviron}
+describes the general \HTK\ environment and how to set those
+configuration parameters, whilst chapter \ref{c:confvars} provides a
+comprehensive list.  For ease of reference those parameters
+specifically relevant to the language modelling tools are reproduced
+in table \ref{t:openvcparmsLM}.
+
+\begin{center}
+\begin{tabular}{|p{1.4cm}|p{3.0cm}|p{6.4cm}|} \hline
+Module & Name  & Description  \\ \hline
+\htool{HShell} & \texttt{ABORTONERR}      & Core dump on error (for debugging) \\
+\htool{HShell} & \texttt{HLANGMODFILTER}  & Filter for language model file input\\
+\htool{HShell} & \texttt{HLABELFILTER}    & Filter for Label file input\\
+\htool{HShell} & \texttt{HDICTFILTER}     & Filter for Dictionary file input \\ 
+\htool{HShell} & \texttt{LGRAMFILTER}     & Filter for gram file input\\
+\htool{HShell} & \texttt{LWMAPFILTER}     & Filter for word map file input\\
+\htool{HShell} & \texttt{LCMAPFILTER}     & Filter for class map file input\\
+\htool{HShell} & \texttt{HLANGMODOFILTER} & Filter for language model file output\\
+\htool{HShell} & \texttt{HLABELOFILTER}   & Filter for Label file output\\
+\htool{HShell} & \texttt{HDICTOFILTER}    & Filter for Dictionary file output \\ 
+\htool{HShell} & \texttt{LGRAMOFILTER}    & Filter for gram file output\\
+\htool{HShell} & \texttt{LWMAPOFILTER}    & Filter for word map file output\\
+\htool{HShell} & \texttt{LCMAPOFILTER}    & Filter for class map file output\\
+\htool{HShell} & \texttt{MAXTRYOPEN}      & Number of file open retries \\
+\htool{HShell} & \texttt{NONUMESCAPES}    & Prevent string output using \verb+\012+ format \\
+\htool{HShell} & \texttt{NATURALREADORDER}  & Enable natural read order for HTK binary files \\
+\htool{HShell} & \texttt{NATURALWRITEORDER} & Enable natural write order for HTK binary files \\
+\htool{HMem} & \texttt{PROTECTSTAKS}      & Warn if stack is cut-back (debugging) \\
+ & \texttt{TRACE}             & Trace control (default=0) \\
+ & \texttt{STARTWORD}         & Set sentence start symbol ({\tt <s>}) \\
+ & \texttt{ENDWORD}           & Set sentence end symbol   ({\tt </s>}) \\
+ & \texttt{UNKNOWNNAME}       & Set OOV class symbol      ({\tt !!UNK}) \\
+ & \texttt{RAWMITFORMAT}      & Disable \HTK\ escaping for LM tools\\
+\htool{LWMap}  & \texttt{INWMAPRAW}  & Disable \HTK\ escaping for input word lists and maps \\
+\htool{LWMap}  & \texttt{OUTWMAPRAW} & Disable \HTK\ escaping for output word lists and maps \\
+\htool{LCMap}  & \texttt{INCMAPRAW}  & Disable \HTK\ escaping for input class lists and maps \\
+\htool{LCMap}  & \texttt{OUTCMAPRAW} & Disable \HTK\ escaping for output class lists and maps \\
+\htool{LCMap}  & \texttt{UNKNOWNID}  & Set unknown symbol class ID (1)\\
+\htool{LCMap}  & \texttt{USEINTID}   & Use 4 byte ID fields to save
+ binary models (see section \ref{s:HLMuseintid})\\
+\htool{LPCalc} & \texttt{UNIFLOOR}   & Unigram floor count (1)\\ 
+\htool{LPCalc} & \texttt{KRANGE}     & Good-Turing discounting range (7)\\
+\htool{LPCalc} & \texttt{\textit{n}G\_CUTOFF} & \textit{n}-gram cutoff
+     (eg. \texttt{2G\_CUTOFF}) (1)\\
+\htool{LPCalc} & \texttt{DCTYPE}     & Discounting type
+     (\texttt{TG} for Turing-Good or \texttt{ABS} for Absolute)
+%     \texttt{LIN} for Linear) - not fully implemented (!)
+     (\texttt{TG})\\
+\htool{LGBase} & \texttt{CHECKORDER} & Check N-gram ordering in files \\
+\hline
+\end{tabular}
+\tabcap{openvcparmsLM}{Configuration Parameters used in Operating Environment}
+\end{center}
+
+
+\mysubsect{USEINTID}{HLMuseintid}\index{configuration
+parameters!\texttt{USEINTID}}
+
+Setting this to {\tt T} as opposed to its default of {\tt F} forces the
+\htool{LModel} library to save language models using an unsigned int for each
+word ID as opposed to the default of an unsigned short.  In most
+systems these lengths correspond to 4-byte and 2-byte fields
+respectively.  Note that if you do not set this that \htool{LModel}
+will automatically choose an int field size if the short field is too
+small -- the exception to this is if you have compiled with {\tt
+LM\_ID\_SHORT} which limits the field size to an unsigned short, in
+which case the tool will be forced to abort; see section
+\ref{s:HLMlmidshort} below.
+
+
+
+\mysect{Compile-time configuration
+parameters}{HLMctconfigParms}\index{configuration
+parameters!compile-time}
+There are some compile-time switches which may be set when building
+the language modelling library and tools.
+
+\mysubsect{LM\_ID\_SHORT}{HLMlmidshort}\index{compile-time parameters!\texttt{LM\_ID\_SHORT}}
+
+When compiling the \HTK\ language modelling library, setting {\tt
+LM\_ID\_SHORT} (for example by passing {\tt -D LM\_ID\_SHORT} to the C
+compiler) forces the compiler to use an unsigned short for each
+language model ID it stores, as opposed to the default of an unsigned
+int -- in most systems this will result in either a 2-byte integer or
+a 4-byte integer respectively.  If you set this then you {\it must}
+ensure you also set {\tt LM\_ID\_SHORT} when compiling the \HTK\
+language modelling tools too, otherwise you will encounter a mismatch
+leading to strange results!  (Your compiler may warn of this error,
+however).  For this reason it is safest to set {\tt LM\_ID\_SHORT} via a
+{\tt \#define} in {\tt LModel.h}.  You might want to set this if you
+know how many distinct word ids you require and you do not want to
+waste memory, although on some systems using shorts can actually be
+slower than using a full-size int.
+
+Note that the run-time {\tt USEINTID} parameter described in section
+\ref{s:HLMuseintid} above only affects the size of ID fields when
+saving a binary model from {\tt LModel}, so is independent of {\tt
+LM\_ID\_SHORT}.  The only restriction is that you cannot load or save a
+model with more ids than can fit into an unsigned short when {\tt
+LM\_ID\_SHORT} is set -- the tools will abort with an error should you
+try this.
+
+
+\mysubsect{LM\_COMPACT}{HLMcompact}\index{compile-time parameters!\texttt{LM\_COMPACT}}
+
+When {\tt LM\_COMPACT} is defined at compile time, when a language model
+is loaded then its probabilities are compressed into an unsigned short as opposed
+to being loaded into a float.  The exact size of these types
+depends on your processor architecture, but in general an unsigned
+short is more than half as small as a float.  Using the compact
+storage type therefore significantly reduces the accuracy with which
+probabilities are stored.
+
+The side effect of setting this is therefore reduced accuracy when
+running a language model, such as when using \htool{LPlex}; or a loss
+of accuracy when rebuilding from an existing language model using
+\htool{LMerge}, \htool{LAdapt}, \htool{LBuild} or \htool{HLMCopy}.
+
+
+\mysubsect{LMPROB\_SHORT}{HLMprobshort}\index{compile-time parameters!\texttt{LMPROB\_SHORT}}
+
+Setting {\tt LMPROB\_SHORT} causes language model probabilities to be
+stored and loaded using a short type.  Unlike {\tt LM\_COMPACT}, this
+option certainly {\it does} affect the writing of language model
+files.  If you save a file using this format then you must ensure you
+reload it in the same way to ensure you obtain sensible results.
+
+
+\mysubsect{INTERPOLATE\_MAX}{HLMinterpmax}\index{compile-time parameters!\texttt{INTERPOLATE\_MAX}}
+
+If the library and tools are compiled with {\tt INTERPOLATE\_MAX} then
+language model interpolation in \htool{LPlex} and the \htool{LPMerge}
+library (which is used by \htool{LAdapt} and \htool{LMerge}) will
+ignore the individual model weights and always pick the highest
+probability from each of the models at any given point.  Note that
+this option will \textit{not} normalise the models.
+
+
+\mysubsect{SANITY}{HLMinterpmax2}\index{compile-time parameters!\texttt{SANITY}}
+
+Turning on {\tt SANITY} when compiling the library will add a word map
+check to \htool{LGBase} and some sanity checks to \htool{LPCalc}.
+
+
+\mysubsect{INTEGRITY\_CHECK}{HLMintegcheck}\index{compile-time parameters!\texttt{INTEGRITY\_CHECK}}
+
+Compiling with {\tt INTEGRITY\_CHECK} will add run-time integrity
+checking to the \htool{Cluster} tool.  Specifically it will check that
+the class counts have not become corrupted and that all maximum
+likelihood move updates have been correctly calculated.  You should
+not need to enable this unless you suspect a major tool problem, and
+doing so will slow down the tool execution.  It could probe useful if
+you wanted to adapt the way the clustering works, however.

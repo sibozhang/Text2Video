@@ -1,0 +1,83 @@
+#
+# remember to run VCVARS32.BAT
+# makefile for single-threaded HTKLib static library, MSVC
+#
+
+.c.obj:
+	$(CC) /nologo /c $(CFLAGS) $<
+
+.c.olv:
+	$(CC) /nologo /c /Fo$@ /D "NO_LAT_LM" $(CFLAGS) $<
+
+CC=cl
+CL=link
+CPU=win32
+
+# the MSDOS is needed to set _fmode to binary in HShell.c
+HTKCF = /I "." /D "WIN32_AUDIO"  /D ARCH=\"WIN32\" /D "PHNALG"
+
+# use the following for optimised compilation
+SYSCF = /ML /W0 /GX /O2 /G5 /Ob2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS"
+
+# use the following for a debug compilation
+#SYSCF = /ML /W1 /Gm /GX /Zi /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS"
+
+CFLAGS = $(SYSCF) $(HTKCF)
+
+# the following is only needed when making a DLL
+SYSLF = /nologo /subsystem:windows /dll /incremental:no /machine:I386
+
+# the following is only needed when making a debug DLL
+#SYSLF = /DEBUG /DEBUGTYPE:BOTH /nologo /subsystem:windows /dll /incremental:no /machine:I386
+
+# flags used
+# /MT  multi-threaded executable
+# /ML  single-threaded executable
+# /W1  warning level 1
+# /GX  synchronous exception handling
+# /O2  maximise speed
+# /G5  P5 optimisation
+# /G6  P6 optimisation
+# /Ob2 allow inlining of functions not tagged with _inline
+
+libHTK = HTKLib.$(CPU)
+libHTKlv = HTKLiblv.$(CPU)
+	
+syslib = kernel32.lib user32.lib gdi32.lib winspool.lib \
+	comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib \
+	uuid.lib odbc32.lib odbccp32.lib winmm.lib
+
+libs = $(syslib) 
+
+core =  esig_asc.obj esig_edr.obj esignal.obj esig_nat.obj \
+	HAdapt.obj HAudio.obj HDict.obj HFB.obj \
+	HGraf.null.obj HLabel.obj HLat.obj \
+	HLM.obj HMap.obj HMath.obj HMem.obj HModel.obj HNet.obj \
+	HParm.obj HRec.obj HShell.obj HSigP.obj HTrain.obj \
+	HUtil.obj HVQ.obj HWave.obj strarr.obj \
+	HExactMPE.obj HFBLat.obj HArc.obj
+
+corelv =  esig_asc.olv esig_edr.olv esignal.olv esig_nat.olv \
+	HAdapt.olv HAudio.olv HDict.olv HFB.olv \
+	HGraf.null.olv HLabel.olv HLat.olv \
+	HLM.olv HMap.olv HMath.olv HMem.olv HModel.olv HNet.olv \
+	HParm.olv HRec.olv HShell.olv HSigP.olv HTrain.olv \
+	HUtil.olv HVQ.olv HWave.olv strarr.olv \
+	HExactMPE.olv HFBLat.olv HArc.olv
+
+all: $(libHTK).lib $(libHTKlv).lib
+
+$(libHTK).lib:  $(core)
+	lib /OUT:$(libHTK).lib $(core)
+	lib /list $(libHTK).lib
+
+$(libHTKlv).lib:  $(corelv)
+	lib /OUT:$(libHTKlv).lib $(corelv)
+	lib /list $(libHTKlv).lib
+
+clean:
+	del *.obj *.olv $(libHTK).lib $(libHTKlv).lib
+
+cleanup:
+	del *.obj
+

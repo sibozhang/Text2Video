@@ -1,0 +1,362 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young and Dave Ollason   24/11/97
+%
+
+\newpage
+\mysect{HERest}{HERest}
+
+\mysubsect{Function}{HERest-Function}
+
+\index{herest@\htool{HERest}|(} This program is used to perform a
+single re-estimation of the parameters of a set of HMMs, or linear
+transforms, using an {\em embedded training} version of the Baum-Welch
+algorithm.  Training data consists of one or more utterances each of
+which has a transcription in the form of a standard label file
+(segment boundaries are ignored).  For each training utterance, a
+composite model is effectively synthesised by concatenating the
+phoneme models given by the transcription.  Each phone model has the
+same set of accumulators allocated to it as are used in HRest but in
+\htool{HERest} they are updated simultaneously by performing a
+standard Baum-Welch pass over each training utterance using the
+composite model.
+  
+\htool{HERest} is intended to operate on HMMs with initial parameter values 
+estimated by HInit/HRest.
+\htool{HERest} supports multiple mixture Gaussians, discrete and tied-mixture
+HMMs, multiple data streams, parameter tying within and between models, and
+full or diagonal covariance matrices. \htool{HERest} also supports tee-models
+(see section~\ref{s:teemods}), for handling optional silence and non-speech
+sounds. These may be placed between the units (typically words or phones)
+listed in the transcriptions but they cannot be used at the start or end of a
+transcription. Furthermore, chains of tee-models are not permitted.
+
+\htool{HERest} includes features to allow parallel operation where a network
+of processors is available. When the training set is large, it can be split into separate chunks that are processed in parallel on multiple machines/processors, consequently speeding up the training process. 
+
+Like all re-estimation tools, \htool{HERest} allows a floor to be set on
+each individual variance by defining a variance floor macro for each data
+stream (see chapter~\ref{c:Training}).  The configuration variable {\tt
+VARFLOORPERCENTILE} allows the same thing to be done in a different way
+which appears to improve recognition results.  By setting this to e.g. 20,
+the variances from each dimension are floored to the 20th percentile of the
+distribution of variances for that dimension.
+
+%as suggested in:
+%\bibitem[Lee, Giachin, Rabiner, Pieraccini \& Rosenberg, 1992]{lee92csl}
+%Lee C-H., Giachin E., Rabiner L.R., Pieraccini R. \& Rosenberg A.E.
+%(1992). ``Improved Acoustic Modeling for Large Vocabulary Continuous
+%Speech Recognition,'' {\it Computer Speech and Language} {\bf 6}, pp.
+%103-127.
+
+
+\htool{HERest} supports two specific methods for initialisation of
+model parameters , \textit{single pass retraining} and \textit{2-model
+  reestimation}.
+
+\textit{Single pass retraining} is useful when the parameterisation of
+the front-end (e.g. from MFCC to PLP coefficients) is to be modified.
+Given a set of well-trained models, a set of new models using a
+different parameterisation of the training data can be generated in a
+single pass.  This is done by computing the forward and backward
+probabilities using the original well-trained models and the original
+training data, but then switching to a new set of training data to
+compute the new parameter estimates.
+
+In \textit{2-model re-estimation} one model set can be used to obtain
+the forward backward probabilities which then are used to update the
+parameters of another model set. Contrary to \textit{single pass
+  retraining} the two model sets are not required to be tied in the
+same fashion.  This is particularly useful for training of single
+mixture models prior to decision-tree based state clustering. The use
+of 2-model re-estimation in \htool{HERest} is triggered by setting the
+config variables {\tt ALIGNMODELMMF} or {\tt ALIGNMODELDIR} and {\tt
+  ALIGNMODELEXT} together with {\tt ALIGNHMMLIST} (see section \ref{s:twomodel}).
+As the model list can differ for the alignment model set a separate set of
+input transforms may be specified using the {\tt ALIGNXFORMDIR} and
+{\tt ALIGNXFORMEXT}. 
+
+\htool{HERest} for updating model parameters operates in two distinct stages. 
+
+\begin{enumerate}
+
+\item
+    In the first stage, one of the following two options applies
+ \begin{enumerate}
+  \item        
+    Each input data file contains training data which is 
+    processed and the accumulators for state occupation, 
+    state transition, means and variances are updated.
+        
+  \item      
+    Each data file contains a dump of the accumulators
+    produced by previous runs of the program.  These
+    are read in and added together to form a single set
+    of accumulators.
+  \end{enumerate}
+
+\item
+   In the second stage, one of the following options applies
+  \begin{enumerate}
+    \item
+         The accumulators are used to calculate new 
+         estimates for the HMM parameters.
+    \item
+         The accumulators are dumped into a file.
+  \end{enumerate}
+\end{enumerate}
+
+Thus, on a single processor the default combination 1(a) and 2(a) would
+be used.  However, if N processors are available then the 
+training data would be split into N equal groups and \htool{HERest} would
+be set to process one data set on each processor using the combination
+1(a) and 2(b). 
+When all processors had finished, the 
+program would then be run again using the combination 1(b) and 2(a)
+to load in the partial accumulators created by the N processors
+and do the final parameter re-estimation.  The choice of which combination
+of operations \htool{HERest} will perform is governed by the {\tt -p} option
+switch as described below.
+
+As a further performance optimisation, \htool{HERest} will also prune the
+$\alpha$ and $\beta$ matrices.  By this means, a factor of 3 to 5
+speed improvement and a similar reduction in memory requirements can be
+achieved with negligible effects on training performance (see the {\tt
+-t} option below).  
+
+\htool{HERest} is able to make use of, and estimate, linear
+transformations for model adaptation. There are three types of linear
+transform that are made use in \htool{HERest}.
+\begin{itemize}
+\item {\it Input transform}: the input transform is used to determine
+the forward-backward probabilities, hence the component posteriors, for 
+estimating model and transform 
+\item {\it Output transform}: the output transform is generated when the 
+{\tt -u} option is set to {\tt a}. The transform will be stored in the 
+current directory, or the directory specified by the {\tt -K} option
+and optionally the transform extension.
+\item {\it Parent transform}: the parent transform determines the 
+model, or features, on which the model set or transform is to be 
+generated. For transform estimation this allows {\em cascades} of transforms
+to be used to adapt the model parameters. For model estimation this 
+supports {\em speaker adaptive training}. Note the current implementation 
+only supports adaptive training with CMLLR. Any parent transform can be
+used when generating transforms.
+\end{itemize}
+When input or parent transforms are specified the transforms may 
+physically be stored in multiple directories. Which transform to be used 
+is determined in the following search order:
+order is used.
+\begin{enumerate}
+\item Any loaded macro that matches the transform (and its' extension) name.
+\item If it is a parent transform, the directory specified with the 
+{\tt -E} option.
+\item The list of directories specified with the {\tt -J} option.
+The directories are searched in the order that they are specified
+in the command line.
+\end{enumerate}
+As the search order above looks for loaded macros first it is 
+recommended that unique extensions are specified for each set of
+transforms generated. Transforms may either be stored in 
+a single TMF. These TMFs may be loaded using the {\tt -H} option.
+When macros are specified for the regression class trees and 
+the base classes the following search order is used
+\begin{enumerate}
+\item Any loaded macro that matches the macro name.
+\item The path specified by the configuration variable.
+\item The list of directories specified with the {\tt -J} option.
+The directories are searched in the order that they are specified
+in the command line.
+\end{enumerate}
+Baseclasses and regression classes may also be loaded using the 
+{\tt -H} option.
+
+\htool{HERest} can also estimate semi-tied transformations by
+specifying the {\tt s} update option with the {\tt -u} flag. This uses the same baseclass
+specification as the linear transformation adaptation code to allow
+multiple transformations to be estimated. The specification of the
+baseclasses is identical to that used for linear adaptation. Updating
+semi-tied transforms always updates the means and diagonal covariance
+matrices as well.  Full covariance matrices are not supported. When
+using this form of estimation, full covariance statistics are
+accumulated. This makes the memory requirements large compared to
+estimating diagonal covariance matrices.
+
+\mysubsect{Use}{HERest-Use}
+
+\htool{HERest} is invoked via the command line
+\begin{verbatim}
+   HERest [options] hmmList trainFile ...
+\end{verbatim}
+This causes the set of HMMs given in {\tt hmmList} to be loaded.
+The given list of
+training files is then used to perform one re-estimation cycle. As always,
+the list of training files can be stored in a script file if required.  On
+completion, \htool{HERest} outputs new updated versions of each HMM definition. If
+the number of training examples falls below a specified threshold 
+for some particular HMM, then
+the new parameters for that HMM are ignored and the original parameters are used 
+instead.
+
+The detailed operation of \htool{HERest} is controlled by the following
+command line options
+\begin{optlist}
+
+  \ttitem{-a} Use an input transform to obtain alignments for updating
+      models or transforms (default off).
+ 
+  \ttitem{-c f} Set the threshold for tied-mixture observation
+      pruning to {\tt f}.
+      For tied-mixture \texttt{TIEDHS} systems, only those 
+      mixture component probabilities which fall within {\tt f} of
+      the maximum mixture component probability are used in calculating
+      the state output probabilities (default 10.0).
+ 
+  \ttitem{-d dir} 
+      Normally \htool{HERest} looks for HMM definitions
+       (not already loaded via MMF files) 
+      in the current directory.  This option tells \htool{HERest} to look in
+      the directory {\tt dir} to find them.
+
+  \ttitem{-h mask} Set the mask for determining which transform names are 
+	to be used for the output transforms. If \texttt{PAXFORMMASK}
+       	or \texttt{INXFORMMASK} are not specified then the input
+  	transform mask is assumed for both output and parent transforms.
+
+  \ttitem{-l N} Set the maximum number of files to use for each 
+	speaker, determined by the output transform speaker mask,
+	to estimate the transform with.(default $\infty$).
+
+  \ttitem{-m N}  Set the minimum number of training examples 
+    required for any model to {\tt N}.  If the actual number
+    falls below this value, the HMM is not updated and the original
+    parameters are used for the new version (default value 3).
+
+  \ttitem{-o ext}  This causes the file name extensions of the
+      original models (if any) to be replaced by {\tt ext}.
+
+  \ttitem{-p N}  This switch is used to set parallel mode operation.
+      If {\tt p} is set to a positive integer {\tt N}, then \htool{HERest} will
+      process the training files and then dump all the accumulators
+      into a file called {\tt HERN.acc}.  If {\tt p} is set to 0, then
+      it treats all file names input on the command line as the names
+      of {\tt .acc} dump files.  It reads them all in, adds together
+      all the partial accumulations and then re-estimates all the
+      HMM parameters in the normal way. 
+
+  \ttitem{-r}  This enables single-pass retraining.  The list of training
+      files is processed pair-by-pair.  For each pair, the first file
+      should match the parameterisation of the original model set.  The
+      second file should match the parameterisation of the required new
+      set.  All speech input processing is controlled by configuration
+      variables in the normal way except that the variables describing
+      the old parameterisation are qualified by the name \texttt{HPARM1}
+      and the variables describing the new parameterisation are
+      qualified by the name \texttt{HPARM2}.  The stream widths for the
+      old and the new must be identical.
+
+  \ttitem{-s file} This causes statistics on occupation of each
+      state to be output to the named file.  This file
+      is needed for the {\tt RO} command of HHEd but it is also
+      generally useful for assessing the amount of training material
+      available for each HMM state.
+      
+  \ttitem{-t f [i l]} Set the pruning threshold to {\tt f}.  During the 
+      backward probability calculation, at
+      each time $t$ 
+      all (log) $\beta$ values falling more than {\tt f} below the
+      maximum $\beta$ value at that time are ignored.  During the
+      subsequent forward pass, (log) $\alpha$ values are only
+      calculated if there are corresponding valid $\beta$ values.
+      Furthermore, if the ratio of the $ \alpha \beta $ product divided
+      by the total probability (as computed on the backward pass)
+      falls below a fixed threshold then those values of $\alpha$
+      and $\beta$ are ignored. Setting {\tt f} to zero disables
+      pruning  (default value 0.0).  Tight pruning thresholds can
+       result in \htool{HERest} failing to process an utterance.
+      if the {\tt i} and {\tt l} options are given, then a pruning
+      error results in the threshold being increased by {\tt i} and
+      utterance processing restarts.  If errors continue, this procedure will 
+      be repeated until the limit {\tt l} is reached.
+      
+  \ttitem{-u flags} By default, \htool{HERest} updates all of the HMM parameters,
+      that is, means, variances, mixture weights and 
+      transition probabilities. This 
+      option causes just the parameters indicated by the {\tt flags}
+      argument to be updated, this argument is a string containing one
+      or more of the letters {\tt m} (mean), {\tt v} (variance) ,
+      {\tt t} (transition), {\tt a} (linear transform), {\tt p} (use 
+	MAP adaptation), {\tt s} (semi-tied transform), and {\tt w} (mixture weight).  The 
+      presence of a letter enables
+      the updating of the corresponding parameter set.
+
+  \ttitem{-v f}  This sets the minimum variance (i.e. diagonal element of
+      the covariance matrix) to the real value {\tt f} (default value
+      0.0).
+
+  \ttitem{-w f}  Any mixture weight which falls below the global
+            constant {\tt MINMIX} is treated as being zero.
+      When this parameter is  set,  all mixture weights  are floored
+      to {\tt f * MINMIX}.
+      
+  \ttitem{-x ext}  By default, \htool{HERest} expects a HMM definition for 
+      the label X to be stored in a file called {\tt X}.  This
+      option causes \htool{HERest} to look for the HMM definition in the
+      file {\tt X.ext}.
+
+  \ttitem{-z file} Save all output transforms to file. Default
+	is TMF.
+
+\stdoptB
+\stdoptE
+\stdoptF
+\stdoptG
+\stdoptH
+\stdoptI
+\stdoptJ
+\stdoptK
+\stdoptL
+\stdoptM
+\stdoptX
+
+\end{optlist}
+\stdopts{HERest}
+
+\mysubsect{Tracing}{HERest-Tracing}
+
+\htool{HERest} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+   \ttitem{00001} basic progress reporting.
+   \ttitem{00002} show the logical/physical HMM map.
+   \ttitem{00004} list the updated model parameters.
+           of tied mixture components.
+\end{optlist}
+
+
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{herest@\htool{HERest}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

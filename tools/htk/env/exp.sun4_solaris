@@ -1,0 +1,7 @@
+export CPU=sun4_solaris
+export HTKCC='cc'
+export HTKCF='-Xa -xO2 -I/usr/openwin/include -DSOLARIS16_AUDIO -DBSD_COMP'
+export HTKLF='-ldl -lsocket -lnsl -lintl'
+export LD_LIBRARY_PATH=/usr/openwin/lib
+export SHRLF='-shared'
+export LIBEXT='so'

@@ -1,0 +1,10 @@
+. /opt/intel_cc_80/bin/iccvars.sh
+export HTKCF='-DNDEBUG -DOSS_AUDIO -fast -xN '
+export HTKLF='-fast -xN -L/usr/X11R6/lib'
+export HTKCC='icc'
+export Arch=LINUX
+export Objcopy="echo"
+export PRILF='-x'
+export CPU=linux
+export SHRLF='-shared'
+export LIBEXT='so'

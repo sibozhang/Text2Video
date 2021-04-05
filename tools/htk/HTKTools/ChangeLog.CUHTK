@@ -1,0 +1,42 @@
+2003-02-25  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HMMIRest.c: Miscellaneous obscure bug fixes which shouldn't
+	  affect normal operation, including a bug fix which affects
+	  mean-only re-estimation.
+
+	* HMMIRest.c: Fix previous fix.
+
+2003-02-07  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HMMIRest.c: Replace PRIORPROPORTION with PRIORK in MMI/MPE-MAP
+
+2003-02-06  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HMMIRest.c: Improved MMI/MPE-MAP
+
+2003-02-05  Lan Wang  <lw256@eng.cam.ac.uk>
+
+	* HMMIRest.c: Support for new xform code.
+
+2002-12-13  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HMMIRest.c: SUpport for MMI-MAP and MPE-MAP.
+
+2002-12-10  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HMMIRest.c: Various fixes.
+
+2002-11-16  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HMMIRest.c: General clean-up of comments and indentation.
+
+2002-11-14  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* HMMIRest.c (Initialise): Pass current HMMSet to HParm for
+	InputXForm handling.
+	(main): Init HModel before HParm.
+	Call InitParm only once.
+
+2002-11-14  Dan Povey  <dp10006@eng.cam.ac.uk>
+
+	* HMMIRest.c : New tool.

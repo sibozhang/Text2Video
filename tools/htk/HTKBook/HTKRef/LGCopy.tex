@@ -1,0 +1,128 @@
+%
+% HLMBook - Steve Young    03/01/97
+%
+% Updated - Gareth Moore   15/01/02
+%
+
+\newpage
+\mysect{LGCopy}{LGCopy}
+
+\mysubsect{Function}{LGCopy-Function}
+
+\index{lgcopy@\htool{LGCopy}|(}
+This program will copy one or more input gram files to a set of one or
+more output gram files. The input gram files must each be sorted but
+they need not be sequenced. Unless word-to-class mapping is being
+performed, the output files will, however, be sequenced. Hence, given
+a collection of unsequenced gram files, \htool{LGCopy} can be used to
+generate an equivalent sequenced set. This is useful for reducing the
+number of parallel input streams that tools such as \htool{LBuild}
+must maintain, thereby improving efficiency.
+
+As for all tools which can input gram files, the counts in each input
+file can be modified by applying a multiplier factor.  Note, however,
+that since the counts within gram files are stored as integers, use of
+non-integer multiplier factors will lead to the counts being rounded
+in the output gram files.
+
+In addition to manipulating the counts, the \texttt{-n} option also
+allows the input grams to be truncated by summing the counts of all
+equivalenced grams. For example, if the 3-grams \texttt{a x y 5} and
+\texttt{b x y 3} were truncated to 2-grams, then \texttt{x y 8} would
+be output. Truncation is performed before any of the mapping
+operations described below.
+
+\htool{LGCopy} also provides options to map gram words to classes
+using a class map file and filter the resulting output.  The most
+common use of this facility is to map out-of-vocabulary (OOV) words
+into the unknown symbol in preparation for building a conventional
+word $n$-gram language model for a specific vocabulary.  However, it can
+also be used to prepare for building a class-based $n$-gram language
+model.
+
+Word-to-class mapping is enabled by specifying the class map file with
+the \texttt{-w} option. Each $n$-gram word is then replaced by its class
+symbol as defined by the class map. If the \texttt{-o} option is also
+specified, only $n$-grams containing class symbols are stored in the 
+internal buffer.
+
+\mysubsect{Use}{LGCopy-Use}
+
+\htool{LGCopy} is invoked by typing the command line
+\begin{verbatim}
+   LGCopy [options] wordmap [mult] gramfile .... [mult] gramfile ...
+\end{verbatim}
+The given word map file is loaded and then the set of named gram files
+are input in parallel to form a single sorted stream of $n$-grams. Counts
+for identical $n$-grams in multiple source files are summed.  The merged
+stream is written to a sequence of output gram files named
+\texttt{data.0}, \texttt{data.1}, etc. The list of input gram files
+can be interspersed with multipliers. These are floating-point format
+numbers which must begin with a plus or minus character
+(e.g. \texttt{+1.0}, \texttt{-0.5}, etc.). The effect of a multiplier
+\texttt{x} is to scale the $n$-gram counts in the following gram files by
+the factor \texttt{x}. The resulting scaled counts are rounded to the
+nearest integer on output. A multiplier stays in effect until it is
+redefined. The scaled input grams can be truncated, mapped and
+filtered before being output as described above.
+
+The allowable options to \htool{LGCopy} are as follows
+
+\begin{optlist}
+
+  \ttitem{-a n} Set the maximum number of new classes that can be
+   added to the word map (default 1000, only used in conjuction with
+   class maps).
+
+  \ttitem{-b n} Set the internal gram buffer size to n (default
+   2000000). \htool{LGCopy} stores incoming $n$-grams in this buffer.
+   When the buffer is full, the contents are sorted and written to an
+   output gram file. Thus, the buffer size determines the amount of
+   process memory that \htool{LGCopy} will use and the size of the
+   individual output gram files.
+
+  \ttitem{-d} Directory in which to store the output gram files
+   (default current directory).
+
+  \ttitem{-i n} Set the index of the first gram file output to be n
+   (default 0).
+
+  \ttitem{-m s} Save class-resolved word map to \texttt{fn}.
+
+  \ttitem{-n n} Normally, $n$-gram size is preserved from input to
+   output.  This option allows the output $n$-gram size to be truncated
+   to n where n must be less than the input $n$-gram size.
+
+  \ttitem{-o n} Output class mappings only. Normally all input $n$-grams
+   are copied to the output, however, if a class map is specified, this
+   options forces the tool to output only $n$-grams containing at least
+   one class symbol.
+
+  \ttitem{-r s} Set the root name of the output gram files to
+   \texttt{s} (default ``data'').
+
+  \ttitem{-w fn} Load class map from \texttt{fn}.
+
+\end{optlist}
+\stdopts{LGCopy}
+
+
+\mysubsect{Tracing}{LGCopy-Tracing}
+
+\htool{LGCopy} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+
+\ttitem{00001}  basic progress reporting. 
+\ttitem{00002}  monitor buffer save operations.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{lgcopy@\htool{LGCopy}|)}
+
+
+
+
+
+
+

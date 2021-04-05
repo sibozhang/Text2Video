@@ -1,0 +1,205 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Steve Young  24/11/97
+%
+
+\newpage
+\mysect{HCopy}{HCopy}
+
+\subsection{Function}
+
+\index{hcopy@\htool{HCopy}|(}
+This program will copy one or more data files to a designated output
+file, optionally converting the data into a parameterised form.  While
+the source files can be in any supported format, the output format is
+always \HTKFF.  By default, the whole of the source file is copied to
+the target but options exist to only copy a specified segment.  Hence,
+this program is used to convert data files in other formats to the \HTKFF\ 
+format, to concatenate or segment data files, and to parameterise the
+result.  If any option is set which leads to the extraction of a segment
+of the source file rather than all of it, then segments will be
+extracted from all source files and concatenated to the target.
+
+Labels will be copied/concatenated if any of the options indicating
+labels are specified (\texttt{-i -l -x -G -I -L -P -X}). In this case, each
+source data file must have an associated label file, and a target label
+file is created. The name of the target label file is the root name of
+the target data file with the extension \texttt{.lab}, unless the \texttt{-X}
+option is used.  This new label file will contain the appropriately
+copied/truncated/concatenated labels to correspond with the target data
+file; all start and end boundaries are recalculated if necessary. 
+
+When used in conjunction with \htool{HSLab}, \htool{HCopy} provides a facility for tasks
+such as cropping silence surrounding recorded utterances.  Since input
+files may be coerced, \htool{HCopy} can also be used to convert the parameter
+kind of a file, for example from WAVEFORM to MFCC, depending on the
+configuration options. 
+Not all possible conversions can actually be performed; see Table~\href{t:validcons} for a list of valid conversions. Conversions must be specified via a configuration file as described in chapter~\ref{c:speechio}. Note also that the parameterisation qualifier \texttt{\_N} cannot be used when saving files to disk, and is meant only for on-the-fly parameterisation. 
+
+\subsection{Use}
+
+\htool{HCopy} is invoked by typing the command line
+\begin{verbatim}
+   HCopy [options] sa1 [ + sa2 + ... ] ta  [ sb1 [ + sb2 + ... ] tb ... ]
+\end{verbatim}
+This causes the contents of the one or more source files 
+\texttt{sa1}, \texttt{sa2}, \ldots
+ to be concatenated
+and the result copied to the given target file \texttt{ta}. To avoid the overhead
+of reinvoking the tool when processing large databases, multiple
+sources and targets may be specified, for example
+\begin{verbatim}
+HCopy srcA.wav + srcB.wav tgtAB.wav srcC.wav tgtD.wav
+\end{verbatim}
+will create two new files \texttt{tgtAB.wav} and  \texttt{tgtD.wav}.
+\htool{HCopy} takes file arguments from a script specified using the \texttt{-S} option
+exactly as from the
+command line, except that any newlines are ignored. 
+
+The allowable options to \htool{HCopy} are as follows where all times
+and durations are given in 100 ns units and
+are written as floating-point numbers.
+
+
+\begin{optlist}
+
+ \ttitem{-a i}  Use level i of associated label files with the \texttt{-n}
+   and  \texttt{-x} options.  Note that this is not the same as using the
+ \texttt{TRANSLEVEL} configuration variable since the  \texttt{-a} option
+still allows all levels to be copied through to the output files.
+
+  \ttitem{-e f} End copying from the source file at time \texttt{f}.  The
+ default is the end of the file. If \texttt{f} is negative or zero, it is
+ interpreted as a time relative to the end of the file, while a positive value
+ indicates an absolute time from the start of the file.
+
+ \ttitem{-i mlf} Output label files to master file \texttt{mlf}.
+
+ \ttitem{-l s} Output label files to the directory \texttt{s}.
+    The default is to output to the current directory.
+  
+ \ttitem{-m t} Set a margin of duration \texttt{t} around the
+    segments defined by the \texttt{-n} and \texttt{-x} options. 
+
+ \ttitem{-n i [j]} Extract the speech segment corresponding to the {\tt
+     i}'th label in the source file.  If \texttt{j} is specified, then the
+     segment corresponding to the sequence of labels \texttt{i} to \texttt{j}
+     is extracted. Labels are numbered from their position in the
+     label file.  A negative index can be used to count from the end
+    of the label list.   Thus, \texttt{-n 1 -1} would specify the segment
+    starting at the first label and ending at the last.
+
+  \ttitem{-s f} Start copying from the source file at time \texttt{f}. 
+    The default is 0.0, ie the beginning of the file.
+
+  \ttitem{-t n} Set the line width to \texttt{n} chars when formatting
+    trace output.
+
+  \ttitem{-x s [n]} Extract the speech segment corresponding to the
+       first occurrence of label \texttt{s} in the source file.  If \texttt{n}
+       is specified, then the \texttt{n}'th occurrence is extracted. If
+       multiple files are being concatenated, segments are extracted
+       from each file in turn, and the label must exist for each
+       concatenated file.
+
+\stdoptF
+\stdoptG
+\stdoptI
+\stdoptL
+\stdoptO
+\stdoptP
+\stdoptX
+
+\end{optlist}
+\stdopts{HCopy}
+
+Note that the parameter kind conversion 
+mechanisms described in chapter~\ref{c:speechio}
+will be applied to all source files.  In particular, if an automatic
+conversion is requested via the configuration file, then \htool{HCopy} will copy
+or concatenate the converted source files, not the actual contents.
+Similarly, automatic byte swapping may occur depending on the source
+format and the configuration variable \texttt{BYTEORDER}. Because the
+sampling rate may change during conversions, the options that 
+specify a position within a file i.e. \texttt{-s} and \texttt{-e}
+use absolute times rather than sample index numbers.  All times in \HTK\
+are given in units of 100ns and
+are written as floating-point numbers. To save writing long strings of zeros, 
+standard 
+exponential notation may be used, for example \texttt{-s 1E6} indicates a
+start time of 0.1 seconds from the beginning of the file.
+
+\begin{center}
+\begin{tabular}{|r||ccccccccccc|} \cline{2-12}
+ \multicolumn{1}{c}{} & \multicolumn{11}{|c|}{\it Outputs } \\
+\cline{2-11} \cline{2-11} \hline
+          ~ & ~ & ~ & ~ & L  & ~ & ~ & ~ & ~ & ~ & ~ & ~ \\ 
+          ~ & W & ~ & ~ & P  & ~ & ~ & ~ & ~ & ~ & D & ~ \\ 
+          ~ & A & ~ & ~ & C  & ~ & ~ & ~ & M & ~ & I & ~ \\ 
+          ~ & V & ~ & L & E  & I & ~ & ~ & E & ~ & S & ~ \\ 
+          ~ & E & ~ & P & P  & R & ~ & F & L & ~ & C & ~ \\ 
+          ~ & F & ~ & R & S  & E & M & B & S & U & R & ~ \\ 
+          ~ & O & L & E & T  & E & F & A & P & S & E & P \\ 
+          ~ & R & P & F & R  & F & C & N & E & E & T  & L \\ 
+{\it Inputs} & M & C & C & A  & C & C & K & C & R & E & P \\ \hline 
+~WAVEFORM & $\surd$ & $\surd$ & $\surd$ & $\surd$  &$\surd$& $\surd$ & $\surd$ & $\surd$ & ~ &$\surd$ & ~\\ 
+~~~~~~LPC & ~ & $\surd$ & $\surd$ & $\surd$  &$\surd$& ~ & ~ & ~ & ~ &$\surd$ & ~\\ 
+~~~LPREFC & ~ & $\surd$ & $\surd$ & $\surd$  &$\surd$& ~ & ~ & ~ & ~ &$\surd$& ~\\
+LPCEPSTRA & ~ & $\surd$ & $\surd$ & $\surd$  &$\surd$& ~ & ~ & ~ & ~ &$\surd$& ~\\
+~~~~IREFC & ~ & $\surd$ & $\surd$ & $\surd$  &$\surd$& ~ & ~ & ~ & ~ &$\surd$& ~\\
+~~~~~MFCC & ~ & ~ & ~ &  ~ & ~ & $\surd$ & ~ & ~ & ~ &$\surd$& ~\\ 
+~~~~FBANK & ~ & ~ & ~ &  ~ & ~ & $\surd$ & $\surd$ & ~ & ~ &$\surd$& ~\\
+~~MELSPEC & ~ & ~ & ~ &  ~ & ~ & $\surd$ & $\surd$ & $\surd$ & ~ &$\surd$& ~\\
+~~~~~USER & ~ & ~ & ~ &  ~ & ~ & ~ & ~ & ~ & $\surd$ &$\surd$ & ~\\
+~DISCRETE & ~ & ~ & ~ &  ~ & ~ & ~ & ~ & ~ & ~ & $\surd$ & ~ \\ 
+~~~~~~PLP & ~ & ~ & ~ &  ~ & ~ & ~ & ~ & ~ & ~ & $\surd$ & $\surd$ \\ 
+\hline
+\end{tabular}
+\tabcap{validcons}{Valid Parameter Conversions}
+\end{center}
+
+Note that truncations are performed {\em after\/} any desired coding,
+which may result in a loss of time resolution if the target file format
+has a lower sampling rate. Also, because of windowing effects,
+truncation, coding, and concatenation operations are not necessarily
+interchangeable.  If in doubt, perform all truncation/concatenation in
+the waveform domain and then perform parameterisation as a last, separate
+invocation of \htool{HCopy}.
+
+\subsection{Trace Output}
+
+\htool{HCopy} supports the following trace options where each
+trace flag is given using an octal base
+\begin{optlist}
+
+\ttitem{00001}  basic progress reporting. 
+\ttitem{00002}  source and target file formats and parameter kinds.
+\ttitem{00004}  segment boundaries computed from label files.
+\ttitem{00010}  display memory usage after processing each file.
+\end{optlist}
+Trace flags are set using the \texttt{-T} option or the  \texttt{TRACE} 
+configuration variable.
+\index{hcopy@\htool{HCopy}|)}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../htkbook"
+%%% End: 

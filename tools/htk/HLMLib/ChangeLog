@@ -1,0 +1,22 @@
+2003-07-25  D. Mrva  <dm312@cam.ac.uk>
+
+	* LCMap.c (SetClassWords): Check that a class is not in the list of words excluded from that class.
+
+2003-04-30  Gareth Moore <glm20@eng.cam.ac.uk>
+
+	* LGBase.c (ReadHGram): Remove ':' from list of word separators.
+
+2003-02-23  D. Mrva  <dm312@cam.ac.uk>
+
+	* LGBase.h (MAXINF): set the value to 128
+
+	* LGBase.c (OpenInputSet): check the max number of input grams allowed
+
+2002-12-16  Steve Young <sjy@eng.cam.ac.uk>
+
+	* LModel.h (UNLOG_NATURAL): Remove extra minus sign.
+
+2002-12-09  Gunnar Evermann  <ge204@eng.cam.ac.uk>
+
+	* Initial import of HLMLib source.
+

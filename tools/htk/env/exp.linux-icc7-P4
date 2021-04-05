@@ -1,0 +1,10 @@
+. /opt/intel/compiler70/ia32/bin/iccvars.sh
+export HTKCF='-DNDEBUG -DOSS_AUDIO -O3 -ip  -xW -tpp7 '
+export HTKLF='-xW -L/usr/X11R6/lib'
+export HTKCC='icc'
+export Arch=LINUX
+export Objcopy="echo"
+export PRILF='-x'
+export CPU=linux
+export SHRLF='-shared'
+export LIBEXT='so'

@@ -1,0 +1,85 @@
+#
+# remember to run VCVARS32.BAT
+# makefile for single-threaded HTK tools, MSVC
+#
+
+.SUFFIXES:	.exe
+
+.c.obj:
+	$(CC) /nologo /c $(CFLAGS) $<
+
+.obj.exe:
+	$(CL) $(SYSLF) /OUT:$(HBIN)/$@ $< $(libs)
+
+CC=cl
+CL=link
+CPU=win32
+
+HBIN  = ../bin.win32
+
+# use the following for full optimisation
+SYSCF = /ML /W0 /GX /O2 /G5 /Ob2 /D "NDEBUG" /D "WIN32" /D "_CONSOLE"
+
+# use the following for debugging
+#SYSCF = /ML /W1 /Gm /GX /Zi /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS"
+
+# use the following for non-debug link
+SYSLF = /nologo /subsystem:console /incremental:no
+
+# use the following for debug link
+#SYSLF = /DEBUG /DEBUGTYPE:BOTH /nologo /subsystem:console /incremental:no
+
+# the following is for HLM tools linked with HTKLib and HLMLib
+HTKCF = /I "../HTKLib" /I "../HLMLib" /I "."
+
+htklib = ../HTKLib/HTKLib.$(CPU).lib 
+
+hlmlib = ../HLMLib/HLMLib.$(CPU).lib 
+
+CFLAGS = $(SYSCF) $(HTKCF)
+
+syslib = winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib \
+	advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib
+
+libs = $(syslib) $(htklib) $(hlmlib) 
+
+tools = Cluster.exe HLMCopy.exe LAdapt.exe LBuild.exe LFoF.exe LGCopy.exe \
+	LGList.exe LGPrep.exe LMerge.exe LNorm.exe LPlex.exe LSubset.exe \
+        LNewMap.exe LLink.exe
+
+Cluster.exe:	Cluster.obj
+
+HLMCopy.exe:	HLMCopy.obj
+
+LAdapt.exe:	LAdapt.obj
+
+LBuild.exe:	LBuild.obj
+
+LFoF.exe:	LFoF.obj
+
+LGCopy.exe:	LGCopy.obj
+
+LGList.exe:	LGList.obj
+
+LGPrep.exe:	LGPrep.obj
+
+LMerge.exe:	LMerge.obj
+
+LNorm.exe:	LNorm.obj
+
+LPlex.exe:	LPlex.obj
+
+LSubset.exe:	LSubset.obj
+
+LNewMap.exe:	LNewMap.obj
+
+LLink.exe:	LLink.obj
+
+all:	$(tools)
+	echo done
+	
+clean:
+	del *.obj *.exe
+
+cleanup:
+	del *.obj

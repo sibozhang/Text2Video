@@ -1,0 +1,489 @@
+%/* ----------------------------------------------------------- */
+%/*                                                             */
+%/*                          ___                                */
+%/*                       |_| | |_/   SPEECH                    */
+%/*                       | | | | \   RECOGNITION               */
+%/*                       =========   SOFTWARE                  */ 
+%/*                                                             */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/* developed at:                                               */
+%/*                                                             */
+%/*      Speech Vision and Robotics group                       */
+%/*      Cambridge University Engineering Department            */
+%/*      http://svr-www.eng.cam.ac.uk/                          */
+%/*                                                             */
+%/*      Entropic Cambridge Research Laboratory                 */
+%/*      (now part of Microsoft)                                */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%/*         Copyright: Microsoft Corporation                    */
+%/*          1995-2000 Redmond, Washington USA                  */
+%/*                    http://www.microsoft.com                 */
+%/*                                                             */
+%/*          2001-2002 Cambridge University                     */
+%/*                    Engineering Department                   */
+%/*                                                             */
+%/*   Use of this software is governed by a License Agreement   */
+%/*    ** See the file License for the Conditions of Use  **    */
+%/*    **     This banner notice must not be removed      **    */
+%/*                                                             */
+%/* ----------------------------------------------------------- */
+%
+% HTKBook - Dave Ollason and Steve Young 11/11/95
+%
+% Language modelling details added by Gareth Moore 15-16/01/02
+
+\mychap{Configuration Variables}{confvars}
+
+\index{configuration variables!summary}
+This chapter tabulates all configuration variables used in \HTK.
+
+\mysect{Configuration Variables used in Library Modules}{coninlib}
+
+%\begin{table}[h]
+\begin{center}
+\tablecaption{Library Module Configuration Variables}
+\tablehead{\hline
+Module & Name & Default & Description  \\ \hline\hline}
+\tabletail{\hline}
+\begin{supertabular}{|p{1.8cm}|l|l|p{6.6cm}|}
+
+% all
+  & \texttt{TRACE} & \texttt{0} & Trace setting\\ \hline
+
+% HParm HWave
+\htool{HParm} & \texttt{SOURCEFORMAT} & \texttt{HTK}
+  & File format of source \\ \cline{2-4}
+\htool{HWave} & \texttt{TARGETFORMAT} & \texttt{HTK} & File format of target \\ \hline
+
+% HLabel HAudio HWave HParm
+\htool{HLabel} \htool{HAudio} \htool{HWave} \htool{HParm} 
+  & \texttt{SOURCERATE} & \texttt{0.0} & Sample rate of source in 100ns units \\ \hline
+
+% HParm
+\htool{HParm} \htool{HWave} 
+  & \texttt{TARGETRATE} & \texttt{0.0} & Sample rate of target in 100ns units \\ \hline
+
+% HAudio
+  & \texttt{LINEOUT} & \texttt{T}   & Enable audio output to machine line output \\ \cline{2-4}
+  & \texttt{PHONESOUT} & \texttt{T} & Enable audio output to machine phones output \\ \cline{2-4}
+\htool{HAudio}
+  & \texttt{SPEAKEROUT} & \texttt{F}& Enable audio output to machine internal speaker \\ \cline{2-4}
+  & \texttt{LINEIN} & \texttt{T} & Enable audio input from machine line input \\ \cline{2-4}
+  & \texttt{MICIN}  & \texttt{F} & Enable audio input from machine mic input \\ \hline
+
+% HWave
+  & \texttt{NSAMPLES} &  & Num samples in alien file input via a pipe\\ \cline{2-4}
+\htool{HWave} & \texttt{HEADERSIZE}  &   & Size of header in an alien file\\ \cline{2-4}
+  & \texttt{BYTEORDER} &   & Define byte order \texttt{VAX} or other\\ \cline{2-4}
+  & \texttt{STEREOMODE} &   & Select channel: \texttt{RIGHT} or \texttt{LEFT} \\ \hline
+
+% HParm
+  & \texttt{SOURCEKIND} & \texttt{ANON} & Parameter kind of source \\ \cline{2-4}
+  & \texttt{TARGETKIND} & \texttt{ANON} & Parameter kind of target \\ \cline{2-4}
+  & \texttt{MATTRANFN } &  & Input transformation file  \\ \cline{2-4}
+  & \texttt{SAVECOMPRESSED} & \texttt{F} & Save the output file in compressed form \\ \cline{2-4}
+  & \texttt{SAVEWITHCRC} & \texttt{T} & Attach a checksum to output parameter file \\ \cline{2-4}
+\htool{HParm}  
+  & \texttt{ADDDITHER} & \texttt{0.0} & Level of noise added to input signal \\ \cline{2-4} 
+  & \texttt{ZMEANSOURCE} & \texttt{F} & Zero mean source waveform before analysis \\ \cline{2-4}
+  & \texttt{WINDOWSIZE} & \texttt{256000.0} & Analysis window size in 100ns units \\ \cline{2-4}
+  & \texttt{USEHAMMING} & \texttt{T} & Use a Hamming window \\ \cline{2-4}
+  & \texttt{DOUBLEFFT} & \texttt{F} & Use twice the required size for FFT \\ \cline{2-4}
+  & \texttt{PREEMCOEF} & \texttt{0.97} & Set pre-emphasis coefficient \\ \cline{2-4}
+  & \texttt{LPCORDER} &  \texttt{12} &  Order of LPC analysis \\ \cline{2-4}
+  & \texttt{NUMCHANS} & \texttt{20} & Number of filterbank channels \\ \cline{2-4}
+  & \texttt{LOFREQ} & \texttt{-1.0} & Low frequency cut-off in fbank analysis \\ \cline{2-4}
+  & \texttt{HIFREQ}  & \texttt{-1.0} & High frequency cut-off in fbank analysis \\  \cline{2-4}
+  & \texttt{WARPFREQ} & \texttt{1.0} & Frequency warping factor \\ \cline{2-4}
+  & \texttt{WARPLCUTOFF} &  & Lower frequency threshold for non-linear warping  \\ \cline{2-4}
+  & \texttt{CMEANDIR} &  & Directory to find cepstral mean vectors  \\ \cline{2-4}
+  & \texttt{CMEANMASK} &  & Filename mask for cepstral mean vectors  \\ \cline{2-4}
+  & \texttt{CMEANPATHMASK} &  & Path name mask for cepstral mean vectors, the matched string is used to extend CMEANDIR string \\ \cline{2-4}
+  & \texttt{VARSCALEDIR} &  & Directory to find cepstral variance vectors  \\ \cline{2-4}
+  & \texttt{VARSCALEMASK} &  & Filename mask for cepstral variance vectors  \\ \cline{2-4}
+  & \texttt{VARSCALEPATHMASK} &  & Path name mask for cepstral variance vectors, the matched string is used to extend VARSCALEDIR string\\ \cline{2-4}
+  & \texttt{VARSCALEFN} &  & Filename of global variance scaling vector \\ \cline{2-4}
+  & \texttt{COMPRESSFACT} & 0.33 & Amplitude compression factor for PLP \\ \hline
+
+% HLabel HParm
+\htool{HLabel}  \htool{HParm} 
+  & \texttt{V1COMPAT} & \texttt{F} & HTK V1 compatibility setting \\ \hline
+
+%\end{tabular}
+%\end{center}
+%\caption{Library Module Configuration Variables}
+%\end{table}
+%\clearpage
+
+%\begin{table}[h]
+%\begin{center}
+%\begin{tabular}{|p{1.4cm}|p{3.0cm}|p{1.1cm}|p{6.6cm}|} \hline
+%Module & Name & Default & Description  \\ \hline\hline
+
+% HWave HShell
+\htool{HWave} 
+  & \texttt{NATURALREADORDER} & \texttt{F} & Enable natural read order for binary files \\ \cline{2-4} 
+\htool{HShell} 
+  & \texttt{NATURALWRITEORDER} & \texttt{F} & Enable natural write order for binary files \\ \hline
+
+% HParm
+  & \texttt{USEPOWER}  & \texttt{F} & Use power not magnitude in fbank analysis \\ \cline{2-4}
+  & \texttt{NUMCEPS}   & \texttt{12} & Number of cepstral parameters \\  \cline{2-4}
+  & \texttt{CEPLIFTER} &   \texttt{22} & Cepstral liftering coefficient \\ \cline{2-4}
+  & \texttt{ENORMALISE} & \texttt{T} & Normalise log energy \\  \cline{2-4}
+  & \texttt{ESCALE} & \texttt{0.1} & Scale log energy \\  \cline{2-4} 
+  & \texttt{SILFLOOR} & \texttt{50.0} & Energy silence floor in dBs \\  \cline{2-4} 
+  & \texttt{DELTAWINDOW} & \texttt{2} & Delta window size \\ \cline{2-4} 
+  & \texttt{ACCWINDOW} & \texttt{2} & Acceleration window size \\ \cline{2-4} 
+  & \texttt{VQTABLE} & \texttt{NULL} & Name of VQ table \\  \cline{2-4}
+  & \texttt{SIMPLEDIFFS} & \texttt{F} & Use simple differences for delta calculations \\ \cline{2-4}
+  & \texttt{RAWENERGY}  & \texttt{T} & Use raw energy \\ \cline{2-4}
+  & \texttt{AUDIOSIG} & \texttt{0} & Audio signal number for remote control \\ \cline{2-4}
+  & \texttt{USESILDET}  & \texttt{F} & Enable speech/silence detector \\ \cline{2-4}
+  & \texttt{MEASURESIL} & \texttt{T} & Measure background silence level \\ \cline{2-4}
+\htool{HParm} 
+  & \texttt{OUTSILWARN} & \texttt{T} & Print a warning message to {\tt stdout} before 
+measuring audio levels \\ \cline{2-4}
+  & \texttt{SPEECHTHRESH} & \texttt{9.0} & Threshold for speech above silence level (in dB) \\ \cline{2-4}
+  & \texttt{SILENERGY}    & \texttt{0.0} & Average background noise level (in dB) - will 
+normally be measured rather than supplied in configuration \\ \cline{2-4}
+  & \texttt{SPCSEQCOUNT}  & \texttt{10} & Window over which speech/silence decision reached \\ \cline{2-4}
+  & \texttt{SPCGLCHCOUNT} & \texttt{0} & Maximum number of frames marked as silence in window which is
+  classified as speech whilst expecting start of speech \\ \cline{2-4}  
+  & \texttt{SILSEQCOUNT}  & \texttt{100} & Number of frames classified as silence needed to mark end of
+  utterance \\ \cline{2-4}
+  & \texttt{SILGLCHCOUNT} & \texttt{2} & Maximum number of frames marked as silence in window which is
+  classified as speech whilst expecting silence \\ \cline{2-4}  
+  & \texttt{SILMARGIN} & \texttt{40} & Number of extra frames included before and after start and end of
+  speech marks from the speech/silence detector \\ \hline
+
+% HLabel
+  & \texttt{STRIPTRIPHONES} & \texttt{F} & Enable triphone stripping \\ \cline{2-4}
+  & \texttt{TRANSALT} & \texttt{0} & Filter all but specified label alternative \\ \cline{2-4}
+\htool{HLabel} 
+  & \texttt{TRANSLEV} & \texttt{0} & Filter all but specified label level \\ \cline{2-4}
+  & \texttt{LABELSQUOTE} & \texttt{NULL} & Select method for quoting in label files \\ \cline{2-4}
+  & \texttt{SOURCELABEL} & \texttt{HTK} & Source label format \\ \cline{2-4}
+  & \texttt{TARGETLABEL} & \texttt{HTK} & Target label format \\ \hline
+
+%\end{tabular}
+%\end{center}
+%\caption{Library Module Configuration Variables (cont)}
+%\end{table}
+
+%\begin{table}[h]
+%\begin{center}
+%\begin{tabular}{|p{1.4cm}|p{2.6cm}|p{1.5cm}|p{6.6cm}|} \hline
+%Module & Name & Default & Description  \\ \hline\hline
+
+% HMem
+\htool{HMem} & \texttt{PROTECTSTAKS} & \texttt{F} & Enable stack protection \\ \hline
+
+
+% HModel
+  & \texttt{CHKHMMDEFS} & \texttt{T} & Check consistency of HMM defs \\ \cline{2-4}
+  & \texttt{SAVEBINARY} & \texttt{F} & Save HMM defs in binary format \\ \cline{2-4}
+  & \texttt{KEEPDISTINCT} & \texttt{F} & Keep orphan HMMs in distinct files \\ \cline{2-4}
+  & \texttt{SAVEGLOBOPTS} & \texttt{T} & Save \hmmt{o} with HMM defs \\ \cline{2-4}
+  & \texttt{SAVEREGTREE} & \texttt{F} & Save \hmmt{r} macros with HMM defs \\ \cline{2-4}
+\htool{HModel} 
+    & \texttt{SAVEBASECLASS} & \texttt{F} & Save \hmmt{b} macros with HMM defs \\ \cline{2-4}
+  & \texttt{SAVEINPUTXFORM} & \texttt{T} & Save \hmmt{i} macros with HMM defs \\ \cline{2-4}
+  & \texttt{ORPHANMACFILE} & \texttt{NULL} & Last resort file for new macros \\ \cline{2-4}
+  & \texttt{HMMSETKIND} & \texttt{NULL} & Kind of HMM Set \\ \cline{2-4}
+  & \texttt{ALLOWOTHERHMMS} & \texttt{T} & Allow MMFs to contain HMM definitions which are 
+  not listed in the HMM List \\ \cline{2-4}
+  & \texttt{DISCRETELZERO}  & \texttt{F} & Map DLOGZERO to LZERO in output probability 
+  calculations \\ \hline
+
+% HNet
+  & \texttt{FORCECXTEXP} & \texttt{F} & Force triphone context expansion to get 
+  model names (is overridden by \texttt{ALLOWCXTEXP}) \\ \cline{2-4}
+  & \texttt{FORCELEFTBI} & \texttt{F} & Force left biphone
+  context expansion to get model names ie. don't try triphone names \\ \cline{2-4}
+  & \texttt{FORCERIGHTBI} & \texttt{F} & Force right biphone
+  context expansion to get model names ie. don't try triphone names \\ \cline{2-4}
+\htool{HNet} 
+  & \texttt{ALLOWCXTEXP}  & \texttt{T} & Allow context expansion to get model names \\ \cline{2-4}
+  & \texttt{ALLOWXWRDEXP} & \texttt{F} & Allow context expansion across words \\ \cline{2-4}
+  & \texttt{FACTORLM}     & \texttt{F} & Factor language model likelihoods throughout words rather 
+  than applying all at transition into word. This can increase accuracy when pruning is tight and 
+  language model likelihoods are relatively high. \\ \cline{2-4} 
+  & \texttt{CFWORDBOUNDARY} & \texttt{T} & In word-internal triphone systems, context-free 
+  phones will be treated as word boundaries \\ \hline
+
+% HRec
+\htool{HRec}
+  & \texttt{FORCEOUT} & \texttt{F} & Forces the most likely partial hypothesis to be used as
+  the recognition result even when no token reaches the end of the network by the last frame
+  of the utterance \\ \hline
+
+% HShell
+  & \texttt{ABORTONERR} & \texttt{F} & Causes HError to abort rather than exit \\ \cline{2-4}
+\htool{HShell} & \texttt{NONUMESCAPES} & \texttt{F} & Prevent writing in \verb+012+ format \\ \cline{2-4}
+  & \texttt{MAXTRYOPEN} & \texttt{1} & Maximum number of
+  attempts which will be made to open the same file \\ \cline{2-4}
+  & \texttt{EXTENDFILENAMES} & \texttt{T} & Support for extended
+  filenames \\ \hline
+
+
+% HTrain
+  & \texttt{MAXCLUSTITER} & \texttt{10} & Maximum number
+  of cluster iterations \\ \cline{2-4}
+\htool{HTrain} & \texttt{MINCLUSTSIZE} & \texttt{3} & Minimum number
+  of elements in any one cluster \\ \cline{2-4}
+  & \texttt{BINARYACCFORMAT} & \texttt{T} & Save
+  accumulator files in binary format \\ \hline
+
+% HFB
+\htool{HFB} & \texttt{HSKIPSTART} & \texttt{-1} & Start of skip over region (debugging only) \\ \cline{2-4}
+  & \texttt{HSKIPEND} & \texttt{-1} & End of skip over region (debugging only) \\ \hline
+
+% HFBLat
+
+  & \texttt{MINFORPROB} & \texttt{10.0} & Mixture prunning threshold \\ \cline{2-4}
+  & \texttt{PROBSCALE} & \texttt{1.0} & Scaling factor for the state acoustic and language model probabilities \\ \cline{2-4}
+  & \texttt{LANGPROBSCALE} & \texttt{1.0} & Additional scaling factor for language model probabilities \\ \cline{2-4}
+  & \texttt{LATPROBSCALE} & \texttt{1.0} & Scaling factor for the lattice-arc and language model probabilities \\ \cline{2-4}
+  & \texttt{PHNINSPEN} & \texttt{0.0} & Insertion penalty for each phone \\ \cline{2-4}
+\htool{HFBLat}   & \texttt{NOSILENCE} & \texttt{F} & Ignore silence from reference transcription when using \emph{non-exact} MPE \\ \cline{2-4}
+  & \texttt{QUINPHONE} & \texttt{F} & Support quinphone model. Only available if compiled with the \texttt{SUPPORT\_QUINPHONE} directive \\ \cline{2-4}
+  & \texttt{EXACTCORRECTNESS} & \texttt{F} & Do \emph{exact} version of MPE/MWE \\ \cline{2-4}
+  & \texttt{PHONEMEE} & \texttt{T} & Set to \texttt{TRUE} for MPE or MWE \\ \cline{2-4}
+  & \texttt{CALCASERROR} & \texttt{F} &  \\ \cline{2-4}
+  & \texttt{MWE} & \texttt{F} & Set to \texttt{TRUE} for MWE training \\ \cline{2-4}
+  & \texttt{MEECONTEXT} & \texttt{F} & Use context when calculating accuracies \\ \cline{2-4}
+  & \texttt{USECONTEXT} & \texttt{F} & Same as \texttt{MEECONTEXT} \\ \cline{2-4}
+  & \texttt{INSCORRECTNESS} & \texttt{-1} & Correctness of an inserted phone \\ \cline{2-4}
+  & \texttt{PDE} & \texttt{F} & Use partial distance elimination \\ \hline
+
+% HAdapt
+  & \texttt{USEBIAS} & \texttt{F} & Specify a bias with linear transforms \\ \cline{2-4}
+  & \texttt{SPLITTHRESH} & \texttt{1000.0} & Minimum occupancy to generate a transform \\ \cline{2-4}
+  & \texttt{TRANSKIND} & \texttt{{\tt MLLRMEAN}} & Transformation kind \\ \cline{2-4}
+  & \texttt{ADAPTKIND} & \texttt{{\tt BASE}} & Use regression tree or base classes \\ \cline{2-4}
+  & \texttt{BLOCKSIZE} & \texttt{full} & Block structure of transform\\ \cline{2-4}
+  & \texttt{BASECLASS} & \texttt{global} & Macroname of baseclass\\ \cline{2-4}
+  & \texttt{REGTREE} & \texttt{} & Macroname of regression tree\\ \cline{2-4}
+ \htool{HAdapt}  & \texttt{MAXXFORMITER} & \texttt{10} & Maximum iterations for iteratively estimated transforms \\ \cline{2-4}
+  & \texttt{MLLRDIAGCOV} & \texttt{F} & Generate a diagonal variance transform with MLLR mean transform \\ \cline{2-4}
+  & \texttt{SAVESPKRMODELS} & \texttt{F} & Store the adapted model set in addition to the transforms \\ \cline{2-4}
+  & \texttt{KEEPXFORMDISTINCT} & \texttt{T} & Save transforms separate files rather than a TMF \\ \cline{2-4}
+  & \texttt{MAXSEMITIEDITER} & \texttt{10} & Maximum iterations of model/transform updates for semitied systems \\ \cline{2-4}
+  & \texttt{SEMITIEDMACRO} & \texttt{SEMITIED} & Macroname for the semitied transform\\ \cline{2-4}
+  & \texttt{SEMITIED2INPUTXFORM} & \texttt{F} & Store the semi-tied transform as an input xform\\ \cline{2-4}
+  & \texttt{INITNUISANCEFR} & \texttt{T} & Initialise nuisance dimensions using Fisher ratios\\ \cline{2-4}
+  & \texttt{NUMNUISANCEDIM} & 0 & Number of dimensions to remove using HLDA\\ \hline
+
+
+
+% HMap
+  & \texttt{MAPTAU} & \texttt{10} & $\tau$ for use with MAP estimation \\ \cline{2-4}
+  & \texttt{MINEGS} & \texttt{0} & Minimum observations to update state \\ \cline{2-4}
+ \htool{HMap} & \texttt{MINVAR} & 0 & minimum variance floor value \\ \cline{2-4}
+  & \texttt{MIXWEIGHTFLOOR} & 0 & MINMIX times this value is the prior floor \\ \hline
+
+ & \texttt{HWAVEFILTER}    & & Filter for waveform file input\\ \cline{2-4}
+ & \texttt{HPARMFILTER}    & & Filter for parameter file input\\ \cline{2-4}
+ & \texttt{HLANGMODFILTER} & & Filter for language model file input\\ \cline{2-4}
+ & \texttt{HMMLISTFILTER}  & & Filter for HMM list file input\\ \cline{2-4}
+ & \texttt{HMMDEFFILTER}   & & Filter for HMM definition file input\\ \cline{2-4}
+ & \texttt{HLABELFILTER}   & & Filter for Label file input\\ \cline{2-4}
+ & \texttt{HNETFILTER}     & & Filter for Network file input\\ \cline{2-4}
+ & \texttt{HDICTFILTER}    & & Filter for Dictionary file input \\  \cline{2-4}
+ & \texttt{LGRAMFILTER}    & & Filter for gram file input\\ \cline{2-4}
+ & \texttt{LWMAPFILTER}    & & Filter for word map file input\\ \cline{2-4}
+\htool{HShell} & \texttt{LCMAPFILTER}    & &  Filter for class map file input\\ \cline{2-4}
+ & \texttt{LMTEXTFILTER}   & & Filter for text file input\\ \cline{2-4}
+ & \texttt{HWAVEOFILTER}   & & Filter for waveform file output\\ \cline{2-4}
+ & \texttt{HPARMOFILTER}   & & Filter for parameter file output\\ \cline{2-4}
+ & \texttt{HLANGMODOFILTER}& & Filter for language model file output\\ \cline{2-4}
+ & \texttt{HMMLISTOFILTER} & & Filter for HMM list file output\\ \cline{2-4}
+ & \texttt{HMMDEFOFILTER}  & & Filter for HMM definition file output\\ \cline{2-4}
+ & \texttt{HLABELOFILTER}  & & Filter for Label file output\\ \cline{2-4}
+ & \texttt{HNETOFILTER}    & & Filter for Network file output\\ \cline{2-4}
+ & \texttt{HDICTOFILTER}   & & Filter for Dictionary file output \\  \cline{2-4}
+ & \texttt{LGRAMOFILTER}   & & Filter for gram file output\\ \cline{2-4}
+ & \texttt{LWMAPOFILTER}   & & Filter for word map file output\\ \cline{2-4}
+ & \texttt{LCMAPOFILTER}   & & Filter for class map file
+output\\
+\hline
+\htool{LModel} & \texttt{RAWMITFORMAT}& \texttt{F}  & Disable \HTK\ escaping for LM tools\\ \cline{2-4}
+               & \texttt{USEINTID}  & \texttt{F}    & Use 4 byte ID fields to save binary models \\
+\hline
+
+               & \texttt{INWMAPRAW}  & \texttt{F}   & Disable \HTK\ escaping for input word lists and maps \\ \cline{2-4}
+\htool{LWMap}  & \texttt{OUTWMAPRAW} & \texttt{F}   & Disable \HTK\ escaping for output word lists and maps \\ \cline{2-4}
+               & \texttt{STARTWORD}  & {\tt <s>}    & Set sentence start symbol\\ \cline{2-4}
+               & \texttt{ENDWORD}    & {\tt </s>}   & Set sentence end symbol\\
+\hline
+
+               & \texttt{INCMAPRAW}  & \texttt{F}   & Disable \HTK\ escaping for input class lists and maps \\ \cline{2-4}
+\htool{LCMap}  & \texttt{OUTCMAPRAW} & \texttt{F}   & Disable \HTK\ escaping for output class lists and maps \\ \cline{2-4}
+               & \texttt{UNKNOWNNAME}& {\tt !!UNK}  & Set OOV class symbol\\ \cline{2-4}
+               & \texttt{UNKNOWNID}  & \texttt{1}   & Set unknown symbol class ID \\
+\hline
+
+               & \texttt{UNIFLOOR}   & {\tt 1}      & Unigram floor count \\ \cline{2-4}
+\htool{LPCalc}  & \texttt{KRANGE}     & {\tt 7}      & Good-Turing discounting range \\ \cline{2-4}
+               & \texttt{\textit{n}G\_CUTOFF} & {\tt 1} & \textit{n}-gram cutoff
+               (eg. \texttt{2G\_CUTOFF})\\ \cline{2-4}
+               & \texttt{DCTYPE}     & \texttt{TG}  & Discounting type
+                (\texttt{TG} for Turing-Good or \texttt{ABS} for Absolute\\ 
+% or  \texttt{LIN} for Linear)  - this seems not to have been fully implemented (!) \\
+\hline
+\htool{LGBase} & \texttt{CHECKORDER} & \texttt{F}   & Check N-gram ordering in files \\
+
+\htool{HLVLM} & \texttt{RAWMITFORMAT}& \texttt{F}  & Disable \HTK\ escaping for LM tools\\ \hline
+\htool{HLVRec} & \texttt{MAXLMLA} & off & Maximum jump in LM lookahead per model \\\cline{2-4}
+  & \texttt{BUILDLATSENTEND} & F & Build lattice from single token in the SENTEND node \\\cline{2-4}
+  & \texttt{FORCELATOUT} & T & Always output lattice, even when no token survived \\\cline{2-4}
+  & \texttt{GCFREQ} & 100 & Garbage collection period, unit is frame. \\\hline
+
+\end{supertabular}
+\end{center}
+%\caption{Library Module Configuration Variables (cont)}
+%\end{table}
+\clearpage
+
+\newpage
+\mysect{Configuration Variables used in Tools}{conintools}
+
+\begin{center}
+\tablecaption{Tool Specific Configuration Variables}
+\tablehead{\hline
+Module & Name & Default & Description  \\ \hline\hline}
+\tabletail{\hline}
+\begin{supertabular}{|p{1.8cm}|l|l|p{6.6cm}|}
+
+% HCompV
+  & \texttt{UPDATEMEANS} & \texttt{F} & Update means \\ \cline{2-4}
+\htool{HCompV} & \texttt{SAVEBINARY} & \texttt{F} & Load/Save in binary format \\ \cline{2-4}
+  & \texttt{MINVARFLOOR} & \texttt{0.0} & Minimum variance floor \\ \hline
+
+% HCopy
+  & \texttt{NSTREAMS} & \texttt{1} & Number of streams \\ \cline{2-4}
+  & \texttt{SAVEASVQ} & \texttt{F} & Save only the VQ indices \\ \cline{2-4}
+\htool{HCopy} & \texttt{SOURCEFORMAT} & \texttt{HTK} & File format of source \\ \cline{2-4}
+  & \texttt{TARGETFORMAT} & \texttt{HTK} & File format of target \\ \cline{2-4}
+  & \texttt{SOURCEKIND} & \texttt{ANON} & Parameter kind of source \\ \cline{2-4}
+  & \texttt{TARGETKIND} & \texttt{ANON} & Parameter kind of target \\ \hline
+
+%HERest
+\htool{HERest} 
+  & \texttt{SAVEBINARY} & \texttt{F} & Load/Save in binary format \\ \cline{2-4}
+  & \texttt{BINARYACFORMAT} & \texttt{T} & Load/Save accumulators in binary format \\ \cline{2-4}
+  & \texttt{ALIGNMODELMMF} & & MMF file for alignment (2-model reest)  \\ \cline{2-4}
+  & \texttt{ALIGNHMMLIST}  & & Model list for alignment (2-model reest) \\ \cline{2-4}
+  & \texttt{ALIGNMODELDIR} & & Dir containing HMMs for alignment (2-model reest).  \\ \cline{2-4}
+  & \texttt{ALIGNMODELEXT} & & Ext to be used with above Dir (2model-reest) \\  \cline{2-4}
+  & \texttt{ALIGNXFORMEXT} & & Input transform ext to be used with 2model-reest \\  \cline{2-4}
+  & \texttt{ALIGNXFORMDIR} & & Input transform dir to be used with 2model-reest \\  \cline{2-4}
+  & \texttt{INXFORMMASK} & & Input transform mask (default output transform mask) \\  \cline{2-4}
+  & \texttt{PAXFORMMASK} & & Parent transform mask (default output parent mask) \\  \cline{2-4}
+  & \texttt{UPDATEMODE} & & with \texttt{-p 0} choose mode:
+  \texttt{UDATE} update models (default), \texttt{DUMP} dump sum of
+  accumulators, \texttt{BOTH} do both\\  \cline{2-4} 
+\hline
+
+% HHEd
+\htool{HHEd} & \texttt{TREEMERGE} & \texttt{T} & After tree splitting, merge leaves \\ \cline{2-4}
+  & \texttt{TIEDMIXNAME} & \texttt{TM} & Tied mixture base name \\ \cline{2-4}
+  & \texttt{APPLYVFLOOR} & \texttt{T} & Apply variance floor to model set \\  \cline{2-4}
+  & \texttt{USELEAFSTATS} & \texttt{T} & Use stats to obtain tied state pdf's \\ \cline{2-4}
+  & \texttt{MMFIDMASK} & * & Used with RC \htool{HHEd} command \\
+ \hline
+
+% HMMIRest
+& \texttt{VARFLOORPERCENTILE} & \texttt{0} & Maximum number of Gaussian components (as the percentage of the total Gaussian components in the system) to undergo variance floor \\ \cline{2-4}
+& \texttt{C} & \texttt{1.0} & C value for both component weights and transition probabilities update \\ \cline{2-4}
+& \texttt{CW} & \texttt{1.0} & C value for component weights update\\ \cline{2-4}
+& \texttt{CT} & \texttt{1.0} & C value for transition probabilities update\\ \cline{2-4}
+& \texttt{MINOCC} & \texttt{10} & Minimum occupancy counts for Gaussian means and variances \\ \cline{2-4}
+& \texttt{MINOCCTRANS} & \texttt{10} & Minimum occupancy counts for transition probabilities \\ \cline{2-4}
+& \texttt{MINOCCWEIGHTS} & \texttt{10} & Minimum occupancy counts for component weights \\ \cline{2-4}
+& \texttt{SAVEBINARY} & \texttt{F} & Save HMM models in binary format \\ \cline{2-4}
+& \texttt{E} & \texttt{2.0} & Scaling factor for the denominator counts to determine D-smoothing constant value \\ \cline{2-4}
+\htool{HMMIRest} 
+& \texttt{DFACTOROCC} & \texttt{2.0} & Scaling factor for the D-smoothing constant value required to yield positive variances \\ \cline{2-4}
+& \texttt{HCRIT} & \texttt{1.0} & Scaling factor for the denominator statistics \\ \cline{2-4}
+& \texttt{MPE} & \texttt{F} & Use MPE criterion \\ \cline{2-4}
+& \texttt{MWE} & \texttt{F} & Use MWE criterion \\ \cline{2-4}
+& \texttt{MEE} & \texttt{F} & Use MWE criterion if MWE is set to \texttt{TRUE} for \htool{HFBLat}. Otherwise, use MPE criterion \\ \cline{2-4}
+& \texttt{MLE} & \texttt{F} & Use MLE criterion \\ \cline{2-4}
+& \texttt{MMIPRIOR} & \texttt{F} & Use dynamic MMI prior \\ \cline{2-4}
+& \texttt{MMITAUI} & \texttt{0.0} & I-smoothing constant value for MMI prior \\ \cline{2-4}
+& \texttt{ISMOOTHTAU} & \texttt{0.0} & I-smoothing constant value for Gaussian means and variances \\ \cline{2-4}
+& \texttt{ICRITOCC} & \texttt{0.0} & Same as \texttt{ISMOOTHTAU} \\ \cline{2-4}
+& \texttt{ISMOOTHTAUT} & \texttt{0.0} & I-smoothing constant value for transition probabilities \\ \cline{2-4}
+& \texttt{ISMOOTHTAUW} & \texttt{0.0} & I-smoothing constant value for component weights \\ \cline{2-4}
+& \texttt{PRIORTAU} & \texttt{0.0} & Prior smoothing constant value for Gaussian means and variances \\ \cline{2-4}
+& \texttt{PRIORTAUW} & \texttt{0.0} & Prior smoothing constant value for component weights \\ \cline{2-4}
+& \texttt{PRIORTAUT} & \texttt{0.0} & Prior smoothing constant value for transition probabilities \\ \cline{2-4}
+& \texttt{STATICPRIOR} & \texttt{F} & Use a static prior for parameter estimation \\ \cline{2-4}
+& \texttt{MIXWEIGHTFLOOR} & \texttt{2.0} & Component weights floor (as the number of times of \texttt{MINMIX}) \\ \cline{2-4}
+& \texttt{LATFILEMASK} & \texttt{NULL} & Mask for lattice filename \\ \cline{2-4}
+& \texttt{LATMASKNUM} & \texttt{NULL} & Mask for numerator lattice directory \\ \cline{2-4}
+& \texttt{LATMASKDEN} & \texttt{NULL} & Mask for denominator lattice directory \\ \cline{2-4}
+& \texttt{INXFORMMASK} & \texttt{NULL} & Speaker mask for loading input adaptation transforms \\ \cline{2-4}
+& \texttt{PAXFORMMASK} & \texttt{NULL} & Speaker mask for loading parent adaptation transforms \\ \cline{2-4}
+& \texttt{USELLF} & \texttt{F} & Load lattices in LLF format \\ \cline{2-4}
+  & \texttt{UPDATEMODE} & & with \texttt{-p 0} choose mode:
+  \texttt{UDATE} update models (default), \texttt{DUMP} dump sum of
+  accumulators, \texttt{BOTH} do both\\  \hline
+
+% HParse
+\htool{HParse} & \texttt{V1COMPAT} & \texttt{F} & Enable compatibility with HTK V1.X \\ \hline
+
+% HResults
+  & \texttt{REFLEVEL} & \texttt{0} & Label level to be used as reference \\ \cline{2-4}
+  & \texttt{TESTLEVEL} & \texttt{0} & Label level to be scored \\ \cline{2-4}
+  & \texttt{STRIPCONTEXT} & \texttt{F} & Strip triphone contexts \\ \cline{2-4}
+\htool{HResults} & \texttt{IGNORECASE} & \texttt{F} & If enabled,
+  converts labels to uppercase \\ \cline{2-4}
+  & \texttt{NISTSCORE} & \texttt{F} & Use NIST formatting \\ \cline{2-4}
+  & \texttt{PHRASELABEL} & \texttt{SENT} & Label for phrase level statistics \\ \cline{2-4}
+  & \texttt{PHONELABEL} & \texttt{WORD} & Label for word level statistics \\ \cline{2-4}
+  & \texttt{SPEAKERMASK} & \texttt{NULL} & If set then report on a per
+  speaker basis \\ \hline 
+
+% HVite
+  & \texttt{RECOUTPREFIX} & \texttt{NULL} & Prefix for direct
+  audio output name \\ \cline{2-4}
+\htool{HVite} & \texttt{RECOUTSUFFIX} & \texttt{NULL} & Suffix for direct audio output name\\ \cline{2-4}
+  & \texttt{SAVEBINARY} & \texttt{F} & Save transforms as binary \\ \hline
+
+% HLStats
+\htool{HLStats} & \texttt{DISCOUNT} & \texttt{0.5} & Discount constant
+  for backoff bigrams\\ \hline
+
+% HList
+\htool{HList} 
+  & \texttt{AUDIOSIG} & \texttt{0} & Audio signal numberfor remote control 
+  \\ \cline{2-4}
+  & \texttt{SOURCERATE} & \texttt{0.0} & Sample rate of source in 100ns units 
+  \\ \hline
+
+% all
+  & \texttt{TRACE} & \texttt{0} & Trace setting\\ \hline
+
+\htool{HDecode}
+& \texttt{USEHMODEL} & F & Use adaptation data structure and likelihood calculation routine of 
+\htool{HModel} \\\cline{2-4}
+ & \texttt{STARTWORD} & $<$s$>$ & Word used as the start of network \\\cline{2-4}
+ & \texttt{ENDWORD} & $<$/s$>$ & Word used as the end of network \\\cline{2-4}
+ & \texttt{FASTLMLABEAM} & off & Fast language model look ahead beam \\\hline
+
+\end{supertabular}
+\end{center}
+%\caption{Tool Specific Configuration Variables}
+%\end{table}
+\clearpage
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "htkbook"
+%%% End: 

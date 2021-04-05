@@ -1,0 +1,12 @@
+This directory contains the LaTeX sources of the HTK user
+documentation (HTKBook).
+
+Postscript, pdf and html versions of the HTKBook can be downloaded
+from 
+
+  http://htk.eng.cam.ac.uk/docs/docs.shtml
+
+Currently the generation of pdf and html probably only works at CUED,
+but we are planning to clean up the LaTeX to make it more portable.
+
+ ge 4.9.2000
