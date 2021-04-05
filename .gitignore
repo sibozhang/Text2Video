@@ -1,0 +1,6 @@
+*.pyc
+*/build/*
+*.jpg
+*.so
+*.o
+*.DS_Store
