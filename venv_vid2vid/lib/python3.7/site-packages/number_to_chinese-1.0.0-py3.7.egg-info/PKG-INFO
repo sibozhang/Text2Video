@@ -1,0 +1,19 @@
+Metadata-Version: 1.1
+Name: number-to-chinese
+Version: 1.0.0
+Summary: this is a Capital Chinese to Arabic numerals package.
+Home-page: http://blog.useasp.net/
+Author: Wangyiyao
+Author-email: 1738698834@qq.com
+License: MIT
+Description: 将阿拉伯数字转成中文
+        
+Keywords: chinese transform char number python package
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: Unix
+Classifier: Programming Language :: Python :: 2.7

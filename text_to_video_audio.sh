@@ -1,24 +1,11 @@
 export LANG="en_US.UTF-8"
-# source /mnt/home/miao/venv/asimov_vid2vid/bin/activate
-
 # desktop
-# source /home/sibo/Dropbox/venv/asimov_vid2vid/bin/activate
+# source ../venv_vid2vid/bin/activate
 
-# go to dir VisualVirtualCharacter/
-
-# read $input_text
-# read -p "input_text:" input_text
-# echo "$input_text"
-# deactivate
-# source ../venv/asimov_vid2vid/bin/activate
-
-# FILENAME= $(echo $1 | cut -c1-10)
-# echo $FILENAME
 echo "$1"
 echo $2
 #echo $3
-# now=$(date +%Y%m%d%H%M%S) 
-# echo "$1" >> input/$2/${now}_${2}.txt
+
 rm -f input/$2/"$1".txt
 echo "$1" >> input/$2/"$1".txt
 

@@ -1,0 +1,46 @@
+decorator<5.0,>=4.0.2
+tqdm<5.0,>=4.11.2
+requests<3.0,>=2.8.1
+proglog<=1.0.0
+
+[:python_version != "2.7"]
+numpy>=1.17.3
+
+[:python_version < "3.4"]
+imageio<2.5,>=2.0
+
+[:python_version >= "2.7"]
+numpy
+
+[:python_version >= "3.4"]
+imageio<3.0,>=2.5
+imageio_ffmpeg>=0.2.0
+
+[doc]
+numpydoc<1.0,>=0.6.0
+sphinx_rtd_theme<1.0,>=0.1.10b0
+Sphinx<2.0,>=1.5.2
+
+[doc:python_version < "3.8"]
+pygame<2.0,>=1.9.3
+
+[optional]
+youtube_dl
+
+[optional:python_version != "2.7"]
+opencv-python<4.0,>=3.0
+
+[optional:python_version != "3.3"]
+scipy<1.5,>=0.19.0
+
+[optional:python_version >= "3.4"]
+scikit-image<1.0,>=0.13.0
+scikit-learn
+matplotlib<3.0,>=2.0.0
+
+[test]
+coverage<5.0
+coveralls<2.0,>=1.1
+pytest-cov<3.0,>=2.5.1
+pytest<4.0,>=3.0.0
+requests<3.0,>=2.8.1

@@ -1,0 +1,14 @@
+5 lao
+10 bing
+23 shi
+31 bei
+35 fang
+41 ren
+46 li
+50 bu
+55 kai
+60 de
+65 ji
+69 chu
+79 mian
+84 shi

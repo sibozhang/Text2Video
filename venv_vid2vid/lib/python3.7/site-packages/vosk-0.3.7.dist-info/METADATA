@@ -1,0 +1,23 @@
+Metadata-Version: 2.1
+Name: vosk
+Version: 0.3.7
+Summary: API for Kaldi and Vosk
+Home-page: https://github.com/alphacep/vosk-api
+Author: Alpha Cephei Inc
+Author-email: contact@alphacephei.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.4
+Description-Content-Type: text/markdown
+
+Python module for vosk-api
+
+See for details https://github.com/alphacep/vosk-api
+
+

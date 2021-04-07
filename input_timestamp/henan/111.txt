@@ -1,0 +1,10 @@
+6 mu
+10 qian
+16 zhi
+23 zhi
+28 chi
+37 chun
+44 zhong
+47 wen
+55 shu
+61 ru
