@@ -9,7 +9,7 @@ With the advance of deep learning technology, automatic video generation from au
     Please download the model from https://github.com/alphacep/vosk-api/blob/master/doc/models.md and unpack as 'model' in the current folder.
     
 ## Set up
-1. Download modified vid2vid repo https://github.com/sibozhang/vid2vid
+1. Download modified vid2vid repo [vid2vid](https://github.com/sibozhang/vid2vid) 
 
 2. Prepare data and folder in the following order
 
@@ -23,7 +23,7 @@ With the advance of deep learning technology, automatic video generation from au
     ```
     
 ## Testing
-1. Activate venv_vid2vid
+1. Activate vitrual environment venv_vid2vid
 ```
 source venv_vid2vid/bin/activate
 ```
@@ -56,11 +56,16 @@ Example 2. test VidTIMIT data with TTS audio
     sh text_to_video_tts.sh "She had your dark suit in greasy wash water all year." fadg0
     ```
 
-Example 3. test Chinese female model with TTS audio
+Example 3. test with Chinese female TTS audio
     ```
     sh text2video_tts_chinese.sh "正在为您查询合肥的天气情况。今天是2020年2月24日，合肥市今天多云，最低温度9摄氏度，最高温度15摄氏度，微风。" henan f
     ```
     
+## Training with your own data
+
 ## Citation
 Please cite our paper in your publications.
 
+
+## Ackowledgements
+This code is based on the vid2vid framework.
