@@ -1,3 +1,4 @@
+model/
 *.pyc
 */build/*
 *.jpg
