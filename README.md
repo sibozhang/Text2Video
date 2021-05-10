@@ -66,6 +66,7 @@ Example 3. test with Chinese female TTS audio
 ## Citation
 Please cite our paper in your publications.
 
+Sibo Zhang, Jiahong Yuan, Miao Liao, Liangjun Zhang. [PDF](https://arxiv.org/pdf/2104.14631.pdf) 
 ```
 @article{zhang2021text2video,
   title={Text2Video: Text-driven Talking-head Video Synthesis with Phonetic Dictionary},
