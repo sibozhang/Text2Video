@@ -66,12 +66,14 @@ Example 3. test with Chinese female TTS audio
 ## Citation
 Please cite our paper in your publications.
 
+```
 @article{zhang2021text2video,
   title={Text2Video: Text-driven Talking-head Video Synthesis with Phonetic Dictionary},
   author={Zhang, Sibo and Yuan, Jiahong and Liao, Miao and Zhang, Liangjun},
   journal={arXiv preprint arXiv:2104.14631},
   year={2021}
 }
+```
 
 ## Ackowledgements
 This code is based on the vid2vid framework.
