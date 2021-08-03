@@ -9,9 +9,12 @@ For Chinese, we use vosk to get timestamp of each words.
 Please install vosk from https://alphacephei.com/vosk/install and unpack as 'model' in the current folder.
     
 ## Set up
-1. Download modified vid2vid repo [vid2vid](https://github.com/sibozhang/vid2vid) 
-
-2. Prepare data and folder in the following order
+1. Git clone repo
+```
+git clone git@github.com:sibozhang/Text2Video.git
+```
+3. Download modified vid2vid repo [vid2vid](https://github.com/sibozhang/vid2vid) 
+4. Prepare data and folder in the following order
 
     ```
     Text2Video
