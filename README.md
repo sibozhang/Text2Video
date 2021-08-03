@@ -24,7 +24,12 @@ git clone git@github.com:sibozhang/Text2Video.git
     vid2vid
     ├── ...
     ```
-    
+5. 
+```
+pip install zhon
+pip install moviepy
+```
+
 ## Testing
 1. Activate vitrual environment venv_vid2vid
 ```
