@@ -28,6 +28,8 @@ git clone git@github.com:sibozhang/Text2Video.git
 ```
 pip install zhon
 pip install moviepy
+pip install ffmpeg
+pip install dominate
 ```
 
 ## Testing
