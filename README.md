@@ -6,7 +6,7 @@ With the advance of deep learning technology, automatic video generation from au
 
 ## Data / Preprocessing
 For Chinese, we use vosk to get timestamp of each words.
-Please download the model from https://github.com/alphacep/vosk-api/blob/master/doc/models.md and unpack as 'model' in the current folder.
+Please install vosk from https://alphacephei.com/vosk/install and unpack as 'model' in the current folder.
     
 ## Set up
 1. Download modified vid2vid repo [vid2vid](https://github.com/sibozhang/vid2vid) 
