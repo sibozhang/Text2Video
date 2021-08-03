@@ -32,17 +32,17 @@ source venv/asimov_vid2vid/bin/activate
 ```
 2. Generate video with real audio in English
 ```
-sh text_to_video_audio.sh $1 $2
+sh text2video_audio.sh $1 $2
 ```
 
 Generate video with TTS audio in English
 ```
-sh text_to_video_tts.sh $1 $2 $3
+sh text2video_tts.sh $1 $2 $3
 ```
 
 Generate video with TTS audio in Chinese
 ```
-sh text_to_video_tts.sh $1 $2 $3
+sh text2video_tts.sh $1 $2 $3
 ```
 
 $1: "input text"
@@ -51,12 +51,12 @@ $3: fill f for female or m for male (gender)
 
 Example 1. test VidTIMIT data with real audio
     ```
-    sh text_to_video_audio.sh "She had your dark suit in greasy wash water all year." fadg0
+    sh text2video_audio.sh "She had your dark suit in greasy wash water all year." fadg0 f
     ```
     
 Example 2. test VidTIMIT data with TTS audio
     ```
-    sh text_to_video_tts.sh "She had your dark suit in greasy wash water all year." fadg0
+    sh text2video_tts.sh "She had your dark suit in greasy wash water all year." fadg0 f
     ```
 
 Example 3. test with Chinese female TTS audio
