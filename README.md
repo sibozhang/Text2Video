@@ -28,7 +28,7 @@ git clone git@github.com:sibozhang/Text2Video.git
 ## Testing
 1. Activate vitrual environment venv_vid2vid
 ```
-source venv_vid2vid/bin/activate
+source venv/asimov_vid2vid/bin/activate
 ```
 2. Generate video with real audio in English
 ```
