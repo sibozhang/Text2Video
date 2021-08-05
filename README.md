@@ -73,6 +73,10 @@ Example 3. test with Chinese female TTS audio
     
 ## Training with your own data
 
+## Appendices
+ARPABET
+![](./ARPABET.png)
+
 ## Citation
 Please cite our paper in your publications.
 
