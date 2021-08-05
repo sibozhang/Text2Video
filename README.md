@@ -73,10 +73,6 @@ Example 3. test with Chinese female TTS audio
     
 ## Training with your own data
 
-## Appendices
-ARPABET
-![](./ARPABET.png)
-
 ## Citation
 Please cite our paper in your publications.
 
@@ -89,6 +85,10 @@ Sibo Zhang, Jiahong Yuan, Miao Liao, Liangjun Zhang. [PDF](https://arxiv.org/pdf
   year={2021}
 }
 ```
+
+## Appendices
+ARPABET
+![](./ARPABET.png)
 
 ## Ackowledgements
 This code is based on the vid2vid framework.
