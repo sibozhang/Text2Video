@@ -58,20 +58,20 @@ $1: "input text"
 $2: person
 $3: fill f for female or m for male (gender)
 
-Example 1. test VidTIMIT data with real audio
-    ```
-    sh text2video_audio.sh "She had your dark suit in greasy wash water all year." fadg0 f
-    ```
+Example 1. test VidTIMIT data with real audio.
+```
+sh text2video_audio.sh "She had your dark suit in greasy wash water all year." fadg0 f
+```
     
-Example 2. test VidTIMIT data with TTS audio
-    ```
-    sh text2video_tts.sh "She had your dark suit in greasy wash water all year." fadg0 f
-    ```
+Example 2. test VidTIMIT data with TTS audio.
+```
+sh text2video_tts.sh "She had your dark suit in greasy wash water all year." fadg0 f
+```
 
-Example 3. test with Chinese female TTS audio
-    ```
-    sh text2video_tts_chinese.sh "正在为您查询合肥的天气情况。今天是2020年2月24日，合肥市今天多云，最低温度9摄氏度，最高温度15摄氏度，微风。" henan f
-    ```
+Example 3. test with Chinese female TTS audio.
+```
+sh text2video_tts_chinese.sh "正在为您查询合肥的天气情况。今天是2020年2月24日，合肥市今天多云，最低温度9摄氏度，最高温度15摄氏度，微风。" henan f
+```
     
 ## Training with your own data
 
