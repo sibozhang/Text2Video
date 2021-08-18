@@ -35,9 +35,9 @@ pip install dominate
 ```
 
 ## Testing
-1. Activate vitrual environment venv_vid2vid
+1. Activate vitrual environment vid2vid
 ```
-source venv/asimov_vid2vid/bin/activate
+source ../venv/vid2vid/bin/activate
 ```
 2. Generate video with real audio in English
 ```
