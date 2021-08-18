@@ -13,8 +13,8 @@ Please install vosk from https://alphacephei.com/vosk/install and unpack as 'mod
 ```
 git clone git@github.com:sibozhang/Text2Video.git
 ```
-3. Download modified vid2vid repo [vid2vid](https://github.com/sibozhang/vid2vid) 
-4. Prepare data and folder in the following order
+2. Download and install modified vid2vid repo [vid2vid](https://github.com/sibozhang/vid2vid) 
+3. Prepare data and folder in the following order
 
     ```
     Text2Video
@@ -23,8 +23,10 @@ git clone git@github.com:sibozhang/Text2Video.git
     ├── ...
     vid2vid
     ├── ...
+    venv
+    ├── vid2vid
     ```
-5. 
+4. 
 ```
 pip install zhon
 pip install moviepy
