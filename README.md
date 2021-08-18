@@ -26,7 +26,7 @@ git clone git@github.com:sibozhang/Text2Video.git
     venv
     ├── vid2vid
     ```
-4. 
+4. Setup env 
 ```
 sudo apt-get install sox libsox-fmt-mp3
 pip install zhon
