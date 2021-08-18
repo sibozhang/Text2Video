@@ -28,6 +28,7 @@ git clone git@github.com:sibozhang/Text2Video.git
     ```
 4. 
 ```
+sudo apt-get install sox libsox-fmt-mp3
 pip install zhon
 pip install moviepy
 pip install ffmpeg
