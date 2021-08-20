@@ -33,6 +33,7 @@ pip install zhon
 pip install moviepy
 pip install ffmpeg
 pip install dominate
+pip install pydub
 ```
 
 ## Testing
