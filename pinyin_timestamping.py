@@ -71,6 +71,7 @@ if not os.path.exists("model"):
 
 model = Model("model")
 rec = KaldiRecognizer(model, wf.getframerate())
+rec.SetWords(True)
 
 while True:
     data = wf.readframes(1000000)
