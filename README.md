@@ -2,6 +2,8 @@
 This is code for ICASSP 2022: "Text2Video: Text-driven Talking-head Video Synthesis with Phonetic Dictionary".
 [Project Page](https://sites.google.com/view/sibozhang/text2video) 
 
+[![ICASSP 2022: Text2Video]([https://res.cloudinary.com/marcomontalbano/image/upload/v1598335918/video_to_markdown/images/youtube--_pcqH1illCU-c05b58ac6eb4c4700831b2b3070cd403.jpg](https://i9.ytimg.com/vi/VGQ4pH1vlcA/mq1.jpg?sqp=CLCO75kG&rs=AOn4CLCQXN9KBqqHL-Vb5zJt6dPldOQsiw))]([https://www.youtube.com/watch?v=_pcqH1illCU&feature=youtu.be](https://www.youtube.com/watch?v=VGQ4pH1vlcA))
+
 ## Introduction
 With the advance of deep learning technology, automatic video generation from audio or text has become an emerging and promising research topic. In this paper, we present a novel approach to synthesize video from text. The method builds a phoneme-pose dictionary and trains a generative adversarial network (GAN) to generate video from interpolated phoneme poses. Compared to audio-driven video generation algorithms, our approach has a number of advantages: 1) It only needs a fraction of the training data used by an audio-driven approach; 2) It is more ﬂexible and not subject to vulnerability due to speaker variation; 3) It signiﬁcantly reduces the preprocessing, training and inference time. We perform extensive experiments to compare the proposed method with state-of-the-art talking face generation methods on a benchmark dataset and datasets of our own. The results demonstrate the effectiveness and superiority of our approach.
 
