@@ -12,8 +12,22 @@ With the advance of deep learning technology, automatic video generation from au
 ```
 git clone git@github.com:sibozhang/Text2Video.git
 ```
+
 2. Download and install modified vid2vid repo [vid2vid](https://github.com/sibozhang/vid2vid) 
-3. Prepare data and folder in the following order
+
+3. Download Trained model
+
+Please build 'checkpoints' folder in vid2vid folder and put trained model in it.
+
+VidTIMIT fadg0 (English, Female) Dropbox
+
+百度云链接:https://pan.baidu.com/s/1L1cvqwLu_uqN2cbW-bDgdA 密码:hygt
+
+Xuesong (Chinese, Male) Dropbox
+
+百度云链接:https://pan.baidu.com/s/1lhYRakZLnkQ8nqMuLJt_dA 密码:40ob
+
+4. Prepare data and folder in the following order
 
     ```
     Text2Video
@@ -25,7 +39,7 @@ git clone git@github.com:sibozhang/Text2Video.git
     venv
     ├── vid2vid
     ```
-4. Setup env 
+5. Setup env 
 ```
 sudo apt-get install sox libsox-fmt-mp3
 pip install zhon
