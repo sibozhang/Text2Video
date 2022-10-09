@@ -115,7 +115,8 @@ year={2022},
 volume={},  
 number={},  
 pages={2659-2663},  
-doi={10.1109/ICASSP43922.2022.9747380}}
+doi={10.1109/ICASSP43922.2022.9747380}
+}
 ```
 ```
 @article{zhang2021text2video,
