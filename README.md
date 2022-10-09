@@ -107,6 +107,17 @@ Please cite our paper in your publications.
 
 Sibo Zhang, Jiahong Yuan, Miao Liao, Liangjun Zhang. [PDF](https://arxiv.org/pdf/2104.14631.pdf) [Result Video](https://youtu.be/TQJCyQ4ISEg)
 ```
+@INPROCEEDINGS{9747380,  
+author={Zhang, Sibo and Yuan, Jiahong and Liao, Miao and Zhang, Liangjun},  
+booktitle={ICASSP 2022 - 2022 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},   
+title={Text2video: Text-Driven Talking-Head Video Synthesis with Personalized Phoneme - Pose Dictionary},   
+year={2022},  
+volume={},  
+number={},  
+pages={2659-2663},  
+doi={10.1109/ICASSP43922.2022.9747380}}
+```
+```
 @article{zhang2021text2video,
   title={Text2Video: Text-driven Talking-head Video Synthesis with Phonetic Dictionary},
   author={Zhang, Sibo and Yuan, Jiahong and Liao, Miao and Zhang, Liangjun},
