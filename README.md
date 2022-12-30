@@ -25,13 +25,13 @@ VidTIMIT fadg0 (English, Female)
 
 Dropbox: https://www.dropbox.com/sh/lk6et49v2uyfzjx/AADAFAp02_b3FQchaYxOZ0EMa?dl=0
 
-百度云链接:https://pan.baidu.com/s/1L1cvqwLu_uqN2cbW-bDgdA 密码:hygt
+百度云链接: https://pan.baidu.com/s/1SSkMKOK9LhClW2JvDCSiLg?pwd=bevj 提取码: bevj
 
 Xuesong (Chinese, Male) 
 
 Dropbox: https://www.dropbox.com/sh/qz3zoma5ac9mw5p/AAARiR8xKvATN4CBSyjWt_uOa?dl=0
 
-百度云链接: https://pan.baidu.com/s/1lhYRakZLnkQ8nqMuLJt_dA 密码:40ob
+百度云链接: 链接: https://pan.baidu.com/s/1DvuBbThYo4n5RIZsc-92rg?pwd=am7d 提取码: am7d
 
 4. Prepare data and folder in the following order
 
