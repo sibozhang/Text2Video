@@ -112,8 +112,7 @@ Chinese Pinyin model:
 
 1.1 Video recording: Invite models to read all pinyin, you can refer to all_pinyin.txt. Pause 0.5 second between each pronunciation. Use the camera to record 1280x720 video.
 
-1.2 Pinyin-Mouth Shape Dictionary: Manually select the time stamp of each Pinyin reading aloud and put it in a dictionary file, which stores
-The data structure is as follows, each line saves a pair of [pinyin, frame number]:
+1.2 Pinyin-Mouth Shape Dictionary: Manually select the time stamp of each Pinyin reading aloud and put it in a dictionary file, which stores the data structure is as follows, each line saves a pair of [pinyin, frame number]:
 ba 61
 bo 86
 bi 540
@@ -135,7 +134,8 @@ After the compilation is successful, run:
 ```
 
 1.4 Use the generated human skeleton model and the corresponding video to train the vid2vid model, which is used to generate a realistic human skeleton model portrait video. The code for vid2vid can be downloaded from here: https://github.com/NVIDIA/vid2vid
-Train example:
+
+Train:
 ```
 python train.py --name xx --dataroot datasets/xx --dataset_mode pose --input_nc 3
 --openpose_only --num_D 2 --resize_or_crop randomScaleHeight_and_scaledCrop
