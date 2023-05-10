@@ -112,7 +112,7 @@ English Phoneme / Chinese Pinyin model:
 
 1.1 Video recording:
 
-Invite models to read all phoneme or pinyin, you can refer to prompts.docx or all_pinyin.txt. Pause 0.5 second between each pronunciation. Use the camera to record 1280x720 video.
+Read prompts cover all phonemes or pinyin, please refer to prompts.docx for phoneme or all_pinyin.txt for pinyin under ./prompts folder. Pause 0.5 second between each pronunciation. Use the camera to record at least 1280x720 video.
 
 1.2 Phoneme-Mouth/ Pinyin-Mouth Shape Dictionary: 
 
