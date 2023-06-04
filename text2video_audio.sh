@@ -34,7 +34,7 @@ python interp_landmarks_motion_phoneme_VidTIMIT_smooth.py "$1" $2
 # python interp_landmarks_motion.py $1 $2
 # python interp_landmarks_motion_phoneme.py "$1" $2
 
-cd ../vid2vid
+cd ../vid2vid/
 
 rm -f results/$2/test_latest/tmp/*
 rm -f results/$2/test_latest/tmp_smooth/*
